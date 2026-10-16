@@ -130,7 +130,7 @@ def register_assistance(app, store, jobs, project, public, owned_path):
         return public(store.get(identifier))
 
     def prepare_3d(selected, parent):
-        binding = source_binding(parent, project)
+        binding = source_binding(parent, project, store.root/'uploads')
         if not binding:
             store.fields(selected['id'], three_d_reason='这张单独上传的照片没有关联的多视角重建数据；请使用已有模型参考照片，或先导入环绕视频完成重建')
             return

@@ -4,6 +4,7 @@ import shutil
 
 from fastapi.testclient import TestClient
 from PIL import Image
+import pytest
 
 from food3d.io import read_json, write_json
 from pansense.api import create_app
@@ -76,17 +77,23 @@ def test_demo_assistance_preserves_geometry_binding_and_auto_queues_fusion(tmp_p
         assert (bundle/'gaussians.npz').read_bytes()==b'original geometry'
 
 
-def test_video_refinement_reads_reference_photo_instead_of_mp4(tmp_path):
-    photo,bundle=model_scene(tmp_path)
+@pytest.mark.parametrize('custom_storage',[False,True])
+def test_video_refinement_reads_reference_photo_instead_of_mp4(tmp_path,custom_storage):
+    storage=tmp_path/'.cache/app-preview' if custom_storage else tmp_path/'data/app'
+    photo,bundle=model_scene(storage/'uploads/model' if custom_storage else tmp_path)
     (tmp_path/'app/web').mkdir(parents=True)
     for relative in ['app/catalog/foods.json','configs/pansense.yaml']:
         target=tmp_path/relative;target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(Path.cwd()/relative,target)
-    with TestClient(create_app(tmp_path,tmp_path/'data/app',jobs_enabled=False)) as client:
+    with TestClient(create_app(tmp_path,storage,jobs_enabled=False)) as client:
         store=client.app.state.store
-        video=tmp_path/'data/video.mp4';video.write_bytes(b'video bytes are not a JPEG')
+        video=storage/'video.mp4';video.write_bytes(b'video bytes are not a JPEG')
         meal=store.create('video',source_photo=str(photo),input_file=str(video),bundle_ref=str(bundle))
-        assert source_binding(meal,tmp_path)['reference_frame']=='view17'
+        assert source_binding(meal,tmp_path,storage/'uploads')['reference_frame']=='view17'
+        if custom_storage:
+            assert source_binding(meal,tmp_path) is None
+        public=client.get('/api/meals/'+meal['id']).json()
+        assert public['can_refine_semantics'] and public['reconstruction_available']
         response=client.post(f"/api/meals/{meal['id']}/recognize",json={'revision':meal['revision'],
             'assistance':{'mode':'manual','instances':[{'name':'物品','point':[.5,.5]}]}})
         assert response.status_code==200,response.text

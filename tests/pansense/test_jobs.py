@@ -5,6 +5,31 @@ from pansense.jobs import Jobs
 from pansense.nutrition import Catalog
 from pansense.store import Store
 
+
+def test_photo_without_segmentation_keeps_image_and_never_runs_models(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+    from pansense.api import create_app
+    from PIL import Image
+    from io import BytesIO
+    import json
+
+    with TestClient(create_app(Path.cwd(),tmp_path,jobs_enabled=False)) as client:
+        stream=BytesIO();Image.new('RGB',(80,60),'orange').save(stream,format='PNG')
+        response=client.post('/api/meals/upload',files={'file':('meal.png',stream.getvalue(),'image/png')},
+            data={'assistance':json.dumps({'mode':'none'})})
+        assert response.status_code==201,response.text
+        meal=response.json();jobs=client.app.state.jobs
+        def unexpected(*args,**kwargs): raise AssertionError('No model or GPU work expected')
+        monkeypatch.setattr(jobs,'command',unexpected)
+        monkeypatch.setattr(jobs,'release_gpu',unexpected)
+        jobs.run(meal['id'],'photo',Path(client.app.state.store.get(meal['id'])['input_file']))
+        ready=client.get('/api/meals/'+meal['id']).json()
+        assert ready['analysis']['status']=='ready' and not ready['analysis']['error']
+        assert ready['semantic_summary']=={'mode':'none','instance_count':0}
+        assert not ready['items'] and ready['semantic_overlay_url'] is None
+        assert client.get(ready['photo_url']).status_code==200
+        assert not ready.get('three_d_analysis')
+
 def test_cancel_waits_for_running_worker_before_assets_are_deleted(tmp_path, monkeypatch):
     import time
     store=Store(tmp_path,Catalog(Path('app/catalog/foods.json')))

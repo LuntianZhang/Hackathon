@@ -57,14 +57,15 @@ class Views:
                 self.renderer, self.bundle = GaussianRenderer(bundle), bundle
             renderer = self.renderer
             _, cameras = load_scene(bundle/'scene.json')
-            valid = (renderer.semantic_ids > 0) & (renderer.semantic_ids != UNKNOWN_ID)
-            pivot = np.median(renderer.model.means[valid], axis=0)
+            valid = (renderer.semantic_ids > 0) & (renderer.semantic_ids != UNKNOWN_ID) if renderer.semantic_ids is not None else np.zeros(len(renderer.model.means),dtype=bool)
+            pivot = np.median(renderer.model.means[valid] if np.any(valid) else renderer.model.means, axis=0)
             if base_token:
                 previous = self.entry(base_token, meal['id'])
                 base = previous['base_camera']
                 camera = drag_camera(base, pivot, yaw, pitch, zoom)
             else:
-                reference = read_json(bundle/'semantics/instances.json').get('reference_frame')
+                instances = bundle/'semantics/instances.json'
+                reference = read_json(instances).get('reference_frame') if instances.is_file() else None
                 base = resize_camera(next((cam for cam in cameras if cam.frame_id == (frame_id or reference)), cameras[0]), 640)
                 camera = base
             selected = next((item['instance_id'] for item in meal['items'] if item['id'] == food_id), 0) or 0
@@ -86,6 +87,8 @@ class Views:
 
     def pick(self, meal, token, x, y):
         entry = self.entry(token, meal['id'])
+        if meal.get('assistance',{}).get('mode') == 'none':
+            return {'food_id':None,'message':'本餐未使用语义分割，请在食物清单中查看或补充食物'}
         camera = entry['camera']
         px = min(camera.width-1, int(x*camera.width))
         py = min(camera.height-1, int(y*camera.height))

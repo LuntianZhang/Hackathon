@@ -53,18 +53,18 @@ def register_meal_semantics(app, store, jobs, project, public, owned_path):
         original = store.get(identifier)
         if original['revision'] != body.revision:
             raise ConflictError('餐食已更新，请刷新后再调整识别')
-        binding = source_binding(original, project)
+        binding = source_binding(original, project, store.root/'uploads')
         if not binding and (original['source_kind'] != 'photo' or not original.get('input_file')):
             raise ValueError('这餐缺少可重新识别的原始照片，请重新导入照片')
         photo_input=original.get('input_file') if original['source_kind']=='photo' else None
         source = Path(photo_input or original.get('source_photo') or '').resolve() if binding else owned_path(original['input_file'])
         if not source.is_file(): raise ValueError('原照片已不可用，请重新导入')
-        options = validate_assistance(body.assistance,list(store.catalog.foods.values()))
+        options = validate_assistance(body.assistance,list(store.catalog.foods.values()), allow_none=True)
         # A new draft keeps the saved meal, manual corrections and its 3D
         # semantics intact until the user chooses and saves the new result.
         value = store.create('photo',title='这一餐 · 重新识别',assistance=options,
             recognition_parent_id=identifier,source_sha256=binding['source_sha256'] if binding else original.get('source_sha256'),
-            reconstruction_binding=binding,semantic_auto_3d=bool(binding))
+            reconstruction_binding=binding,semantic_auto_3d=bool(binding) and options['mode']!='none')
         folder = owned_path(store.root/'uploads'/value['id']);folder.mkdir(parents=True)
         try:
             destination=folder/'source.jpg'
@@ -129,7 +129,7 @@ def register_meal_semantics(app, store, jobs, project, public, owned_path):
             return public(value)
         if value['analysis']['status'] != 'ready' or not value['items']:
             raise ValueError('请先完成食物识别并核对食物区域')
-        binding = source_binding(value, project)
+        binding = source_binding(value, project, store.root/'uploads')
         if not binding:
             raise ValueError('这张照片尚未关联多视角重建，请先导入环绕视频，或使用已有模型的参考照片')
         jobs.submit_3d(identifier, binding)

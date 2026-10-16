@@ -48,14 +48,18 @@ def parse_foods(text: str, catalog: list[dict] = ()) -> list[dict]:
     return foods
 
 
-def validate_assistance(value: dict | None, catalog: list[dict] = ()) -> dict:
+def validate_assistance(value: dict | None, catalog: list[dict] = (), *, allow_none=False) -> dict:
     if value is None:
         return {'mode': 'auto', 'foods': [], 'instances': []}
     if not isinstance(value, dict) or set(value) - {'mode', 'food_text', 'foods', 'instances'}:
         raise ValueError('辅助识别配置格式不正确')
     mode = value.get('mode', 'list')
-    if mode not in {'auto', 'list', 'grounded', 'manual'}:
+    if mode not in {'auto', 'list', 'grounded', 'manual'} and not (allow_none and mode == 'none'):
         raise ValueError('请选择清单辅助、文字定位或点击框选')
+    if mode == 'none':
+        if value.get('food_text') or value.get('foods') or value.get('instances'):
+            raise ValueError('不使用语义分割时无需提供食物提示或区域')
+        return {'mode': 'none', 'foods': [], 'instances': []}
     if 'food_text' in value:
         foods = parse_foods(value['food_text'], catalog)
     else:

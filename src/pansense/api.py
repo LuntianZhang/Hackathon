@@ -145,7 +145,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
             'mode': meal.get('assistance',{}).get('mode','auto'),
             'instance_count':len([item for item in meal['items'] if item.get('instance_id')])}
         from .assistance_3d import source_binding
-        binding = source_binding(meal, project)
+        binding = source_binding(meal, project, root/'uploads')
         value['can_refine_semantics'] = bool(binding) or meal['source_kind']=='photo' and bool(meal.get('input_file'))
         value['reconstruction_available'] = binding is not None
         value['semantic_targets_3d'] = binding is not None
@@ -239,7 +239,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         if prepare and kind != 'video': raise ValueError('仅环绕视频需要准备参考帧')
         from food3d.segmentation.hints import validate_assistance
         try:
-            options = validate_assistance(json.loads(assistance) if assistance else None, list(catalog.foods.values()))
+            options = validate_assistance(json.loads(assistance) if assistance else None, list(catalog.foods.values()), allow_none=True)
         except json.JSONDecodeError as error:
             raise ValueError('辅助识别配置不是有效 JSON') from error
         if kind == 'video' and options['mode'] == 'manual':
@@ -289,7 +289,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
     @app.post('/api/meals/{identifier}/video-start')
     def start_prepared_video(identifier: str, body: VideoStart):
         from food3d.segmentation.hints import validate_assistance
-        options = validate_assistance(body.assistance, list(catalog.foods.values()))
+        options = validate_assistance(body.assistance, list(catalog.foods.values()), allow_none=True)
         def start(value):
             if value['source_kind'] != 'video' or not value.get('prepared_video'):
                 raise ValueError('请先准备视频参考帧')

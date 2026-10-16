@@ -75,6 +75,38 @@ def test_prepare_does_not_start_recognition_and_manual_start_is_revision_checked
         assert argv[argv.index('--reference-frame')+1] == '000002'
 
 
+def test_video_without_segmentation_only_builds_geometry(tmp_path, monkeypatch):
+    with TestClient(create_app(Path.cwd(),tmp_path,jobs_enabled=False)) as client:
+        store,jobs=client.app.state.store,client.app.state.jobs
+        meal=store.create('video',assistance={'mode':'none','foods':[],'instances':[]})
+        root=tmp_path/'uploads'/meal['id'];scene=root/'prepared-scene'
+        reference_scene(scene)
+        (root/'source.mp4').write_bytes(b'video fixture')
+        store.fields(meal['id'],input_file=str(root/'source.mp4'),
+            prepared_video={'scene':str(scene),'reference_frame':'000001'})
+        response=client.post(f"/api/meals/{meal['id']}/video-start",json={
+            'revision':store.get(meal['id'])['revision'],'assistance':{'mode':'none'}})
+        assert response.status_code==200,response.text
+        work=root/'pipeline';work.mkdir()
+        calls=[]
+        def command(identifier,argv,*args,**kwargs):
+            calls.append(argv)
+            if 'food3d.reconstruction.train_worker' in argv:
+                folder=work/'training';folder.mkdir();(folder/'model.ckpt').touch()
+            elif 'export' in argv:
+                (work/'bundle').mkdir()
+            else:
+                raise AssertionError(f'Unexpected processing: {argv}')
+        monkeypatch.setattr(jobs,'command',command)
+        monkeypatch.setattr('pansense.jobs.subprocess.run',lambda *a,**k:
+            SimpleNamespace(stdout=json.dumps({'format':{'duration':'10'}})))
+        jobs.video(meal['id'],root/'source.mp4',work,work/'analysis.log')
+        ready=client.get('/api/meals/'+meal['id']).json()
+        assert ready['three_d_available'] and ready['analysis']['status']=='ready'
+        assert ready['semantic_overlay_url'] is None and not ready['items']
+        assert ready['semantic_summary']['mode']=='none' and len(calls)==2
+
+
 def test_video_start_rejects_missing_reference_invalid_regions_and_wrong_kind(tmp_path):
     with TestClient(create_app(Path.cwd(), tmp_path, jobs_enabled=False)) as client:
         store = client.app.state.store

@@ -121,6 +121,13 @@ class Jobs:
         work.mkdir(parents=True)
         log = work/'analysis.log'
         try:
+            if kind == 'photo' and self.store.get(meal_id).get('assistance',{}).get('mode') == 'none':
+                if meal_id in self.cancelled or not self.store.exists(meal_id): return
+                self.publish_items(meal_id, [], input_path,
+                    semantic_summary={'mode':'none','instance_count':0})
+                self.store.fields(meal_id, analysis={'status':'ready','stage':'照片已保留，请填写食物清单',
+                    'progress':100,'error':None}, three_d_reason='未使用语义分割，可手工填写食物清单')
+                return
             with self.gpu_lock:
                 if meal_id in self.cancelled or not self.store.exists(meal_id): return
                 self.release_gpu()
@@ -158,7 +165,7 @@ class Jobs:
             if kind == 'photo' and meal_id not in self.cancelled and self.store.exists(meal_id):
                 from .assistance_3d import source_binding
                 value = self.store.get(meal_id)
-                binding = source_binding(value, self.project)
+                binding = source_binding(value, self.project, self.store.root/'uploads')
                 if binding and value['items'] and not (value['saved_at'] and not self.store.profile()['retain_media']):
                     self.store.fields(meal_id,reconstruction_binding=binding,semantic_auto_3d=True,
                         three_d_reason='正在将本次食物分割应用到对应的三维餐盘')
@@ -206,18 +213,21 @@ class Jobs:
                 prepared_video={'scene':str(scene),'reference_frame':seed.frame_id},
                 analysis={'status':'ready','stage':'参考帧已准备好，请标记食物','progress':100,'error':None})
             return
-        self.stage(meal_id,'识别与跟踪食物',30)
         assistance = self.store.get(meal_id).get('assistance')
-        extra_args = []
-        if assistance:
-            write_json(work/'assistance.json', assistance)
-            extra_args = ['--assistance', work/'assistance.json']
-        recognition('segment','--scene',scene,'--output',seg,'--reference-frame',seed.frame_id,*extra_args)
-        instances = read_json(seg/'instances.json')['instances']
-        manual = assistance and assistance['mode']=='manual'
-        entries = [self.store.new_item(entry['name'], instance_id=entry['instance_id'], source='manual_prompt' if manual else 'automatic',
-             region={'kind':'mask','path':str(seg/'masks'/f'{seed.frame_id}.png'),'instance_id':entry['instance_id']},
-             needs_review=not manual) for entry in instances if entry['instance_id'] > 0]
+        no_semantics = assistance and assistance['mode']=='none'
+        entries = []
+        if not no_semantics:
+            self.stage(meal_id,'识别与跟踪食物',30)
+            extra_args = []
+            if assistance:
+                write_json(work/'assistance.json', assistance)
+                extra_args = ['--assistance', work/'assistance.json']
+            recognition('segment','--scene',scene,'--output',seg,'--reference-frame',seed.frame_id,*extra_args)
+            instances = read_json(seg/'instances.json')['instances']
+            manual = assistance and assistance['mode']=='manual'
+            entries = [self.store.new_item(entry['name'], instance_id=entry['instance_id'], source='manual_prompt' if manual else 'automatic',
+                 region={'kind':'mask','path':str(seg/'masks'/f'{seed.frame_id}.png'),'instance_id':entry['instance_id']},
+                 needs_review=not manual) for entry in instances if entry['instance_id'] > 0]
         self.publish_items(meal_id,entries,scene/seed.image_path,
             semantic_summary={'mode':(assistance or {}).get('mode','auto'),'instance_count':len(entries)})
         self.stage(meal_id,'生成可旋转的三维餐盘',45)
@@ -226,8 +236,15 @@ class Jobs:
             '--output',str(training),'--iterations',str(self.settings['iterations']),'--config',str(config_path)],log,progress_range=(45,78))
         checkpoint = max(training.rglob('*.ckpt'),key=lambda path:path.stat().st_mtime)
         transform = checkpoint.parent.parent/'dataparser_transforms.json'
-        self.stage(meal_id,'关联三维食物区域',80)
+        self.stage(meal_id,'导出三维餐盘' if no_semantics else '关联三维食物区域',80)
         gs('export','--checkpoint',checkpoint,'--scene',scene,'--output',bundle,'--transform',transform)
+        if no_semantics:
+            def complete_geometry(value):
+                if value['saved_at'] and not self.store.profile()['retain_media']: return
+                value.update(bundle_ref=str(bundle), analysis={'status':'ready','stage':'三维外观已完成，可手工补充食物',
+                    'progress':100,'error':None}, three_d_reason=None, quality=None)
+            self.store.mutate(meal_id,complete_geometry)
+            return
         gs('fuse','--bundle',bundle,'--segmentation',seg,'--max-views',self.settings['fusion_max_views'],'--width',self.settings['fusion_width'])
         self.stage(meal_id,'检查三维关联效果',95)
         gs('evaluate','--bundle',bundle,'--output',work/'evaluation')

@@ -1,4 +1,4 @@
-# Shared resource paths and Python environment settings. Dot-source this file.
+﻿# Shared resource paths and Python environment settings. Dot-source this file.
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $configurationPath = Join-Path $projectRoot 'configs/paths.json'
 $pathSettings = if (Test-Path -LiteralPath $configurationPath) {

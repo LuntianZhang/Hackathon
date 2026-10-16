@@ -19,20 +19,21 @@ def normalized_photo(path: Path):
     return stream.getvalue()
 
 
-def model_binding(parent, project: Path):
+def model_binding(parent, project: Path, uploads_root: Path | None = None):
     """Keep the camera/image provenance of this meal's actual reconstruction."""
     data_root = ProjectPaths(project).data_root
     saved = parent.get('reconstruction_binding') or {}
     bundle = Path(parent.get('bundle_ref') or saved.get('bundle') or '').resolve()
-    allowed = data_root
-    if not bundle.is_relative_to(allowed) or not (bundle/'model.json').is_file() or not (bundle/'scene.json').is_file():
+    allowed = [data_root] + ([uploads_root.resolve()] if uploads_root is not None else [])
+    def permitted(path): return any(path.is_relative_to(root) for root in allowed)
+    if not permitted(bundle) or not (bundle/'model.json').is_file() or not (bundle/'scene.json').is_file():
         return None
     model = read_json(bundle/'model.json')
     scene = Path(model.get('source_scene') or saved.get('scene') or '').resolve()
-    if not scene.is_relative_to(allowed) or not (scene/'scene.json').is_file(): return None
+    if not permitted(scene) or not (scene/'scene.json').is_file(): return None
     frames = read_json(bundle/'scene.json')['frames']
     source = Path((parent.get('input_file') if parent.get('source_kind') in {'photo','assist-session'} else None) or parent.get('source_photo') or parent.get('input_file') or '').resolve()
-    if not source.is_file() or not source.is_relative_to(allowed): return None
+    if not source.is_file() or not permitted(source): return None
     reference = next((f for f in frames if (bundle/f['image_path']).resolve()==source),None)
     if reference is None and saved.get('reference_frame'):
         reference = next((f for f in frames if f['frame_id']==saved['reference_frame']),None)
@@ -54,9 +55,9 @@ def model_binding(parent, project: Path):
             'source_sha256':expected,'model_sha256':model['model_sha256']}
 
 
-def source_binding(parent, project: Path):
+def source_binding(parent, project: Path, uploads_root: Path | None = None):
     data_root = ProjectPaths(project).data_root
-    binding = model_binding(parent, project)
+    binding = model_binding(parent, project, uploads_root)
     if binding: return binding
     # Compatibility for photos uploaded through the old comparison reference.
     # An explicit model binding must never silently switch to that other model.

@@ -1,4 +1,4 @@
-param([string]$RecognitionPython = '3.13', [string]$ReconstructionPython = '3.10')
+﻿param([string]$RecognitionPython = '3.13', [string]$ReconstructionPython = '3.10')
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'project_paths.ps1')
 Set-Location -LiteralPath $projectRoot

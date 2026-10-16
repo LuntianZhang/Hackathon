@@ -3,7 +3,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const state = {page:'home',profile:null,catalog:[],meals:[],drafts:[],summary:null,meal:null,selected:null,
   mode:'photo',date:null,file:null,fileUrl:null,fileKind:'photo',uploading:false,modal:null,
   view:null,viewBusy:false,viewDirty:false,imageReady:false,desired:{yaw:0,pitch:0,zoom:1},
-  drag:null,suppressUntil:0,poll:null,stream:null,offline:false,installPrompt:null,assistMode:'auto',foodText:'',
+  drag:null,suppressUntil:0,poll:null,stream:null,offline:false,installPrompt:null,assistMode:'grounded',foodText:'',
   manualRegions:[],seedName:'',seedTool:'box',seedPicture:null,seedPictureUrl:null,seedDrag:null,
   recognitionParent:null,recognitionChoices:[],viewEpoch:0,captureFlow:'photo',
   historyMealId:null,videoPrepared:null,videoPreparing:false,preparePoll:null,captureEpoch:0,seedSourceUrl:null,paperPresent:true,
@@ -109,37 +109,36 @@ function scan() {
  const reference=`<div class="stage camera-stage ${state.assistMode==='manual'&&(!video||state.seedSourceUrl)?'seed-stage':''}">${preview}</div>`;
  const edit3d=edit&&state.meal?.three_d_available;
  const viewer=edit3d?`<div class="segmented edit-preview-tabs" role="group" aria-label="餐盘查看方式"><button data-edit-preview="3d" class="${state.editPreview==='3d'?'selected':''}" aria-pressed="${state.editPreview==='3d'}">三维拖动查看</button><button data-edit-preview="reference" class="${state.editPreview==='reference'?'selected':''}" aria-pressed="${state.editPreview==='reference'}">参考图标注</button></div>${state.editPreview==='3d'?editablePlateViewer():reference}${state.editViewError?`<p class="record-note">${esc(state.editViewError)}<button class="text-btn" data-edit-preview="3d">重试三维预览 →</button></p>`:''}`:reference;
- return heading+parent+`<div class="capture-progress">${edit?'已选餐盘 → 调整识别 → 核对并保存':active?(video?'视频已选择 → 辅助识别 → 重建与融合':'照片已选择 → 可选填写名称 → 识别与核对'):(video?'选择环绕视频 → 重建与融合 → 核对并保存':'拍照 / 相册 → 识别与核对 → 保存')}</div>
+ return heading+parent+`<div class="capture-progress">${edit?'已选餐盘 → 调整识别 → 核对并保存':active?(video?'视频已选择 → 选择分割方式 → 生成三维餐盘':'照片已选择 → 选择分割方式 → 核对清单'):(video?'选择环绕视频 → 选择分割方式 → 生成三维餐盘':'拍照 / 相册 → 选择分割方式 → 核对并保存')}</div>
  ${viewer}<div class="hint-card">${icon('info')}<div>${video?'食物和标尺保持静止，缓慢环绕拍摄。放置平整的 10 × 2 cm 白色纸片，并拍到完整四角，可用于估计真实体积。':edit?(state.recognitionParent.threeD?'三维视图可拖动、缩放和点击查看现有食物。点框标注请切换到固定参考图，更新后才应用新的名称与区域。':'在原照片上重新标记和识别食物，完成后核对清单。'):'光线充足、食物分开摆放会更容易识别。照片提供二维识别结果。'}</div></div>
- ${state.file?captureAssistance():''}
- ${video&&state.file?`<section class="surface assist-input"><label class="checkbox-line"><input id="paperPresent" type="checkbox" ${state.paperPresent?'checked':''}>视频中有 10 × 2 cm 白色纸片</label><p class="estimate-note">可靠标定后显示体积；无标尺时仍可查看三维餐盘。</p></section>`:''}
+ ${captureAssistance()}
+ ${video&&state.file&&state.assistMode!=='none'?`<section class="surface assist-input"><label class="checkbox-line"><input id="paperPresent" type="checkbox" ${state.paperPresent?'checked':''}>视频中有 10 × 2 cm 白色纸片</label><p class="estimate-note">可靠标定后显示体积；无标尺时仍可查看三维餐盘。</p></section>`:''}
  <div class="buttons">${state.stream?`<button class="button primary" data-action="capture">${icon('camera')}拍下这一餐</button>`:state.file?
- `<button class="button primary" data-action="analyze" ${state.uploading||state.videoPreparing||video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?'disabled':''}>${icon('arrow')}${state.uploading?'正在接收文件…':edit?(state.recognitionParent.threeD?'分割并更新此三维餐盘':'重新识别照片'):video?'生成三维餐盘':'开始识别'}</button>${edit?'':`<button class="text-btn" data-action="reselect-capture" ${state.uploading?'disabled':''}>← 重新选择素材</button>`}`:
+ `<button class="button primary" data-action="analyze" ${state.uploading||state.videoPreparing||video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?'disabled':''}>${icon('arrow')}${state.uploading?'正在接收文件…':state.assistMode==='none'?(edit?'直接调整食物清单':video?'仅生成三维外观':'继续填写食物清单'):edit?(state.recognitionParent.threeD?'分割并更新此三维餐盘':'重新识别照片'):video?'生成三维餐盘':'开始识别'}</button>${edit?'':`<button class="text-btn" data-action="reselect-capture" ${state.uploading?'disabled':''}>← 重新选择素材</button>`}`:
  video?`<button class="button primary" data-action="upload-video">${icon('image')}拍摄 / 导入环绕视频</button>`:`<button class="button primary" data-action="camera">${icon('camera')}拍一张照片</button><button class="button ghost" data-action="upload-photo">${icon('image')}从相册选择</button>`}</div>
  ${!active&&!edit?'<button class="text-btn" data-action="manual">直接手工记录</button>':''}
  <p class="estimate-note">${edit?'确认保存后生成新的餐食记录，原餐食保留。':video?'视频限 3 秒至 3 分钟、240 MB，三维处理需要数分钟。':'照片最多 20 MB。'}内容仅发送到本机分析服务。</p>
  <details class="capture-extras"><summary>示例与识别对比工具</summary><div class="semantic-entry"><button class="text-btn" data-action="semantic-reference">参考照片识别</button><button class="text-btn" data-action="recognition-results">导入已有识别结果</button><button class="text-btn" data-action="demo">已有三维示例</button><a class="text-btn" href="/recognition.html">识别对比页 →</a></div></details>`;
 }
 function historyPlates(){
- const meals=[...state.meals,...state.drafts].filter(m=>m.reconstruction_available&&m.can_refine_semantics&&m.photo_url);
+ const meals=[...state.meals,...state.drafts].sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
  const selected=meals.find(m=>m.id===state.historyMealId);
  const ready=selected&&state.meal?.id===selected.id;
  const preview=ready&&state.meal.three_d_available?`<h2 class="section-head">${esc(state.meal.title)}</h2>${state.editViewError?`<p class="record-note">${esc(state.editViewError)}<button class="text-btn" data-edit-preview="3d">重试三维预览 →</button></p>`:editablePlateViewer()}`:'';
- return `<h2 class="section-head">选择历史餐盘</h2><p class="estimate-note">选择后可直接拖动查看三维餐盘，或查看原有营养，无需更新识别。</p><div class="capture-history" role="group" aria-label="历史三维餐盘">${meals.length?meals.map(m=>`<button class="history-plate ${selected?.id===m.id?'active':''}" data-history-meal="${m.id}" aria-pressed="${selected?.id===m.id}"><img src="${m.photo_url}" alt="" loading="lazy"><span><strong>${esc(m.title)}</strong><small>${dateLabel(m.occurred_at)} ${timeLabel(m.occurred_at)} · ${m.saved_at?'已保存':'草稿'}</small><small>${esc(m.items.map(i=>i.name).join('、')||'等待识别')}</small></span><b aria-hidden="true">${selected?.id===m.id?'✓':'○'}</b></button>`).join(''):'<div class="empty">还没有可调整的三维餐盘。<br>先用环绕视频生成三维记录，或到日记查看已有餐食。</div>'}</div>${preview}<button class="button ghost" data-action="existing-nutrition" ${ready?'':'disabled'}>不更新，直接查看这一餐营养</button><button class="button primary" data-action="edit-history" ${ready?'':'disabled'}>调整选中的餐盘</button><button class="text-btn" data-page="diary">查看全部餐食日记 →</button>`;
+ return `<h2 class="section-head">选择历史餐盘 <small class="muted tiny">${meals.length} 条记录</small></h2><p class="estimate-note">已保存的餐食与未保存草稿都在这里。选择餐盘后可调整食物，或查看原有营养。</p><div class="capture-history" role="group" aria-label="历史餐盘">${meals.length?meals.map(m=>`<button class="history-plate ${selected?.id===m.id?'active':''}" data-history-meal="${m.id}" aria-pressed="${selected?.id===m.id}">${m.photo_url?`<img src="${m.photo_url}" alt="" loading="lazy">`:'<span class="history-placeholder" aria-hidden="true">🍽️</span>'}<span><strong>${esc(m.title)}</strong><small>${dateLabel(m.occurred_at)} ${timeLabel(m.occurred_at)} · ${m.saved_at?'已保存':'草稿'} · ${m.three_d_available?'三维餐盘':m.photo_url?'照片餐盘':'手工记录'}</small><small>${esc(m.items.map(i=>i.name).join('、')||'等待识别')}</small><small>${m.can_refine_semantics&&m.photo_url?'可重新分割与识别':'可调整食物名称与清单'}</small></span><b aria-hidden="true">${selected?.id===m.id?'✓':'○'}</b></button>`).join(''):'<div class="empty">还没有历史餐盘。<br>拍照、导入视频或手工记录后，会自动出现在这里。</div>'}</div>${preview}${ready&&!state.meal.can_refine_semantics?'<p class="estimate-note">这份记录暂时缺少重新分割所需的原始素材，仍可调整食物名称与清单。</p>':''}<button class="button ghost" data-action="existing-nutrition" ${ready?'':'disabled'}>不更新，直接查看这一餐营养</button><button class="button primary" data-action="edit-history" ${ready?'':'disabled'}>${ready&&!(state.meal.can_refine_semantics&&state.meal.photo_url)?'调整食物名称与清单':'调整选中的餐盘'}</button><button class="text-btn" data-page="diary">查看全部餐食日记 →</button>`;
 }
 function editablePlateViewer(){return mealImage(true)+`<button class="text-btn" data-action="reset-view">恢复拍摄视角</button>`+selectedCard();}
 function captureMealActive(){return state.page==='scan'&&state.captureFlow==='edit'&&state.meal?.id===(state.recognitionParent?.id||state.historyMealId);}
 function viewActive(){return state.meal?.three_d_available&&(state.page==='plate'||state.page==='result'&&state.mode==='3d'||captureMealActive()&&state.editPreview==='3d');}
 function captureAssistance(){
  const video=state.captureFlow==='video',edit=state.captureFlow==='edit';
- const options=[['list','食物清单','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选','在参考照片中逐个指定食物名称与区域。'],['auto','不使用辅助','直接自动分割并识别，结果仍需核对。']];
- if(!video&&!edit)return `<section class="surface assist-input"><label for="foodHints">已知有哪些食物？ <small>可选</small></label><textarea id="foodHints" rows="2" placeholder="苹果、香蕉、面包">${esc(state.foodText)}</textarea><p class="estimate-note">填写后按名称辅助定位，留空自动识别。自定义名称可写成“中文名称|English name”。</p></section>`;
- return `<section class="surface assist-input"><label>辅助识别方式 <small>四种方式任选一种</small></label><div class="capture-assist-modes" role="group" aria-label="辅助识别方式">${options.map(([id,label])=>`<button data-capture-assist="${id}" aria-pressed="${state.assistMode===id}" class="${state.assistMode===id?'active':''}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div><p class="estimate-note">${options.find(([id])=>id===state.assistMode)[2]}</p>
+ const options=[['list','食物清单分割','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位分割','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选分割','在参考照片中逐个指定食物名称与区域。'],['none','不使用语义分割',video?'只重建三维外观，不识别食物区域；食物清单可手工补充。':edit?'保留原餐盘，直接调整食物名称与清单，不重新分割。':'保留原始照片，手工填写食物清单，不运行分割模型。']];
+ return `<section class="surface assist-input"><label>食物语义识别 <small>三种分割方式，或不使用语义分割</small></label><div class="capture-assist-modes" role="group" aria-label="食物分割方式">${options.map(([id,label])=>`<button data-capture-assist="${id}" aria-pressed="${state.assistMode===id}" class="${state.assistMode===id?'active':''}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div><p class="estimate-note">${options.find(([id])=>id===state.assistMode)?.[2]||'请选择食物分割方式。'}</p>
  ${['list','grounded'].includes(state.assistMode)?`<label for="foodHints">${state.assistMode==='list'?'可能有哪些食物？':'希望定位哪些食物？'}</label><textarea id="foodHints" rows="2" placeholder="苹果、香蕉、面包">${esc(state.foodText)}</textarea><p class="estimate-note">自定义名称可写成“中文名称|English name”。</p>`:''}
- ${video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?`<p class="estimate-note">先关联视频相机，取得与三维融合一致的参考帧，再点击或框选食物。此步骤需要一些时间。</p><button class="button ghost" data-action="prepare-video" ${state.uploading||state.videoPreparing?'disabled':''}>${state.videoPreparing?'正在准备参考帧…':state.videoPrepared?'重新准备参考帧':'准备标注参考帧'}</button>`:''}
+ ${video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?state.file?`<p class="estimate-note">先关联视频相机，取得与三维融合一致的参考帧，再点击或框选食物。此步骤需要一些时间。</p><button class="button ghost" data-action="prepare-video" ${state.uploading||state.videoPreparing?'disabled':''}>${state.videoPreparing?'正在准备参考帧…':state.videoPrepared?'重新准备参考帧':'准备标注参考帧'}</button>`:'<p class="estimate-note">请先选择环绕视频，再准备标注参考帧。</p>':''}
  ${state.videoPreparing?`<p class="record-note" role="status">${esc(state.videoPreparedStatus||'正在准备视频参考帧')}</p>`:''}
- ${state.assistMode==='manual'&&(!video||state.videoPrepared?.video_reference_ready)?edit&&state.meal?.three_d_available&&state.editPreview==='3d'?'<p class="estimate-note">请在固定参考图中标记食物，已有标记会保留。</p><button class="button ghost" data-edit-preview="reference">切换到参考图标注</button>':manualSeedControls():''}
- ${edit?`<p class="estimate-note">${state.recognitionParent.threeD?'本次分割会传播到其他视角，并更新当前模型的语义版本，无需重新训练几何。':'本次识别生成新草稿，确认后保存。'}</p>`:''}</section>`;
+ ${state.assistMode==='manual'&&(!video||state.videoPrepared?.video_reference_ready)?!state.file?'<p class="estimate-note">请先选择照片，再点击或框选食物。</p>':edit&&state.meal?.three_d_available&&state.editPreview==='3d'?'<p class="estimate-note">请在固定参考图中标记食物，已有标记会保留。</p><button class="button ghost" data-edit-preview="reference">切换到参考图标注</button>':manualSeedControls():''}
+ ${edit&&state.assistMode!=='none'?`<p class="estimate-note">${state.recognitionParent.threeD?'本次分割会传播到其他视角，并更新当前模型的语义版本，无需重新训练几何。':'本次识别生成新草稿，确认后保存。'}</p>`:''}</section>`;
 }
 function manualSeedControls(){
  return `<div class="seed-controls"><label for="seedName">当前食物名称</label><input id="seedName" maxlength="80" value="${esc(state.seedName)}" placeholder="输入名称或选择历史食物" list="seedFoodNames" autocomplete="off"><datalist id="seedFoodNames">${historyFoodOptions()}</datalist><p class="estimate-note">${historyFoodNames().length?'候选来自已保存的历史餐食，也可以直接输入新名称。':'还没有历史食物，可以直接输入新名称。'}</p>
@@ -195,11 +194,11 @@ function volumePanel(){
  return `<section class="surface semantic-summary"><strong>体积估计</strong><p>${value.status==='calibrated'?(value.scale_source==='white_paper_rectangle_multiview'?`已用 ${value.paper_length_cm} × ${value.paper_width_cm} cm 白色纸片标定，${value.reference_views} 个视角通过校验。点击三维物体查看约多少 mL。`:'已用手工实测尺寸标定。点击三维物体查看约多少 mL。'):'未获得可靠的纸片尺度，暂不显示 mL。请保持纸片平整、静止，拍到完整四角及多个角度。'}</p><p class="estimate-note">凸包包围体积会包含凹陷空隙，遮挡或缺失表面也会造成误差；营养仍按参考份量计算。</p>${value.reference_image_url?'<button class="text-btn" data-action="paper-reference">查看纸片识别</button>':''}</section>`;
 }
 function semanticPanel(){
- const meal=state.meal,summary=meal.semantic_summary||{},labels={auto:'自动分割识别',list:'食物清单辅助',grounded:'名称定位分割',manual:'点击 / 框选命名'};
+ const meal=state.meal,summary=meal.semantic_summary||{},labels={auto:'自动分割识别',list:'食物清单辅助',grounded:'名称定位分割',manual:'点击 / 框选命名',none:'不使用语义分割'};
  if(!meal.photo_url||meal.source_kind==='manual')return '';
  const count=meal.items.filter(i=>i.instance_id).length,active=['queued','running'].includes(meal.three_d_analysis?.status);
- return `<section class="surface semantic-summary"><div class="row"><strong>食物语义识别</strong><span class="nutri-tag">${labels[summary.mode]||'食物实例'}</span></div>
- <p>${count?`${count} 个独立食物区域，点击图片或清单核对名称。`:'正在准备食物区域；识别完成后可点击核对。'}</p>
+ return `<section class="surface semantic-summary"><div class="row">${meal.can_refine_semantics?'<button class="text-btn" data-action="refine-semantics">食物语义识别 →</button>':'<strong>食物语义识别</strong>'}<span class="nutri-tag">${labels[summary.mode]||'食物实例'}</span></div>
+ <p>${summary.mode==='none'?'本餐未使用语义分割，可手工补充或修改食物清单。':count?`${count} 个独立食物区域，点击图片或清单核对名称。`:'正在准备食物区域；识别完成后可点击核对。'}</p>
  ${summary.missing_hints?.length?`<p class="estimate-note">未可靠识别：${esc(summary.missing_hints.join('、'))}。可重新标注补充。</p>`:''}
  <div class="semantic-actions">${meal.can_refine_semantics?`<button class="text-btn" data-action="refine-semantics">${meal.semantic_targets_3d?'输入食物，辅助此三维餐盘':'调整识别 / 重新标注'}</button>`:''}
  ${meal.three_d_available?'<button class="text-btn" data-page="plate">查看语义三维餐盘 →</button>':meal.reconstruction_available&&count&&!active?'<button class="text-btn" data-action="semantic-3d">生成三维食物关联 →</button>':''}</div>
@@ -340,7 +339,7 @@ function pollMeal() {
 }
 
 // Interaction handlers and camera updates are declared below.
-let lastViewSent=0,viewTimer=null,pendingViewReset=false;
+let lastViewSent=0,viewTimer=null,pendingViewReset=false,viewInFlight=false;
 function resetViewer(){
  state.viewEpoch++;clearTimeout(viewTimer);viewTimer=null;pendingViewReset=false;
  state.view=null;state.viewBusy=false;state.viewDirty=false;state.imageReady=false;state.drag=null;
@@ -349,10 +348,10 @@ function resetViewer(){
 async function requestView(reset=false) {
  if(!viewActive())return;
  if(reset)pendingViewReset=true;
- if(state.viewBusy){state.viewDirty=true;return;}
+ if(viewInFlight){state.viewDirty=true;return;}
  const id=state.meal.id,epoch=state.viewEpoch,resetNow=pendingViewReset;pendingViewReset=false;
  const requested={...state.desired};const food=state.selected;
- state.viewBusy=true;state.viewDirty=false;lastViewSent=performance.now();
+ viewInFlight=true;state.viewBusy=true;state.viewDirty=false;lastViewSent=performance.now();
  if($('viewStatus'))$('viewStatus').textContent='更新视角…';
  try {
   const body=resetNow?{food_id:food}:{base_token:state.view?.token,...requested,food_id:food};
@@ -371,9 +370,10 @@ async function requestView(reset=false) {
    render(true);toast(error.message);
   }
  }finally{
+  viewInFlight=false;
   if(state.viewEpoch===epoch){state.viewBusy=false;
-   if($('viewStatus'))$('viewStatus').textContent='';
-   if(state.viewDirty)scheduleView();}
+   if($('viewStatus'))$('viewStatus').textContent='';}
+  if(state.viewDirty&&viewActive())scheduleView();
  }
 }
 function scheduleView() {
@@ -463,9 +463,11 @@ async function chooseFile(file,kind) {
  if(!file)return;
  const limit=(kind==='photo'?20:240)*1024*1024;
  if(file.size>limit){toast(kind==='photo'?'照片请小于 20 MB':'视频请小于 240 MB');return;}
+ const assistance=state.assistMode,foodText=state.foodText;
+ const sameFlow=state.captureFlow===(kind==='video'?'video':'photo');
  resetCapture();
  state.captureFlow=kind==='video'?'video':'photo';
- state.assistMode=kind==='video'?'grounded':'auto';
+ state.assistMode=sameFlow?assistance:'grounded';state.foodText=sameFlow?foodText:'';
  state.file=file;state.fileKind=kind;state.fileUrl=URL.createObjectURL(file);state.page='scan';render();
 }
 function resetCapture(){
@@ -484,7 +486,7 @@ async function refineMeal(id){
  state.captureFlow='edit';state.historyMealId=parent.id;
  state.meal=parent;state.editPreview=parent.three_d_available?'3d':'reference';
  state.recognitionParent={id:parent.id,revision:parent.revision,threeD:parent.semantic_targets_3d,title:parent.title};
- state.assistMode=parent.semantic_targets_3d&&['manual','list','grounded'].includes(parent.assistance?.mode)?parent.assistance.mode:parent.semantic_targets_3d?'grounded':'manual';
+ state.assistMode=['manual','list','grounded','none'].includes(parent.assistance?.mode)?parent.assistance.mode:'grounded';
  state.foodText=parent.assistance?.foods?.length?parent.assistance.foods.map(f=>`${f.name}|${f.text}`).join('、'):parent.items.map(i=>i.name).join('、');
  state.manualRegions=parent.assistance?.mode==='manual'?parent.assistance.instances.map(r=>({...r})):[];
  history.pushState(null,'','#scan');render();
@@ -535,7 +537,9 @@ async function capture() {
 }
 async function analyze() {
  if(!state.file||state.uploading)return;
- if(state.captureFlow==='photo')state.assistMode=state.foodText.trim()?'grounded':'auto';
+ if(state.recognitionParent&&state.assistMode==='none'){
+  const id=state.recognitionParent.id;state.nutritionReturnMealId=id;await openMeal(id);return;
+ }
  if(state.fileKind==='video'&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready){toast('请先准备视频标注参考帧');return;}
  if(state.videoPrepared&&!state.videoPrepared.video_reference_ready){toast('参考帧尚未准备好，请重试准备或重新选择视频');return;}
  if(state.assistMode==='manual'&&!state.manualRegions.length){toast('请先填写名称并在照片上点击或框选食物');return;}
@@ -575,7 +579,11 @@ async function action(name){
   case 'recognition-results':state.recognitionChoices=(await api('/recognition/results')).results;openModal({kind:'recognition-results'});break;
   case 'semantic-3d':state.meal=await api(`/meals/${state.meal.id}/semantic-3d`,{method:'POST'});render(true);pollMeal();break;
   case 'history-plates':resetCapture();state.captureFlow='edit';await refreshRecords();render();break;
-  case 'edit-history':if(state.historyMealId)await refineMeal(state.historyMealId);break;
+  case 'edit-history':if(state.historyMealId){
+   const meal=await api(`/meals/${state.historyMealId}`);
+   if(meal.can_refine_semantics&&meal.photo_url)await refineMeal(meal.id);
+   else{state.nutritionReturnMealId=meal.id;await openMeal(meal.id);}
+  }break;
   case 'existing-nutrition':{
    const id=state.recognitionParent?.id||state.historyMealId;if(!id)return;
    state.nutritionReturnMealId=id;await openMeal(id);
@@ -641,7 +649,7 @@ document.addEventListener('click',async event=>{
   if(button.dataset.captureFlow){
    if(state.uploading)return;
    resetCapture();state.captureFlow=button.dataset.captureFlow;state.fileKind=state.captureFlow==='video'?'video':'photo';
-   state.assistMode=state.captureFlow==='video'?'grounded':'auto';state.historyMealId=null;
+   state.assistMode='grounded';state.historyMealId=null;
    if(state.captureFlow==='edit')await refreshRecords();render();return;
   }
   if(button.dataset.editPreview){state.editPreview=button.dataset.editPreview;state.editViewError=null;render(true);return;}
