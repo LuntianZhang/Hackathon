@@ -1,0 +1,9 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>食物三维模型 · 拖拽查看</title><link rel="stylesheet" href="/recognition.css"><style>
+main{max-width:1080px}.model-shell{background:#edf0e7;border-radius:18px;overflow:hidden;position:relative;min-height:240px;display:grid;place-items:center}#modelImage{width:100%;display:block;touch-action:none;user-select:none;cursor:grab;min-height:200px}.model-shell.dragging #modelImage{cursor:grabbing}.model-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0}.model-controls select{max-width:100%}#selection{font-size:19px;font-weight:600}.food-chips{display:flex;gap:10px;flex-wrap:wrap}.food-chips button.selected{background:#52764a;color:white}#modelStatus{font-size:13px;color:#708167}#modelImage[hidden]{display:none}
+</style></head><body><main><header><a id="back" href="/recognition.html">← 返回识别对比</a><span>真实高斯渲染 · 三维实例点击</span></header>
+<div class="eyebrow">EXPLORE YOUR FOOD IN 3D</div><h1>拖动看看，这一餐。</h1><p class="intro">按住画面拖动旋转，滚轮或按钮缩放。轻点食物查看名称，换视角后保持同一个实例。</p>
+<section class="surface"><div class="model-shell" id="modelShell"><img id="modelImage" alt="可拖拽的三维食物模型" draggable="false" hidden><span id="loading">正在读取模型状态…</span></div>
+<div class="model-controls"><button class="button secondary" id="resetView">恢复拍摄视角</button><button class="button secondary" id="zoomIn" aria-label="放大">＋ 放大</button><button class="button secondary" id="zoomOut" aria-label="缩小">－ 缩小</button><select id="camera" aria-label="拍摄视角"></select></div>
+<p id="selection" aria-live="polite">点击食物查看 Instance ID 和名称</p><p id="modelStatus" role="status">加载中…</p><div class="food-chips" id="foods"></div></section>
+<p class="muted">本页显示选定分割结果经过多视角传播、可见性投票后关联的三维高斯。名称沿用你的选择；未观察到的表面和证据不足区域可能无法点击。</p>
+</main><script src="/model.js?v=continuous-drag-2"></script></body></html>

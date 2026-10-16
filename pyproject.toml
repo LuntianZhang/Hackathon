@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "food3d-poc"
+version = "0.1.0"
+description = "A staged food instance and Gaussian splatting proof of concept"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24,<3", "Pillow>=10", "PyYAML>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+sfm = ["pycolmap>=3.12", "opencv-python-headless>=4.10"]
+recognition = ["open_clip_torch"]
+grounding = ["transformers>=4.44,<6", "huggingface_hub>=0.25", "safetensors>=0.4"]
+viewer = ["gradio>=5,<6", "scipy>=1.10"]
+measurement = ["scipy>=1.10"]
+app = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "python-multipart>=0.0.18", "httpx>=0.27", "tzdata>=2024.1"]
+
+[project.scripts]
+food3d = "food3d.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+food3d = ["viewer/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

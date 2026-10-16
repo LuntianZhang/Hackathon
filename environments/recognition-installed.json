@@ -1,0 +1,778 @@
+[
+  {
+    "name": "absl-py",
+    "version": "2.4.0"
+  },
+  {
+    "name": "aiofiles",
+    "version": "24.1.0"
+  },
+  {
+    "name": "akshare",
+    "version": "1.18.64"
+  },
+  {
+    "name": "annotated-doc",
+    "version": "0.0.5"
+  },
+  {
+    "name": "annotated-types",
+    "version": "0.7.0"
+  },
+  {
+    "name": "antlr4-python3-runtime",
+    "version": "4.9.3"
+  },
+  {
+    "name": "anyio",
+    "version": "4.13.0"
+  },
+  {
+    "name": "asttokens",
+    "version": "3.0.1"
+  },
+  {
+    "name": "audioop-lts",
+    "version": "0.2.2"
+  },
+  {
+    "name": "beautifulsoup4",
+    "version": "4.15.0"
+  },
+  {
+    "name": "brotli",
+    "version": "1.2.0"
+  },
+  {
+    "name": "bs4",
+    "version": "0.0.2"
+  },
+  {
+    "name": "certifi",
+    "version": "2026.2.25"
+  },
+  {
+    "name": "cffi",
+    "version": "2.0.0"
+  },
+  {
+    "name": "charset-normalizer",
+    "version": "3.4.6"
+  },
+  {
+    "name": "click",
+    "version": "8.4.2"
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6"
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6"
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6"
+  },
+  {
+    "name": "comm",
+    "version": "0.2.3"
+  },
+  {
+    "name": "contourpy",
+    "version": "1.3.3"
+  },
+  {
+    "name": "control",
+    "version": "0.10.2"
+  },
+  {
+    "name": "cryptography",
+    "version": "46.0.6"
+  },
+  {
+    "name": "curl_cffi",
+    "version": "0.15.0"
+  },
+  {
+    "name": "cycler",
+    "version": "0.12.1"
+  },
+  {
+    "name": "dearpygui",
+    "version": "2.3.1"
+  },
+  {
+    "name": "debugpy",
+    "version": "1.8.20"
+  },
+  {
+    "name": "decorator",
+    "version": "5.2.1"
+  },
+  {
+    "name": "distro",
+    "version": "1.9.0"
+  },
+  {
+    "name": "et_xmlfile",
+    "version": "2.0.0"
+  },
+  {
+    "name": "executing",
+    "version": "2.2.1"
+  },
+  {
+    "name": "fastapi",
+    "version": "0.143.0"
+  },
+  {
+    "name": "ffmpy",
+    "version": "1.0.0"
+  },
+  {
+    "name": "filelock",
+    "version": "3.29.0"
+  },
+  {
+    "name": "flatbuffers",
+    "version": "25.12.19"
+  },
+  {
+    "name": "fonttools",
+    "version": "4.60.1"
+  },
+  {
+    "name": "food3d-poc",
+    "version": "0.1.0"
+  },
+  {
+    "name": "food3d-poc",
+    "version": "0.1.0"
+  },
+  {
+    "name": "fsspec",
+    "version": "2026.4.0"
+  },
+  {
+    "name": "ftfy",
+    "version": "6.3.1"
+  },
+  {
+    "name": "funcy",
+    "version": "2.0"
+  },
+  {
+    "name": "gensim",
+    "version": "4.4.0"
+  },
+  {
+    "name": "gradio",
+    "version": "5.49.1"
+  },
+  {
+    "name": "gradio_client",
+    "version": "1.13.3"
+  },
+  {
+    "name": "groovy",
+    "version": "0.1.2"
+  },
+  {
+    "name": "h11",
+    "version": "0.16.0"
+  },
+  {
+    "name": "h5py",
+    "version": "3.16.0"
+  },
+  {
+    "name": "hf-xet",
+    "version": "1.6.0"
+  },
+  {
+    "name": "html5lib",
+    "version": "1.1"
+  },
+  {
+    "name": "httpcore",
+    "version": "1.0.9"
+  },
+  {
+    "name": "httpx",
+    "version": "0.28.1"
+  },
+  {
+    "name": "huggingface_hub",
+    "version": "1.27.0"
+  },
+  {
+    "name": "hydra-core",
+    "version": "1.3.7"
+  },
+  {
+    "name": "idna",
+    "version": "3.11"
+  },
+  {
+    "name": "iniconfig",
+    "version": "2.3.1"
+  },
+  {
+    "name": "iopath",
+    "version": "0.1.10"
+  },
+  {
+    "name": "ipykernel",
+    "version": "7.2.0"
+  },
+  {
+    "name": "ipython",
+    "version": "9.12.0"
+  },
+  {
+    "name": "ipython_pygments_lexers",
+    "version": "1.1.1"
+  },
+  {
+    "name": "jedi",
+    "version": "0.19.2"
+  },
+  {
+    "name": "Jinja2",
+    "version": "3.1.6"
+  },
+  {
+    "name": "jiter",
+    "version": "0.13.0"
+  },
+  {
+    "name": "joblib",
+    "version": "1.5.3"
+  },
+  {
+    "name": "jsonpath",
+    "version": "0.82.2"
+  },
+  {
+    "name": "jupyter_client",
+    "version": "8.8.0"
+  },
+  {
+    "name": "jupyter_core",
+    "version": "5.9.1"
+  },
+  {
+    "name": "keras",
+    "version": "3.14.1"
+  },
+  {
+    "name": "kiwisolver",
+    "version": "1.4.9"
+  },
+  {
+    "name": "lxml",
+    "version": "6.1.1"
+  },
+  {
+    "name": "markdown-it-py",
+    "version": "4.2.0"
+  },
+  {
+    "name": "MarkupSafe",
+    "version": "3.0.3"
+  },
+  {
+    "name": "matplotlib",
+    "version": "3.10.7"
+  },
+  {
+    "name": "matplotlib-inline",
+    "version": "0.2.1"
+  },
+  {
+    "name": "matplotlibpyplot",
+    "version": "1.6"
+  },
+  {
+    "name": "mdurl",
+    "version": "0.1.2"
+  },
+  {
+    "name": "mini-racer",
+    "version": "0.14.1"
+  },
+  {
+    "name": "ml_dtypes",
+    "version": "0.5.4"
+  },
+  {
+    "name": "mpmath",
+    "version": "1.3.0"
+  },
+  {
+    "name": "namex",
+    "version": "0.1.0"
+  },
+  {
+    "name": "narwhals",
+    "version": "2.22.1"
+  },
+  {
+    "name": "nest-asyncio",
+    "version": "1.6.0"
+  },
+  {
+    "name": "networkx",
+    "version": "3.6.1"
+  },
+  {
+    "name": "numexpr",
+    "version": "2.14.1"
+  },
+  {
+    "name": "numpy",
+    "version": "2.5.4"
+  },
+  {
+    "name": "numpy",
+    "version": "2.3.5"
+  },
+  {
+    "name": "omegaconf",
+    "version": "2.3.1"
+  },
+  {
+    "name": "onnxruntime",
+    "version": "1.24.4"
+  },
+  {
+    "name": "open_clip_torch",
+    "version": "2.32.0"
+  },
+  {
+    "name": "openai",
+    "version": "2.30.0"
+  },
+  {
+    "name": "opencv-python-headless",
+    "version": "5.0.0.93"
+  },
+  {
+    "name": "openpyxl",
+    "version": "3.1.5"
+  },
+  {
+    "name": "opentelemetry-api",
+    "version": "1.45.1"
+  },
+  {
+    "name": "optree",
+    "version": "0.19.1"
+  },
+  {
+    "name": "orjson",
+    "version": "3.13.0"
+  },
+  {
+    "name": "packaging",
+    "version": "26.3"
+  },
+  {
+    "name": "packaging",
+    "version": "26.1"
+  },
+  {
+    "name": "packaging",
+    "version": "25.0"
+  },
+  {
+    "name": "Panda3D",
+    "version": "1.10.16"
+  },
+  {
+    "name": "panda3d-gltf",
+    "version": "1.3.0"
+  },
+  {
+    "name": "panda3d-simplepbr",
+    "version": "0.13.1"
+  },
+  {
+    "name": "pandas",
+    "version": "2.3.3"
+  },
+  {
+    "name": "pandas",
+    "version": "3.0.2"
+  },
+  {
+    "name": "parso",
+    "version": "0.8.6"
+  },
+  {
+    "name": "patsy",
+    "version": "1.0.2"
+  },
+  {
+    "name": "pd",
+    "version": "0.0.4"
+  },
+  {
+    "name": "pdfminer.six",
+    "version": "20251230"
+  },
+  {
+    "name": "pdfplumber",
+    "version": "0.11.9"
+  },
+  {
+    "name": "pillow",
+    "version": "11.3.0"
+  },
+  {
+    "name": "pillow",
+    "version": "12.0.0"
+  },
+  {
+    "name": "pip",
+    "version": "25.0.1"
+  },
+  {
+    "name": "platformdirs",
+    "version": "4.9.6"
+  },
+  {
+    "name": "pluggy",
+    "version": "1.6.0"
+  },
+  {
+    "name": "portalocker",
+    "version": "4.4.0"
+  },
+  {
+    "name": "prompt_toolkit",
+    "version": "3.0.52"
+  },
+  {
+    "name": "protobuf",
+    "version": "7.34.1"
+  },
+  {
+    "name": "psutil",
+    "version": "7.2.2"
+  },
+  {
+    "name": "pure_eval",
+    "version": "0.2.3"
+  },
+  {
+    "name": "pycolmap",
+    "version": "4.2.1"
+  },
+  {
+    "name": "pycparser",
+    "version": "3.0"
+  },
+  {
+    "name": "pydantic",
+    "version": "2.11.10"
+  },
+  {
+    "name": "pydantic",
+    "version": "2.12.5"
+  },
+  {
+    "name": "pydantic_core",
+    "version": "2.33.2"
+  },
+  {
+    "name": "pydantic_core",
+    "version": "2.41.5"
+  },
+  {
+    "name": "pydub",
+    "version": "0.25.1"
+  },
+  {
+    "name": "pygame",
+    "version": "2.6.1"
+  },
+  {
+    "name": "Pygments",
+    "version": "2.21.0"
+  },
+  {
+    "name": "Pygments",
+    "version": "2.20.0"
+  },
+  {
+    "name": "pyLDAvis",
+    "version": "3.4.1"
+  },
+  {
+    "name": "pymodbus",
+    "version": "3.13.0"
+  },
+  {
+    "name": "PyMuPDF",
+    "version": "1.27.2.2"
+  },
+  {
+    "name": "pymupdf-layout",
+    "version": "1.27.2.2"
+  },
+  {
+    "name": "pymupdf4llm",
+    "version": "1.27.2.2"
+  },
+  {
+    "name": "pyparsing",
+    "version": "3.2.5"
+  },
+  {
+    "name": "pypdfium2",
+    "version": "5.6.0"
+  },
+  {
+    "name": "pyperclip",
+    "version": "1.11.0"
+  },
+  {
+    "name": "pytest",
+    "version": "9.1.1"
+  },
+  {
+    "name": "python-dateutil",
+    "version": "2.9.0.post0"
+  },
+  {
+    "name": "python-dateutil",
+    "version": "2.9.0.post0"
+  },
+  {
+    "name": "python-multipart",
+    "version": "0.0.32"
+  },
+  {
+    "name": "pytz",
+    "version": "2026.5"
+  },
+  {
+    "name": "pywin32",
+    "version": "311"
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3"
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3"
+  },
+  {
+    "name": "pyzmq",
+    "version": "27.1.0"
+  },
+  {
+    "name": "regex",
+    "version": "2026.7.19"
+  },
+  {
+    "name": "requests",
+    "version": "2.34.2"
+  },
+  {
+    "name": "rich",
+    "version": "15.0.0"
+  },
+  {
+    "name": "ruff",
+    "version": "0.17.0"
+  },
+  {
+    "name": "safehttpx",
+    "version": "0.1.7"
+  },
+  {
+    "name": "safetensors",
+    "version": "0.8.0"
+  },
+  {
+    "name": "SAM-2",
+    "version": "1.0"
+  },
+  {
+    "name": "scikit-learn",
+    "version": "1.9.0"
+  },
+  {
+    "name": "scipy",
+    "version": "1.17.1"
+  },
+  {
+    "name": "screeninfo",
+    "version": "0.8.1"
+  },
+  {
+    "name": "semantic-version",
+    "version": "2.10.0"
+  },
+  {
+    "name": "setuptools",
+    "version": "70.2.0"
+  },
+  {
+    "name": "shellingham",
+    "version": "1.5.4"
+  },
+  {
+    "name": "simplejson",
+    "version": "4.1.1"
+  },
+  {
+    "name": "six",
+    "version": "1.17.0"
+  },
+  {
+    "name": "six",
+    "version": "1.17.0"
+  },
+  {
+    "name": "smart_open",
+    "version": "7.6.1"
+  },
+  {
+    "name": "sniffio",
+    "version": "1.3.1"
+  },
+  {
+    "name": "soupsieve",
+    "version": "2.8.4"
+  },
+  {
+    "name": "sswg",
+    "version": "4.3.0"
+  },
+  {
+    "name": "stack-data",
+    "version": "0.6.3"
+  },
+  {
+    "name": "starlette",
+    "version": "0.52.1"
+  },
+  {
+    "name": "statsmodels",
+    "version": "0.14.6"
+  },
+  {
+    "name": "sympy",
+    "version": "1.14.0"
+  },
+  {
+    "name": "tabulate",
+    "version": "0.10.0"
+  },
+  {
+    "name": "threadpoolctl",
+    "version": "3.6.0"
+  },
+  {
+    "name": "timm",
+    "version": "1.0.30"
+  },
+  {
+    "name": "tokenizers",
+    "version": "0.22.2"
+  },
+  {
+    "name": "tomlkit",
+    "version": "0.13.3"
+  },
+  {
+    "name": "torch",
+    "version": "2.11.0+cu128"
+  },
+  {
+    "name": "torchaudio",
+    "version": "2.11.0+cu128"
+  },
+  {
+    "name": "torchvision",
+    "version": "0.26.0+cu128"
+  },
+  {
+    "name": "tornado",
+    "version": "6.5.5"
+  },
+  {
+    "name": "tqdm",
+    "version": "4.67.3"
+  },
+  {
+    "name": "traitlets",
+    "version": "5.14.3"
+  },
+  {
+    "name": "transformers",
+    "version": "5.15.0"
+  },
+  {
+    "name": "tushare",
+    "version": "1.4.29"
+  },
+  {
+    "name": "typer",
+    "version": "0.27.1"
+  },
+  {
+    "name": "typing-inspection",
+    "version": "0.4.2"
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.15.0"
+  },
+  {
+    "name": "tzdata",
+    "version": "2026.1"
+  },
+  {
+    "name": "urllib3",
+    "version": "2.7.0"
+  },
+  {
+    "name": "ursina",
+    "version": "8.3.0"
+  },
+  {
+    "name": "uvicorn",
+    "version": "0.54.0"
+  },
+  {
+    "name": "wcwidth",
+    "version": "0.6.0"
+  },
+  {
+    "name": "webencodings",
+    "version": "0.5.1"
+  },
+  {
+    "name": "websocket-client",
+    "version": "1.9.0"
+  },
+  {
+    "name": "websockets",
+    "version": "15.0.1"
+  },
+  {
+    "name": "wrapt",
+    "version": "2.2.1"
+  },
+  {
+    "name": "xlrd",
+    "version": "2.0.2"
+  }
+]

@@ -1,0 +1,47 @@
+schema_version: 1
+scene_name: apple_banana_bread
+frames:
+  fps: 3.0
+  max_frames: 120
+  max_long_edge: 960
+  min_sharpness: 12.0
+  min_difference: 2.0
+  jpeg_quality: 95
+colmap:
+  backend: auto
+  executable: colmap
+  camera_model: OPENCV
+  single_camera: true
+  use_gpu: false
+  matcher: sequential
+  minimum_registered_frames: 8
+  num_threads: 8
+photos:
+  max_frames: 120
+  max_long_edge: 960
+  min_sharpness: 12.0
+  min_difference: 0.0
+  jpeg_quality: 95
+synthetic:
+  views: 12
+  width: 320
+  height: 240
+  seed: 7
+# 各模块参考值；以命令 --help 中的参数为准。
+reconstruction:
+  method: splatfacto
+  max_iterations: 7000
+segmentation:
+  model: sam2.1_hiera_small
+recognition:
+  model: ViT-B-32
+  pretrained: laion2b_s34b_b79k
+  candidates: [apple, banana, bread, table, plate, unknown]
+fusion:
+  background_id: 0
+  unknown_id: 65535
+  minimum_support_views: 3
+viewer:
+  host: 127.0.0.1
+  port: 7860
+

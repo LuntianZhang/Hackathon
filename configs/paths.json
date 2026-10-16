@@ -1,0 +1,7 @@
+{
+  "data_root": "data",
+  "cache_root": ".cache",
+  "tools_root": ".tools",
+  "recognition_env": ".venv",
+  "reconstruction_env": ".venv-gs"
+}

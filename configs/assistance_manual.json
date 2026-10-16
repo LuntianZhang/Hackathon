@@ -1,0 +1,5 @@
+{"mode":"manual","instances":[
+  {"instance_id":1,"name":"香蕉","point":[0.55,0.58]},
+  {"instance_id":2,"name":"绿色圆果（待核对）","box":[0.43,0.15,0.57,0.42]},
+  {"instance_id":3,"name":"紫色圆果（待核对）","box":[0.60,0.05,0.74,0.30]}
+]}

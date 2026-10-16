@@ -1,0 +1,17 @@
+schema_version: 1
+photos:
+  max_frames: 120
+  max_long_edge: 960
+  min_sharpness: 12.0
+  min_difference: 0.0
+  jpeg_quality: 95
+colmap:
+  backend: pycolmap
+  camera_model: PINHOLE
+  single_camera: true
+  use_gpu: false
+  matcher: exhaustive
+  guided_matching: true
+  minimum_registered_frames: 30
+  num_threads: 8
+  max_runtime_seconds: 900

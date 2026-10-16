@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8f3">
+  <meta name="description" content="盘感 PanSense：食物识别、营养估算与三维餐盘，轻松记录每一餐。">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="stylesheet" href="/prototype.css?v=meal-semantics-2">
+  <link rel="stylesheet" href="/app.css?v=capture-flow-1">
+  <title>盘感 PanSense</title>
+</head>
+<body>
+  <aside class="desktop-copy">
+    <div class="brand-line"><img class="brand-image" src="/icon.svg" alt="盘感标志">盘感 PanSense</div>
+    <div class="overline" style="margin-top:28px">YOUR EVERYDAY FOOD JOURNAL</div>
+    <h1>让每一餐，<br>都看得见。</h1>
+    <p>拍下食物，了解营养。<br>从不同角度看看餐盘，<br>把日常饮食轻松记下来。</p>
+    <div class="small-chips"><span>真实食物识别</span><span>三维餐盘</span><span>本机保存</span></div>
+    <p class="desktop-foot">估算帮助理解，记录由你确认。</p>
+  </aside>
+  <div class="app app-shell">
+    <header class="app-header"><a href="#home" class="brand-link"><img src="/icon.svg" alt="">盘感 <span>PanSense</span></a><span class="local-label">本机保存</span></header>
+    <main class="screen" id="screen" aria-label="应用页面"><div class="empty">正在打开你的饮食日记…</div></main>
+    <nav class="tabbar" id="tabbar" aria-label="底部导航"></nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+  <div id="modal"></div>
+  <input id="photoPicker" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+  <input id="cameraPicker" type="file" accept="image/*" capture="environment" hidden>
+  <input id="videoPicker" type="file" accept="video/mp4,video/quicktime" capture="environment" hidden>
+  <script type="module" src="/app.js?v=history-food-names-1"></script>
+</body>
+</html>

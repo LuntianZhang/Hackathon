@@ -1,0 +1,53 @@
+# Local environments, runtimes, and downloaded tools
+/.venv/
+/.venv-*/
+/.cache/
+/.tools/
+
+# Python build artifacts and caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+/.eggs/
+/build/
+/dist/
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local settings and logs (keep configuration templates)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.log
+
+# Local data, databases, uploads, and generated results
+# Keep directory placeholders while excluding all data files.
+/data/**/*
+!/data/**/
+!/data/**/.gitkeep
+
+# Model weights
+/weights/
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# Editor and operating system temporary files
+/.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+

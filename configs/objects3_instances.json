@@ -1,0 +1,8 @@
+{
+  "mode": "manual",
+  "instances": [
+    {"instance_id": 1, "name": "耳机盒", "point": [0.17, 0.42]},
+    {"instance_id": 2, "name": "笔", "point": [0.54, 0.39]},
+    {"instance_id": 3, "name": "手表", "point": [0.50, 0.77]}
+  ]
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>食物辅助识别 · 三种方式对比</title><link rel="stylesheet" href="/recognition.css"></head>
+<body><main>
+<header><a href="/">← 返回餐食应用</a><a href="http://127.0.0.1:7861/" target="_blank" rel="noopener">查看 30 张照片的三维模型 ↗</a></header>
+<div class="eyebrow">FOOD RECOGNITION LAB</div><h1>告诉它，你看到了什么。</h1>
+<p class="intro">同一张照片，试三种辅助方式。每次结果独立保存，最后再选你喜欢的一版。</p>
+<section class="source-bar"><label class="button secondary">上传自己的照片<input id="photoFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+<button id="example" class="button secondary">使用当前三维模型的参考照片</button><select id="sessions" aria-label="历史对比照片"><option value="">历史照片</option></select></section>
+<div class="workspace"><section class="source surface"><div class="section-label"><h2>输入照片</h2><span id="sourceNote">先选择一张照片</span></div>
+<div class="canvas-wrap"><canvas id="sourceCanvas" aria-label="食物照片：点击或拖动框选" tabindex="0"></canvas><div id="emptySource">上传照片，或使用已有参考照片。</div></div>
+<p id="gestureHelp" class="muted">图片仅作为识别输入；三维模型不会被本页修改。</p></section>
+<section class="controls surface"><h2>选择辅助方式</h2><div id="modeTabs" role="tablist">
+<button data-mode="list" role="tab" aria-selected="true" class="active">① 食物清单</button><button data-mode="grounded" role="tab" aria-selected="false">② 文字定位</button><button data-mode="manual" role="tab" aria-selected="false">③ 点击 / 框选</button></div>
+<p id="modeDescription"></p><div id="textControls"><label for="foodText">可能有哪些食物？</label><textarea id="foodText" rows="3" placeholder="例如：苹果、香蕉、面包"></textarea>
+<p class="muted">用逗号或换行分开。自定义名称可写成“紫色圆果|purple fruit”。类别不代表数量，同类对象会分别分配 ID。</p></div>
+<div id="manualControls" hidden><label for="regionName">这块食物的名称</label><input id="regionName" maxlength="80" placeholder="例如：香蕉" list="foodNames"><datalist id="foodNames"></datalist>
+<div class="tools"><label><input type="radio" name="tool" value="point" checked> 点击食物</label><label><input type="radio" name="tool" value="box"> 拖动框选</label></div>
+<p class="muted">先填写名称，再在左侧照片中标记。重复名称会产生不同 ID。触摸屏也支持拖动框选。</p><ol id="regions"></ol><button id="clearRegions" class="text-button">清空标记</button></div>
+<button id="run" class="button primary">运行这一版</button><button id="baseline" class="text-button">额外运行无提示基线，方便比较</button>
+<p id="status" role="status" aria-live="polite">等待选择照片。</p></section></div>
+<div class="section-label results-title"><h2>同图对比结果</h2><span>点击结果中的食物，查看该版本的实例名称</span></div>
+<div id="results" class="results"></div><details><summary>全部运行记录</summary><div id="history"></div></details>
+<footer>自动结果需要核对；匹配分数不是准确率。本页点击读取 SAM 2 分割掩码。选定版本后，有对应重建数据时可生成三维关联，并进入读取高斯语义的拖拽查看页面。</footer>
+</main><script src="/recognition.js?v=meal-semantics-2"></script></body></html>

@@ -1,0 +1,6 @@
+# Add to the existing reconstruction constraints; do not mix the two Torch environments.
+fastapi==0.143.0
+uvicorn==0.54.0
+pydantic==2.11.10
+httpx==0.28.1
+pytest==8.4.2

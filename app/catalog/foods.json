@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "source": "USDA SR28, revised May 2016",
+  "source_url": "https://www.ars.usda.gov/ARSUserFiles/80400525/Data/SR/SR28/dnload/sr28asc.zip",
+  "source_sha256": "8308fd1d224ef1e5331093748007180da01a7ac713cbac6a1f5bc2a03e1ee70a",
+  "basis": "Nutrients per 100 g edible portion; reference portions are product assumptions",
+  "foods": [
+    {
+      "key": "apple",
+      "name": "苹果",
+      "emoji": "🍎",
+      "ndb_number": "09003",
+      "source_description": "Apples, raw, with skin",
+      "reference_grams": 182,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 52.0,
+        "protein": 0.26,
+        "fat": 0.17,
+        "carbs": 13.81
+      }
+    },
+    {
+      "key": "banana",
+      "name": "香蕉",
+      "emoji": "🍌",
+      "ndb_number": "09040",
+      "source_description": "Bananas, raw",
+      "reference_grams": 118,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 89.0,
+        "protein": 1.09,
+        "fat": 0.33,
+        "carbs": 22.84
+      }
+    },
+    {
+      "key": "grapes",
+      "name": "葡萄",
+      "emoji": "🍇",
+      "ndb_number": "09132",
+      "source_description": "Grapes, red or green (European type, such as Thompson seedless), raw",
+      "reference_grams": 50,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 69.0,
+        "protein": 0.72,
+        "fat": 0.16,
+        "carbs": 18.1
+      }
+    },
+    {
+      "key": "mango",
+      "name": "芒果",
+      "emoji": "🥭",
+      "ndb_number": "09176",
+      "source_description": "Mangos, raw",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 60.0,
+        "protein": 0.82,
+        "fat": 0.38,
+        "carbs": 14.98
+      }
+    },
+    {
+      "key": "durian",
+      "name": "榴莲",
+      "emoji": "🍈",
+      "ndb_number": "09422",
+      "source_description": "Durian, raw or frozen",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 147.0,
+        "protein": 1.47,
+        "fat": 5.33,
+        "carbs": 27.09
+      }
+    },
+    {
+      "key": "orange",
+      "name": "橙子",
+      "emoji": "🍊",
+      "ndb_number": "09200",
+      "source_description": "Oranges, raw, all commercial varieties",
+      "reference_grams": 131,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 47.0,
+        "protein": 0.94,
+        "fat": 0.12,
+        "carbs": 11.75
+      }
+    },
+    {
+      "key": "pear",
+      "name": "梨",
+      "emoji": "🍐",
+      "ndb_number": "09252",
+      "source_description": "Pears, raw",
+      "reference_grams": 178,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 57.0,
+        "protein": 0.36,
+        "fat": 0.14,
+        "carbs": 15.23
+      }
+    },
+    {
+      "key": "plum",
+      "name": "李子",
+      "emoji": "🟣",
+      "ndb_number": "09279",
+      "source_description": "Plums, raw",
+      "reference_grams": 66,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 46.0,
+        "protein": 0.7,
+        "fat": 0.28,
+        "carbs": 11.42
+      }
+    },
+    {
+      "key": "kiwi",
+      "name": "猕猴桃",
+      "emoji": "🥝",
+      "ndb_number": "09148",
+      "source_description": "Kiwifruit, green, raw",
+      "reference_grams": 69,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 61.0,
+        "protein": 1.14,
+        "fat": 0.52,
+        "carbs": 14.66
+      }
+    },
+    {
+      "key": "strawberry",
+      "name": "草莓",
+      "emoji": "🍓",
+      "ndb_number": "09316",
+      "source_description": "Strawberries, raw",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 32.0,
+        "protein": 0.67,
+        "fat": 0.3,
+        "carbs": 7.68
+      }
+    },
+    {
+      "key": "bread",
+      "name": "白面包",
+      "emoji": "🍞",
+      "ndb_number": "18069",
+      "source_description": "Bread, white, commercially prepared (includes soft bread crumbs)",
+      "reference_grams": 50,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 266.0,
+        "protein": 8.85,
+        "fat": 3.33,
+        "carbs": 49.42
+      }
+    },
+    {
+      "key": "rice",
+      "name": "米饭",
+      "emoji": "🍚",
+      "ndb_number": "20045",
+      "source_description": "Rice, white, long-grain, regular, enriched, cooked",
+      "reference_grams": 150,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 130.0,
+        "protein": 2.69,
+        "fat": 0.28,
+        "carbs": 28.17
+      }
+    },
+    {
+      "key": "chicken",
+      "name": "鸡腿肉（烤制）",
+      "emoji": "🍗",
+      "ndb_number": "05098",
+      "source_description": "Chicken, broilers or fryers, thigh, meat only, cooked, roasted",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 179.0,
+        "protein": 24.76,
+        "fat": 8.15,
+        "carbs": 0.0
+      }
+    },
+    {
+      "key": "broccoli",
+      "name": "西兰花（水煮）",
+      "emoji": "🥦",
+      "ndb_number": "11091",
+      "source_description": "Broccoli, cooked, boiled, drained, without salt",
+      "reference_grams": 80,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 35.0,
+        "protein": 2.38,
+        "fat": 0.41,
+        "carbs": 7.18
+      }
+    },
+    {
+      "key": "egg",
+      "name": "鸡蛋（水煮）",
+      "emoji": "🥚",
+      "ndb_number": "01129",
+      "source_description": "Egg, whole, cooked, hard-boiled",
+      "reference_grams": 50,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 155.0,
+        "protein": 12.58,
+        "fat": 10.61,
+        "carbs": 1.12
+      }
+    },
+    {
+      "key": "tofu",
+      "name": "豆腐",
+      "emoji": "⬜",
+      "ndb_number": "16426",
+      "source_description": "Tofu, raw, firm, prepared with calcium sulfate",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 144.0,
+        "protein": 17.27,
+        "fat": 8.72,
+        "carbs": 2.78
+      }
+    },
+    {
+      "key": "potato",
+      "name": "土豆（水煮）",
+      "emoji": "🥔",
+      "ndb_number": "11367",
+      "source_description": "Potatoes, boiled, cooked without skin, flesh, without salt",
+      "reference_grams": 150,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 86.0,
+        "protein": 1.71,
+        "fat": 0.1,
+        "carbs": 20.01
+      }
+    },
+    {
+      "key": "salmon",
+      "name": "三文鱼（烤制）",
+      "emoji": "🐟",
+      "ndb_number": "15237",
+      "source_description": "Fish, salmon, Atlantic, farmed, cooked, dry heat",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 206.0,
+        "protein": 22.1,
+        "fat": 12.35,
+        "carbs": 0.0
+      }
+    },
+    {
+      "key": "tomato",
+      "name": "番茄",
+      "emoji": "🍅",
+      "ndb_number": "11529",
+      "source_description": "Tomatoes, red, ripe, raw, year round average",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 18.0,
+        "protein": 0.88,
+        "fat": 0.2,
+        "carbs": 3.89
+      }
+    },
+    {
+      "key": "carrot",
+      "name": "胡萝卜（生）",
+      "emoji": "🥕",
+      "ndb_number": "11124",
+      "source_description": "Carrots, raw",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 41.0,
+        "protein": 0.93,
+        "fat": 0.24,
+        "carbs": 9.58
+      }
+    },
+    {
+      "key": "cucumber",
+      "name": "黄瓜（带皮）",
+      "emoji": "🥒",
+      "ndb_number": "11205",
+      "source_description": "Cucumber, with peel, raw",
+      "reference_grams": 100,
+      "portion_basis": "P0 固定参考份量，非视觉称重",
+      "per_100g": {
+        "kcal": 15.0,
+        "protein": 0.65,
+        "fat": 0.11,
+        "carbs": 3.63
+      }
+    }
+  ]
+}

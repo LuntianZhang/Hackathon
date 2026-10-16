@@ -1,0 +1,73 @@
+const $=id=>document.getElementById(id);
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const titles={list:'① 食物清单辅助',grounded:'② 文字定位分割',manual:'③ 名称 + 点击 / 框选',auto:'无提示基线'};
+const descriptions={list:'先自动分割，再用你的食物清单辅助判断名称。背景和不确定区域仍会被排除。',grounded:'根据你的文字寻找食物位置，再生成精细分割。没找到的食物不会凭空补出。',manual:'你指定食物名称和位置，系统生成掩码。名称由你确认，适合处理相似或遗漏的食物。'};
+let session=null,mode='list',regions=[],picture=null,drag=null,runs=[],results=new Map(),pollTimer=null,pollBusy=false;
+const report=(text,error=false)=>{$('status').textContent=text;$('status').classList.toggle('error',error);};
+async function api(path,options={}){const response=await fetch('/api'+path,options);const value=await response.json();if(!response.ok)throw new Error(value.detail||'操作失败');return value;}
+const guarded=fn=>async(...args)=>{try{await fn(...args);}catch(error){report(error.message,true);}};
+function setMode(value){mode=value;document.querySelectorAll('[data-mode]').forEach(b=>{const selected=b.dataset.mode===mode;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected);});$('modeDescription').textContent=descriptions[mode];$('textControls').hidden=mode==='manual';$('manualControls').hidden=mode!=='manual';$('gestureHelp').textContent=mode==='manual'?'填写名称后，点击食物或按住拖出区域。标记会以图片坐标保存。':'图片仅作为识别输入；三维模型不会被本页修改。';draw();}
+function draw(){const canvas=$('sourceCanvas'),ctx=canvas.getContext('2d');if(!picture)return;canvas.style.display='block';$('emptySource').hidden=true;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(picture,0,0);if(mode!=='manual')return;for(const r of regions){ctx.strokeStyle='#32bfa0';ctx.fillStyle='rgba(34,180,140,.12)';ctx.lineWidth=3;let x,y;if(r.point){[x,y]=r.point;ctx.beginPath();ctx.arc(x*canvas.width,y*canvas.height,8,0,2*Math.PI);ctx.fill();ctx.stroke();}else{[x,y]=r.box;const w=(r.box[2]-x)*canvas.width,h=(r.box[3]-y)*canvas.height;ctx.fillRect(x*canvas.width,y*canvas.height,w,h);ctx.strokeRect(x*canvas.width,y*canvas.height,w,h);}ctx.font='15px sans-serif';ctx.fillStyle='#123d2c';ctx.fillText(`ID ${r.instance_id}: ${r.name}`,Math.min(x*canvas.width,canvas.width-100),Math.max(20,y*canvas.height-12));}if(drag?.end){const [x,y]=drag.start,[ex,ey]=drag.end;ctx.strokeStyle='#28a589';ctx.strokeRect(x*canvas.width,y*canvas.height,(ex-x)*canvas.width,(ey-y)*canvas.height);}}
+function showRegions(){$('regions').innerHTML=regions.map((r,i)=>`<li>ID ${r.instance_id} · ${esc(r.name)} · ${r.point?'点击':'框选'}<button data-remove="${i}" aria-label="移除 ${esc(r.name)}">移除</button></li>`).join('');draw();}
+function point(event){const box=$('sourceCanvas').getBoundingClientRect();return [Math.max(0,Math.min(1,(event.clientX-box.left)/box.width)),Math.max(0,Math.min(1,(event.clientY-box.top)/box.height))];}
+$('sourceCanvas').addEventListener('pointerdown',event=>{if(mode!=='manual'||!picture||event.button!==0)return;const name=$('regionName').value.trim();if(!name){report('先填写这块食物的名称，再标记位置。',true);$('regionName').focus();return;}if(regions.length>=20){report('最多标记 20 个实例。',true);return;}event.preventDefault();drag={start:point(event),name,tool:document.querySelector('[name=tool]:checked').value,id:event.pointerId};event.target.setPointerCapture(event.pointerId);});
+$('sourceCanvas').addEventListener('pointermove',event=>{if(!drag||event.pointerId!==drag.id)return;event.preventDefault();drag.end=point(event);draw();});
+$('sourceCanvas').addEventListener('pointerup',event=>{if(!drag||event.pointerId!==drag.id)return;const end=point(event),id=Math.max(0,...regions.map(r=>r.instance_id))+1;const r={instance_id:id,name:drag.name};if(drag.tool==='point')r.point=drag.start;else{r.box=[Math.min(drag.start[0],end[0]),Math.min(drag.start[1],end[1]),Math.max(drag.start[0],end[0]),Math.max(drag.start[1],end[1])];if(r.box[2]-r.box[0]<.005||r.box[3]-r.box[1]<.005){drag=null;draw();report('框选区域太小，请按住并拖动。',true);return;}}regions.push(r);drag=null;showRegions();report(`已标记 ${r.name}，可以继续添加或运行。`);});
+$('sourceCanvas').addEventListener('pointercancel',()=>{drag=null;draw();});
+$('regions').addEventListener('click',event=>{if(event.target.dataset.remove!==undefined){regions.splice(Number(event.target.dataset.remove),1);showRegions();}});
+$('clearRegions').onclick=()=>{regions=[];showRegions();};
+document.querySelectorAll('[data-mode]').forEach(button=>button.onclick=()=>setMode(button.dataset.mode));
+$('foodText').addEventListener('input',()=>{$('foodNames').innerHTML=$('foodText').value.split(/[,，、;；\n]+/).filter(Boolean).map(t=>`<option value="${esc(t.split('|')[0].trim())}"></option>`).join('');});
+async function loadSession(value){clearTimeout(pollTimer);session=value;regions=[];results.clear();runs=[];const image=new Image();image.onload=()=>{picture=image;$('sourceCanvas').width=image.width;$('sourceCanvas').height=image.height;draw();};image.src=value.photo_url;$('sourceNote').textContent=`同一输入 · ${value.source_sha256.slice(0,10)}`;const url=new URL(location);url.searchParams.set('session',value.id);history.replaceState(null,'',url);report('照片已准备好，输入清单或标记区域后运行。');showRegions();await refreshSessions();await refreshRuns();}
+async function refreshSessions(){const value=await api('/assist/sessions');$('sessions').innerHTML='<option value="">历史照片</option>'+value.sessions.map((s,i)=>`<option value="${s.id}" ${session?.id===s.id?'selected':''}>照片 ${value.sessions.length-i} · ${esc(new Date(s.created_at).toLocaleString())}</option>`).join('');}
+$('example').onclick=guarded(async()=>{report('加载参考照片…');await loadSession(await api('/assist/sessions',{method:'POST'}));});
+$('photoFile').onchange=guarded(async event=>{const file=event.target.files[0];if(!file)return;if(file.size>20*1024*1024)throw new Error('照片请小于 20 MB');const form=new FormData();form.append('file',file);report('接收照片…');await loadSession(await api('/assist/sessions',{method:'POST',body:form}));event.target.value='';});
+$('sessions').onchange=guarded(async event=>{if(event.target.value)await loadSession(await api('/meals/'+event.target.value));});
+async function run(selectedMode){if(!session)throw new Error('请先选择照片');const body={mode:selectedMode,food_text:selectedMode==='manual'||selectedMode==='auto'?'':$('foodText').value,instances:selectedMode==='manual'?regions:[]};if(selectedMode==='manual'&&!regions.length)throw new Error('请先填写名称并点击或框选食物');report('提交分析…');const meal=await api(`/assist/sessions/${session.id}/runs`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});runs.unshift(meal);report('已排队，等待本机完成分析。可以继续试另一种方式。');await refreshRuns();}
+$('run').onclick=guarded(async()=>{const b=$('run');b.disabled=true;try{await run(mode);}finally{b.disabled=false;}});
+$('baseline').onclick=guarded(()=>run('auto'));
+function card(meal,key){if(!meal)return `<article class="result-card"><h3>${titles[key]}</h3><div class="empty">尚未运行这一版</div></article>`;const r=results.get(meal.id),a=meal.analysis;const variants=runs.filter(m=>m.assistance.mode===key);return `<article class="result-card ${key==='auto'?'baseline-card':''}"><h3>${titles[key]}</h3><select data-history-mode="${key}" aria-label="${titles[key]}运行记录">${variants.map(m=>`<option value="${m.id}" ${m.id===meal.id?'selected':''}>${esc(new Date(m.created_at).toLocaleTimeString())} · ${m.items.length} 项 · ${esc(m.analysis.stage)}</option>`).join('')}</select>${r?`<img class="result-image" data-pick="${meal.id}" src="${r.overlay_url}" alt="${titles[key]}的分割结果"><div class="picked" id="picked-${meal.id}">轻点食物查看名称</div><div class="metrics">${r.elapsed_seconds.toFixed(1)} 秒 · ${r.items.length} 个实例 · 拒绝 ${r.rejected} 个候选</div>${r.items.map(i=>`<div class="item">ID ${i.instance_id} · ${esc(i.name)}<small>${i.name_source==='manual_prompt'?'名称由你指定':`CLIP 相似度 ${i.recognition_score?.toFixed(3)} · 分差 ${i.recognition_margin?.toFixed(3)} · 名称待核对`}${i.catalog_key?'':' · 营养待补充'}</small></div>`).join('')||'<p>未找到可靠食物。可调整文字描述，或试点击框选。</p>'}<button class="text-button" data-export="${meal.id}">下载这一版的结果 JSON</button>`:`<div class="empty">${esc(a.error||a.stage)}</div><p>进度 ${a.progress}%</p>`}</article>`;}
+const viewed={};
+function decorateCards(){
+ for(const key of ['list','grounded','manual','auto']){
+  const meal=runs.find(r=>r.id===viewed[key]&&r.assistance.mode===key)||runs.find(r=>r.assistance.mode===key);
+  if(!meal)continue;
+  const card=$('results').querySelector(`[data-history-mode="${key}"]`)?.closest('article');
+  if(!card)continue;
+  const note=document.createElement('p');note.className='input-summary';
+  note.textContent='本次输入：'+(key==='manual'?meal.assistance.instances.map(i=>i.name).join('、'):meal.assistance.foods.map(f=>f.name).join('、')||'无提示');
+  card.querySelector('select').after(note);
+  if(session.preferred_run===meal.id){card.classList.add('preferred');const badge=document.createElement('span');badge.className='choice-badge';badge.textContent='已选择这一版';card.querySelector('h3').after(badge);}
+  const details=results.get(meal.id);
+  if(details?.missing_hints?.length){const missing=document.createElement('p');missing.textContent='未可靠识别：'+details.missing_hints.join('、');card.append(missing);}
+  const buttons=document.createElement('div');buttons.className='result-actions';
+  if(meal.analysis.status==='ready'&&meal.items.length){const use=document.createElement('button');use.className='text-button';use.dataset.useMeal=meal.id;use.textContent=meal.comparison_imported?'打开餐食记录':'用于餐食记录';card.append(use);}
+  const reuse=document.createElement('button');reuse.className='text-button';reuse.dataset.reuse=meal.id;reuse.textContent='使用这次输入';buttons.append(reuse);
+  if(meal.analysis.status==='ready'){const choose=document.createElement('button');choose.className='button secondary';choose.dataset.choose=meal.id;choose.textContent=session.preferred_run===meal.id?'已选择':'选这一版';buttons.append(choose);}
+  card.append(buttons);
+  if(session.preferred_run===meal.id){
+   const progress=meal.three_d_analysis;
+   const info=document.createElement('p');
+   if(meal.model_url){const link=document.createElement('a');link.className='button primary';link.href=meal.model_url;link.textContent='拖拽查看这一版的 3D 模型 →';card.append(link);}
+   else if(progress&&['queued','running'].includes(progress.status))info.textContent=`${progress.stage} · ${progress.progress}%`;
+   else if(session.reconstruction_available&&meal.items.length){info.textContent=progress?.error||'可将这个版本的分割结果关联到已有三维模型。';const build=document.createElement('button');build.className='button secondary';build.dataset.build3d=meal.id;build.textContent=progress?.status==='failed'?'重试生成三维关联':'生成并查看三维模型';card.append(build);}
+   else info.textContent=meal.three_d_reason||'单张照片没有关联的多视角模型，暂不能生成可旋转三维场景。';
+   card.append(info);
+  }
+ }
+}
+function renderResults(){const keys=['list','grounded','manual'];if(runs.some(r=>r.assistance.mode==='auto'))keys.push('auto');$('results').innerHTML=keys.map(key=>card(runs.find(r=>r.id===viewed[key]&&r.assistance.mode===key)||runs.find(r=>r.assistance.mode===key),key)).join('');$('history').innerHTML=runs.map(r=>`<div>${esc(titles[r.assistance.mode])} · ${esc(new Date(r.created_at).toLocaleString())} · ${r.items.length} 项 · ${esc(r.analysis.stage)} · 输入：${esc(r.assistance.mode==='manual'?r.assistance.instances.map(i=>i.name).join('、'):r.assistance.foods.map(f=>f.name).join('、')||'无提示')}</div>`).join('')||'还没有运行记录。';}
+async function refreshRuns(){if(!session)return;if(pollBusy){clearTimeout(pollTimer);pollTimer=setTimeout(()=>guarded(refreshRuns)(),1500);return;}pollBusy=true;const id=session.id;try{const value=await api(`/assist/sessions/${id}/runs`);if(session.id!==id)return;runs=value.runs;for(const m of runs){if(m.analysis.status==='ready'&&!results.has(m.id)){try{results.set(m.id,await api(`/assist/runs/${m.id}/result`));}catch(error){report(error.message,true);}}}renderResults();decorateCards();const active=runs.filter(r=>['queued','running'].includes(r.analysis.status)||['queued','running'].includes(r.three_d_analysis?.status));if(active.length){report(`${active.length} 次分析等待完成：${active.map(r=>['queued','running'].includes(r.three_d_analysis?.status)?r.three_d_analysis.stage:r.analysis.stage).join('；')}`);clearTimeout(pollTimer);pollTimer=setTimeout(()=>guarded(refreshRuns)(),1500);}else if(runs.length)report('分析已完成。选定版本后，可以进入对应的三维模型。');}finally{pollBusy=false;}}
+$('results').addEventListener('change',event=>{if(event.target.dataset.historyMode){viewed[event.target.dataset.historyMode]=event.target.value;renderResults();decorateCards();}});
+$('results').addEventListener('click',guarded(async event=>{
+ const reuse=event.target.dataset.reuse;
+ if(reuse){const m=runs.find(r=>r.id===reuse);if(m.assistance.mode==='auto'){report('基线没有辅助输入。');return;}setMode(m.assistance.mode);$('foodText').value=m.assistance.foods.map(f=>`${f.name}|${f.text}`).join('、');regions=m.assistance.instances.map(r=>({...r}));showRegions();$('modeTabs').scrollIntoView({behavior:'smooth',block:'center'});report('已恢复这次输入，可以调整后重新运行。');}
+ const choice=event.target.dataset.choose;
+ if(choice){session=await api(`/assist/sessions/${session.id}/choice`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({run_id:choice})});await refreshRuns();report('已保存选择；有对应重建数据时，会生成这一版的三维关联。');}
+ const build=event.target.dataset.build3d;
+ if(build){await api(`/assist/runs/${build}/three-d`,{method:'POST'});await refreshRuns();}
+ const use=event.target.dataset.useMeal;
+ if(use){const value=await api('/meals/from-recognition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({run_id:use})});location.href='/#result/'+value.id;}
+}));
+$('results').addEventListener('click',guarded(async event=>{const image=event.target.closest('[data-pick]');if(image){const box=image.getBoundingClientRect(),id=image.dataset.pick;const picked=await api(`/meals/${id}/photo-pick`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:(event.clientX-box.left)/box.width,y:(event.clientY-box.top)/box.height})});const item=runs.find(r=>r.id===id)?.items.find(i=>i.id===picked.food_id);$('picked-'+id).textContent=item?`ID ${item.instance_id} · ${item.name}`:picked.message;}const exportId=event.target.dataset.export;if(exportId){const blob=new Blob([JSON.stringify(results.get(exportId),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`recognition-${exportId}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}));
+guarded(async()=>{setMode('list');renderResults();await refreshSessions();const id=new URL(location).searchParams.get('session');if(id)await loadSession(await api('/meals/'+id));})();

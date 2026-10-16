@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>盘感 · 记录流程示意</title>
+<style>
+:root{--bg:#f5f7f1;--ink:#234d49;--muted:#7c8d82;--green:#245b55;--lime:#e7edae;--line:#e1e7dc;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;color:var(--ink)}
+*{box-sizing:border-box}body{margin:0;background:#e9eee7;padding:38px 24px 50px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #a8ba79;outline-offset:3px}button{color:inherit}header{max-width:1060px;margin:auto auto 26px;display:flex;justify-content:space-between;align-items:center;gap:20px}.brand{font-size:19px;font-weight:750}.brand span{font-size:12px;margin-left:7px;color:var(--muted)}.badge{font-size:11px;padding:8px 12px;border:1px solid #cbd8c8;border-radius:30px;color:#68816e}
+.workspace{max-width:1060px;margin:auto;display:grid;grid-template-columns:1fr 420px;gap:70px;align-items:start}.intro{padding-top:28px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:700;color:#87976c}h1{font-size:38px;line-height:1.35;margin:14px 0 18px;letter-spacing:-1px}.lead{font-size:14px;line-height:1.9;color:#738577;max-width:440px}.modes{display:grid;gap:10px;margin-top:28px}.mode{border:1px solid #d7e0d1;background:#f8faf4a8;padding:16px 18px;border-radius:17px;text-align:left;display:flex;align-items:center;gap:14px}.mode.active{background:#faffed;border-color:#91aa7b;box-shadow:0 4px 14px #34512609}.mode b{font-size:14px;display:block}.mode small{font-size:11px;color:#82917e;display:block;margin-top:5px}.mode .symbol{width:36px;height:36px;border-radius:12px;background:#e7eddf;display:grid;place-items:center;font-size:17px}.mode.active .symbol{background:var(--lime)}.mode .arrow{margin-left:auto;color:#8aa078}.flow{margin-top:27px;padding:18px 0;border-top:1px solid #d4ddce}.flow h2{font-size:13px;margin:0 0 16px}.flow ol{padding:0;list-style:none;display:grid;gap:12px}.flow li{display:flex;align-items:center;gap:10px;font-size:12px;color:#879580}.flow li span{width:23px;height:23px;border:1px solid #cbd7c3;border-radius:50%;display:grid;place-items:center;font-size:10px}.flow li.current{color:var(--green);font-weight:700}.flow li.current span{background:var(--green);color:white;border-color:var(--green)}.note{font-size:11px;line-height:1.9;color:#83917d;max-width:420px}
+.phone{background:var(--bg);border:1px solid #d0dbcb;border-radius:30px;box-shadow:0 25px 65px #31513b13;overflow:hidden}.phone-top{display:flex;align-items:center;justify-content:space-between;padding:22px 23px 16px;border-bottom:1px solid var(--line);font-size:15px;font-weight:700}.phone-top small{font-size:10px;color:#82917b;font-weight:400}.screen{padding:23px;min-height:650px}.screen h2{font-size:27px;letter-spacing:-.6px;margin:8px 0 9px}.caption{font-size:12px;color:var(--muted);line-height:1.8;margin:0 0 19px}.tabs{display:flex;border-radius:12px;padding:4px;background:#e8eee3;margin:20px 0}.tabs button{flex:1;border:0;background:none;border-radius:9px;font-size:12px;padding:10px}.tabs button.active{background:#fffefa;box-shadow:0 2px 6px #1d42240b;font-weight:700}.empty{height:195px;border:1px dashed #c6d5bf;border-radius:22px;background:linear-gradient(145deg,#e6eeda,#f1f3e4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#69806d;margin:17px 0}.empty svg{width:38px;height:38px;stroke:#6f8d69;stroke-width:1.4;fill:none}.empty p{font-size:12px;margin:0}.primary,.secondary{width:100%;padding:14px;border:0;border-radius:14px;font-weight:650;font-size:13px}.primary{background:var(--green);color:#fff;margin-top:15px}.secondary{border:1px solid #dce5d4;background:#fffef8;margin-top:9px}.text-button{border:0;background:none;font-size:11px;padding:12px 0;text-align:left;color:#69846d}.field{background:#fffefa;padding:17px;border:1px solid #e3e9dd;border-radius:17px;margin:17px 0}.field label{display:block;font-size:12px;font-weight:650}.field label span{font-size:10px;font-weight:400;color:var(--muted)}.field input[type=text]{width:100%;border:1px solid #dce4d4;background:#fafbf6;border-radius:10px;padding:12px;margin-top:11px;font-size:12px;color:var(--ink)}.field p{font-size:11px;color:#83917b;line-height:1.8;margin:9px 0 0}.tip{padding:12px 14px;border-radius:12px;background:#edf2e3;font-size:11px;line-height:1.8;color:#7c8e72;margin:16px 0}.link-card{border:1px solid #dce5d4;border-radius:14px;background:#f0f4e7;padding:14px;margin:16px 0;font-size:12px}.link-card small{display:block;color:#89987e;font-size:10px;margin-top:5px}.preview{border-radius:19px;overflow:hidden;background:#edf0e0;margin:16px 0;position:relative}.preview svg{width:100%;display:block}.preview-label{position:absolute;top:12px;left:12px;font-size:10px;background:#fffdf1e8;padding:6px 9px;border-radius:30px;color:#7c8b70}.food{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6ebde;padding:13px 0;font-size:12px}.food small{color:#8e9b82;font-size:10px}.success{font-size:11px;background:#e9f0d8;border-radius:10px;padding:11px;margin:12px 0;color:#658049}.bottom{display:flex;justify-content:space-around;border-top:1px solid var(--line);padding:17px 10px;color:#91a088;font-size:11px}.bottom strong{color:var(--green)}.checkbox{display:flex;align-items:center;gap:8px;font-size:11px;color:#789068;line-height:1.8}.checkbox input{accent-color:var(--green)}.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#234d49;color:white;padding:13px 22px;border-radius:12px;font-size:12px;z-index:5;box-shadow:0 8px 22px #12352424}
+@media(max-width:850px){body{padding:22px 16px}.workspace{grid-template-columns:1fr;gap:25px;max-width:480px}.intro{padding-top:0}h1{font-size:29px}.lead{font-size:12px}.modes{grid-template-columns:repeat(3,1fr);gap:7px;margin-top:20px}.mode{display:block;padding:12px 9px}.mode .symbol,.mode .arrow,.mode small{display:none}.mode b{font-size:11px;text-align:center}.flow{display:none}.intro>.note{display:none}header{max-width:480px}.badge{font-size:9px}.phone{width:100%}.screen{min-height:580px}}
+.assist-modes{display:grid;gap:7px;margin-top:12px}.assist-option{border:1px solid #e0e6d8;background:#fafbf6;border-radius:11px;padding:11px;text-align:left}.assist-option.active{background:#eff4db;border-color:#a1b58b}.assist-option strong{display:block;font-size:12px}.assist-option small{display:block;color:#849378;font-size:10px;line-height:1.6;margin-top:4px}.manual-tools{display:flex;gap:7px;margin-top:12px}.manual-tools button{flex:1;padding:9px;border-radius:8px;border:1px solid #dce4d4;background:#fafbf6;font-size:11px}.manual-tools button.active{background:#e7efce;border-color:#a1b58b}.annotation-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e5eadf;padding:9px 0;font-size:11px}.annotation-row button{background:none;border:0;color:#8a9a7e;font-size:10px}.preview svg.annotatable{cursor:crosshair;touch-action:none}.assist-summary{font-size:11px;line-height:1.8;color:#6f855d;margin-top:12px}
+.assist-modes{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.assist-option{min-width:0;padding:11px 3px;text-align:center}.assist-option strong{font-size:11px;line-height:1.5;white-space:nowrap}.assist-help{min-height:36px}
+.history-list{display:grid;gap:10px;margin:18px 0}.history-card{display:flex;align-items:center;gap:12px;width:100%;border:1px solid #dce5d4;background:#fffefa;border-radius:15px;padding:14px;text-align:left}.history-card.active{border-color:#91aa7b;background:#f3f7e7}.history-icon{display:grid;place-items:center;width:44px;height:44px;background:#e7eedb;border-radius:12px;font-size:21px;flex-shrink:0}.history-detail{flex:1;min-width:0}.history-detail strong{display:block;font-size:13px}.history-detail small{display:block;font-size:10px;color:#82917e;line-height:1.8;margin-top:4px}.history-check{font-size:13px;color:#69816b}.primary:disabled{opacity:.45;cursor:not-allowed}
+</style>
+</head>
+<body>
+<header><div class="brand">盘感 <span>PanSense</span></div><span class="badge">独立交互示意 · 不连接现有 App</span></header>
+<div class="workspace">
+<aside class="intro"><div class="eyebrow">A CLEARER CAPTURE FLOW</div><h1>先选记录方式，<br>再开始这一餐。</h1><p class="lead">照片用于快速记录，视频用于三维观察。<br>已有餐盘的识别调整，使用独立的编辑流程。</p>
+<div class="modes" aria-label="选择演示流程">
+<button class="mode active" data-mode="photo"><span class="symbol">▣</span><div><b>照片记录</b><small>拍一张，快速识别与保存</small></div><span class="arrow">↗</span></button>
+<button class="mode" data-mode="video"><span class="symbol">▷</span><div><b>三维记录</b><small>环绕视频，查看餐盘与体积</small></div><span class="arrow">↗</span></button>
+<button class="mode" data-mode="edit"><span class="symbol">✎</span><div><b>调整已有餐盘</b><small>沿用原模型，更新食物识别</small></div><span class="arrow">↗</span></button>
+</div><section class="flow"><h2 id="flowTitle"></h2><ol id="flowSteps"></ol></section><p class="note">此处只演示页面和步骤切换。按钮不会调用相机、上传文件、运行识别或保存餐食。示例、模型对比等测试入口不进入主记录流程。</p></aside>
+<section class="phone" aria-label="手机页面示意"><div class="phone-top">◉ 盘感 <small>记录饮食的每一天</small></div><main class="screen" id="screen"></main><nav class="bottom" aria-label="导航示意"><span>首页</span><span>日记</span><strong>记录</strong><span>我的</span></nav></section>
+</div>
+<script>
+const state={mode:'photo',step:0,hints:'',regions:false,correction:false,paper:true,assist:'grounded',manualName:'',tool:'point',annotations:[],gesture:null,historyId:null};
+const historyMeals=[
+ {id:'fruit-lunch',title:'午餐 · 水果餐盘',time:'今天 12:30',foods:'苹果、香蕉、面包',icon:'◉'},
+ {id:'fruit-snack',title:'下午加餐 · 水果',time:'昨天 15:20',foods:'苹果、香蕉',icon:'◉'},
+ {id:'breakfast',title:'早餐 · 面包与水果',time:'昨天 08:10',foods:'香蕉、面包',icon:'◉'}
+];
+const assistLabels={list:'食物清单辅助识别',grounded:'按名称定位分割',manual:'点击 / 框选并命名',auto:'自动识别（不使用辅助）'};
+const steps={photo:['拍照 / 相册','可选填写食物名称','识别、核对并保存'],video:['准备环绕视频','选择辅助识别方式、填写标尺信息','重建、语义融合并保存'],edit:['从历史记录选择餐盘','输入名称 / 调整区域','更新三维语义']};
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function art(){return `<div class="preview"><span class="preview-label">${state.mode==='photo'?'照片示意':state.mode==='edit'?'原模型参考视角 · 示意':'视频关键帧 · 示意'}</span><svg viewBox="0 0 360 205" aria-label="餐盘示意图" role="img"><rect width="360" height="205" fill="#e6ecdc"/><ellipse cx="181" cy="121" rx="138" ry="64" fill="#d8e1cb"/><ellipse cx="181" cy="109" rx="138" ry="64" fill="#fffdf2"/><ellipse cx="181" cy="109" rx="116" ry="48" fill="#edf0df"/><path d="M138 104Q180 151 239 106Q233 157 193 153Q155 149 138 104" fill="#e6cd6c" stroke="#cbb654" stroke-width="2"/><circle cx="122" cy="91" r="27" fill="#b7c987"/><path d="M125 66l4-9" stroke="#87925d" stroke-width="4"/><rect x="211" y="63" width="53" height="34" rx="14" fill="#d4b08b"/><path d="M220 72l5 12m10-13 4 12m8-11 3 10" stroke="#eee0c1" stroke-width="3"/>${state.mode==='video'?'<path d="M58 163h78v15H58z" fill="white"/><text x="65" y="174" fill="#8d9589" font-size="8">10 × 2 cm</text>':''}${state.regions?'<g fill="none" stroke="#2d8d70" stroke-width="2" stroke-dasharray="5 3"><rect x="88" y="58" width="69" height="66" rx="10"/><rect x="137" y="102" width="111" height="58" rx="10"/><rect x="205" y="57" width="64" height="46" rx="10"/></g>':''}</svg></div>`}
+function input(){return `<div class="field"><label for="hints">${state.mode==='edit'?'这份餐盘有哪些食物？':'已知有哪些食物？'} <span>${state.mode==='edit'?'请核对':'可选'}</span></label><input id="hints" type="text" value="${esc(state.hints)}" placeholder="例如：苹果、香蕉、面包"><p>${state.mode==='edit'?'填写正确名称，或进一步调整食物区域。':'填写后辅助定位和识别；留空则自动识别。'}</p></div>`}
+function videoAssistance(){
+ const options=[
+ ['list','食物清单','先自动分割，再用输入的食物清单辅助判断名称。'],
+ ['grounded','名称定位','先按输入名称寻找食物区域，再进行分割。'],
+ ['manual','点击 / 框选','在视频参考帧上指定每个食物的名称与区域。'],
+ ['auto','不使用辅助','无需填写食物名称，直接自动分割并识别。']
+ ];
+ let html=`<div class="field"><label>辅助识别方式 <span>四种方式任选一种</span></label><div class="assist-modes" role="group" aria-label="辅助识别方式">${options.map(([id,name])=>`<button class="assist-option ${state.assist===id?'active':''}" data-assist="${id}" aria-pressed="${state.assist===id}"><strong>${name}</strong></button>`).join('')}</div><p class="assist-help">${options.find(([id])=>id===state.assist)[2]}</p></div>`;
+ if(state.assist==='list'||state.assist==='grounded')html+=`<div class="field"><label for="hints">${state.assist==='list'?'可能有哪些食物？':'希望定位哪些食物？'}</label><input id="hints" type="text" value="${esc(state.hints)}" placeholder="例如：苹果、香蕉、面包"><p>${state.assist==='list'?'清单辅助判断名称，不指定某个食物在哪里。':'名称用于寻找区域；找不到或有遗漏时，可以改用点击 / 框选。'}</p></div>`;
+ if(state.assist==='manual')html+=`<div class="field"><label for="manualName">当前食物名称</label><input id="manualName" type="text" value="${esc(state.manualName)}" placeholder="例如：苹果"><div class="manual-tools"><button data-tool="point" class="${state.tool==='point'?'active':''}">点击定位</button><button data-tool="box" class="${state.tool==='box'?'active':''}">拖动框选</button></div><p>先填写名称，再在上方参考帧中点击或拖框。可逐个添加食物；每个区域获得独立 ID。</p>${state.annotations.map((a,i)=>`<div class="annotation-row"><span>ID ${a.id} · ${esc(a.name)}</span><button data-remove="${i}">移除</button></div>`).join('')||'<p>尚未标记区域。</p>'}</div>`;
+ html+='<div class="tip">三种方式产生的食物区域都会传播到视频的其他视角，再关联到三维模型。完成后点击三维食物，显示本次识别的名称与 ID。</div>';
+ return html;
+}
+function annotatePreview(){
+ const svg=document.querySelector('.preview svg');if(!svg)return;
+ if(state.mode!=='video'||state.assist!=='manual')return;
+ if(state.step===1){svg.classList.add('annotatable');svg.setAttribute('aria-label','视频参考帧，可点击或拖动标记食物');}
+ const markup=state.annotations.map(a=>{
+  const r=a.box?`<rect x="${a.x*360}" y="${a.y*205}" width="${a.w*360}" height="${a.h*205}" fill="#1e997729" stroke="#2d8d70" stroke-width="2"/>`:`<circle cx="${a.x*360}" cy="${a.y*205}" r="6" fill="#d5e6ad" stroke="#2d8d70" stroke-width="2"/>`;
+  return `${r}<text x="${Math.min(a.x*360,260)}" y="${Math.max(a.y*205-10,40)}" fill="#275c4c" font-size="11">${a.id} ${esc(a.name)}</text>`;
+ }).join('');
+ svg.insertAdjacentHTML('beforeend',markup);
+}
+function render(){
+ const mode=state.mode,step=state.step,edit=mode==='edit',video=mode==='video';
+ const meal=historyMeals.find(m=>m.id===state.historyId);
+ document.querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',b.dataset.mode===mode)});
+ document.getElementById('flowTitle').textContent=edit?'从已有餐盘进入编辑':'一条明确的记录流程';
+ document.getElementById('flowSteps').innerHTML=steps[mode].map((s,i)=>`<li class="${step===i?'current':''}"><span>${i+1}</span>${s}</li>`).join('');
+ let body=`<div class="eyebrow">${edit?'EDIT THIS PLATE':'RECORD A MEAL'}</div><h2>${edit?(step===0?'选择历史餐盘':'调整此餐盘识别'):'记录这一餐。'}</h2><p class="caption">${edit?(step===0?'从历史记录中选择一份已生成三维模型的餐盘。':'沿用原来的三维模型，更新名称与食物区域。'):video?'用环绕视频，记录一个可观察的三维餐盘。':'拍下完整餐盘，快速识别并核对。'}</p>`;
+ if(edit&&step>0&&meal)body+=`<div class="link-card">正在调整：${esc(meal.title)}<small>${meal.time} · 已有三维模型</small><button class="text-button" data-action="history">更换历史餐盘 →</button></div>`;
+ else if(!edit&&step<2)body+=`<div class="tabs" aria-label="记录方式"><button data-mode="photo" class="${!video?'active':''}">照片记录</button><button data-mode="video" class="${video?'active':''}">三维记录</button></div>`;
+ if(edit&&step===0){body+=`<div class="history-list" role="group" aria-label="历史三维餐盘">${historyMeals.map(m=>`<button class="history-card ${state.historyId===m.id?'active':''}" data-history="${m.id}" aria-pressed="${state.historyId===m.id}"><span class="history-icon" aria-hidden="true">${m.icon}</span><span class="history-detail"><strong>${m.title}</strong><small>${m.time} · 三维餐盘<br>${m.foods}</small></span><span class="history-check" aria-hidden="true">${state.historyId===m.id?'✓':'○'}</span></button>`).join('')}</div><p class="caption">以上为示例历史记录，不读取现有 App 的餐食数据。</p><button class="primary" data-action="edit-selected" ${meal?'':'disabled'}>调整选中的餐盘</button>`}
+ else if(step===0&&!edit){body+=`<div class="empty"><svg viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="23" rx="6"/><path d="M13 10l3-5h9l3 5"/><circle cx="20" cy="21" r="6"/></svg><p>${video?'缓慢环绕，拍清完整餐盘':'让食物都出现在画面里'}</p></div>${video?'<div class="tip">拍摄提示：食物保持静止、光线充足。若要估算体积，放置平整的 10 × 2 cm 白纸，并拍到完整四角。</div>':''}<button class="primary" data-action="select">${video?'拍摄 / 导入环绕视频':'拍一张照片'}</button>${!video?'<button class="secondary" data-action="select">从相册选择</button>':''}<p class="caption" style="margin-top:15px">${video?'视频需要重建和融合，处理时间更长。':'照片提供二维识别结果，不生成三维模型。'}</p>`}
+ else if(step<2){body+=art()+(video?videoAssistance():input());
+  if(video)body+=`<div class="field"><label class="checkbox"><input id="paper" type="checkbox" ${state.paper?'checked':''}>视频中有 10 × 2 cm 白色纸片</label><p>通过标定后显示体积；没有可靠标尺时仍可查看三维餐盘。</p></div>`;
+  if(edit||state.correction&&!video)body+=`<button class="secondary" data-action="regions">${state.regions?'已显示区域标记 · 再次点击收起':'调整食物区域（示意）'}</button><div class="tip">${edit?'本次输入只用于当前餐盘。完成后更新同一模型的识别版本。':'核对名称和区域后，重新生成这张照片的识别结果。'}</div>`;
+  body+=`<button class="primary" data-action="analyze">${edit?'更新此餐盘识别':video?'生成三维餐盘':'开始识别'}</button>${!edit?'<button class="text-button" data-action="back">← 重新选择素材</button>':''}`;
+ }else{body+=`<div class="success">${edit?'✓ 同一模型的识别版本已更新':video?'✓ 三维餐盘已就绪 · 示意结果':'✓ 识别完成，请核对食物'}</div>`+art();
+  body+=`<p class="caption">${mode==='photo'?'查看识别区域，核对名称后再保存。':'三维结果支持拖动观察与点击查看食物。此图仅为流程示意。'}</p>`;
+  if(video)body+=`<p class="assist-summary">本次采用：${assistLabels[state.assist]}。食物名称与区域将用于三维实例关联；此处仅演示流程。</p>`;
+  const names=video&&state.assist==='manual'?state.annotations.map(a=>a.name):video&&state.assist==='auto'?[]:state.hints.split(/[、,，;；\n]/).map(x=>x.trim()).filter(Boolean).slice(0,5);
+  body+=(names.length?names:['苹果','香蕉','面包']).map((n,i)=>`<div class="food"><span>${esc(n)}</span><small>食物 ${video&&state.assist==='manual'?state.annotations[i].id:i+1} · 待核对</small></div>`).join('');
+  if(video)body+=`<div class="tip">${state.paper?'体积：完成真实标定后显示 mL。此示意页不计算体积。':'本次没有标尺，仅展示三维餐盘，不显示物理体积。'}</div>`;
+  body+=`<button class="primary" data-action="save">${edit?'确认使用此识别版本':'确认并保存这餐'}</button><button class="text-button" data-action="retry">← 调整名称与区域</button>`;
+ }
+ document.getElementById('screen').innerHTML=body;
+ annotatePreview();
+}
+document.addEventListener('input',e=>{if(e.target.id==='hints')state.hints=e.target.value;if(e.target.id==='paper')state.paper=e.target.checked;if(e.target.id==='manualName')state.manualName=e.target.value});
+function notice(message){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=message;document.body.append(t);setTimeout(()=>t.remove(),3000)}
+function framePoint(event,svg){const r=svg.getBoundingClientRect();return {x:Math.max(0,Math.min(1,(event.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(event.clientY-r.top)/r.height))}}
+document.addEventListener('pointerdown',e=>{const svg=e.target.closest('svg.annotatable');if(!svg||e.button!==0)return;if(!state.manualName.trim()){notice('先填写当前食物名称，再标记参考帧');return}e.preventDefault();state.gesture={pointer:e.pointerId,start:framePoint(e,svg),name:state.manualName.trim(),tool:state.tool};svg.setPointerCapture(e.pointerId)});
+document.addEventListener('pointerup',e=>{const g=state.gesture;if(!g||g.pointer!==e.pointerId)return;state.gesture=null;const svg=document.querySelector('svg.annotatable');if(!svg)return;const end=framePoint(e,svg),a={id:Math.max(0,...state.annotations.map(v=>v.id))+1,name:g.name,...end};if(g.tool==='box'){a.x=Math.min(g.start.x,end.x);a.y=Math.min(g.start.y,end.y);a.w=Math.abs(end.x-g.start.x);a.h=Math.abs(end.y-g.start.y);a.box=true;if(a.w<.015||a.h<.015){notice('请拖动出一个完整区域');return}}state.annotations.push(a);render()});
+document.addEventListener('pointercancel',()=>{state.gesture=null});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.assist){state.assist=b.dataset.assist;state.gesture=null;render();return}
+ if(b.dataset.tool){state.tool=b.dataset.tool;render();return}
+ if(b.dataset.remove!==undefined){state.annotations.splice(Number(b.dataset.remove),1);render();return}
+ if(b.dataset.history){state.historyId=b.dataset.history;render();return}
+ if(b.dataset.mode){state.mode=b.dataset.mode;state.step=0;state.historyId=null;state.hints='';state.regions=false;state.correction=false;state.paper=true;state.assist='grounded';state.annotations=[];state.manualName='';state.gesture=null;render();return}
+ switch(b.dataset.action){
+ case 'history':state.step=0;break;
+ case 'edit-selected':{
+  const meal=historyMeals.find(m=>m.id===state.historyId);if(!meal)return;
+  state.hints=meal.foods;state.regions=false;state.step=1;break;
+ }
+ case 'select':state.step=1;break;
+ case 'back':state.step=0;state.annotations=[];break;
+ case 'analyze':
+  if(state.mode==='video'&&state.assist==='manual'&&!state.annotations.length){notice('请先命名并标记至少一个食物区域');return}
+  if(state.mode==='video'&&['list','grounded'].includes(state.assist)&&!state.hints.trim()){notice('请填写食物名称，或选择不使用辅助识别');return}
+  state.step=2;break;
+ case 'retry':state.step=1;state.correction=true;break;
+ case 'regions':state.regions=!state.regions;break;
+ case 'save':notice('仅演示确认反馈，没有保存任何餐食或修改现有 App');return;
+ default:return;
+ }
+ render();
+});
+render();
+</script>
+</body>
+</html>

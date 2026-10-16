@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="720" viewBox="0 0 1120 720" role="img" aria-labelledby="title desc">
+<title id="title">食物环绕扫描与拍摄方向覆盖图，规划示意</title>
+<desc id="desc">左侧摄像头预览，右侧两层分段圆环表示低视角与高视角。绿格代表有合格照片，灰格未拍，黄色待确认，红色需补拍。仅设计，尚未实现。</desc>
+<rect width="1120" height="720" fill="#f4f6ef"/>
+<g font-family="Microsoft YaHei,Arial,sans-serif" fill="#263b2c">
+<text x="32" y="51" font-size="26" font-weight="bold">环绕扫描 · 拍摄方向覆盖</text>
+<text x="32" y="81" font-size="14" fill="#70806b">先绕一圈，再抬高补拍；照片合格且位置可信，才计入覆盖。</text>
+<rect x="876" y="29" width="212" height="33" rx="16" fill="#e7eadf"/>
+<text x="982" y="51" text-anchor="middle" font-size="13">规划示意 · 尚未实现</text>
+<rect x="32" y="108" width="608" height="430" rx="20" fill="white" stroke="#e1e7dc"/>
+<text x="53" y="143" font-size="18" font-weight="bold">摄像头预览</text>
+<text x="617" y="143" font-size="12" text-anchor="end" fill="#70806b">静止桌面 · 后置镜头</text>
+<rect x="52" y="164" width="568" height="271" rx="14" fill="#dfe4d6"/>
+<path d="M52 375L620 219V435H52Z" fill="#c8d1bc"/>
+<ellipse cx="331" cy="341" rx="180" ry="66" fill="#b8c3ab" opacity=".65"/>
+<ellipse cx="329" cy="321" rx="178" ry="66" fill="#fafbf4" stroke="#e7ebdc" stroke-width="7"/>
+<circle cx="282" cy="287" r="34" fill="#8bac63"/><path d="M282 259q-4-20 11-23" fill="none" stroke="#607c45" stroke-width="5"/>
+<circle cx="382" cy="273" r="27" fill="#8b758e"/>
+<path d="M250 329 Q338 391 435 316 Q421 371 349 376 Q278 376 250 329Z" fill="#ddbd5c" stroke="#c3a34a" stroke-width="3"/>
+<path d="M192 235h27m-27 0v27m288-27h-27m27 0v27M192 386h27m-27 0v-27m288 27h-27m27 0v-27" stroke="#5b8554" stroke-width="4" fill="none"/>
+<text x="336" y="409" text-anchor="middle" font-size="13" fill="#586c4d">食物图形仅为示意，实际显示实时画面</text>
+<rect x="52" y="451" width="568" height="35" rx="10" fill="#edf3e5"/>
+<text x="68" y="474" font-size="14">→ 继续向右绕行，补拍灰色区域；保持整个餐盘入镜</text>
+<text x="54" y="514" font-size="13" fill="#6e7f64">示例：合格照片 34 张 · 待定位 2 张</text>
+<rect x="427" y="495" width="81" height="27" rx="8" fill="#eef1e8"/>
+<text x="467" y="514" text-anchor="middle" font-size="12">暂停</text>
+<rect x="517" y="495" width="102" height="27" rx="8" fill="#567d4f"/>
+<text x="568" y="514" text-anchor="middle" font-size="12" fill="white">结束并检查</text>
+<rect x="660" y="108" width="428" height="430" rx="20" fill="white" stroke="#e1e7dc"/>
+<text x="682" y="143" font-size="18" font-weight="bold">哪些方向已经拍好？</text>
+<text x="1065" y="143" text-anchor="end" font-size="13" fill="#6f8363">示例覆盖 10 / 24</text>
+
+<path d="M 879.65 158.10 A 162 162 0 0 1 950.05 176.96 L 934.09 206.98 A 128 128 0 0 0 878.47 192.08 Z" fill="#83a56c"/>
+<text x="911.53" y="184.94" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 959.85 182.62 A 162 162 0 0 1 1011.38 234.15 L 982.55 252.17 A 128 128 0 0 0 941.83 211.45 Z" fill="#83a56c"/>
+<text x="976.53" y="222.47" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 1017.04 243.95 A 162 162 0 0 1 1035.90 314.35 L 1001.92 315.53 A 128 128 0 0 0 987.02 259.91 Z" fill="#83a56c"/>
+<text x="1014.06" y="287.47" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 1035.90 325.65 A 162 162 0 0 1 1017.04 396.05 L 987.02 380.09 A 128 128 0 0 0 1001.92 324.47 Z" fill="#83a56c"/>
+<text x="1014.06" y="362.53" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 1011.38 405.85 A 162 162 0 0 1 959.85 457.38 L 941.83 428.55 A 128 128 0 0 0 982.55 387.83 Z" fill="#83a56c"/>
+<text x="976.53" y="427.53" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 950.05 463.04 A 162 162 0 0 1 879.65 481.90 L 878.47 447.92 A 128 128 0 0 0 934.09 433.02 Z" fill="#83a56c"/>
+<text x="911.53" y="465.06" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 868.35 481.90 A 162 162 0 0 1 797.95 463.04 L 813.91 433.02 A 128 128 0 0 0 869.53 447.92 Z" fill="#edcc7a" stroke="#c09a42" stroke-dasharray="3 2"/>
+<path d="M 788.15 457.38 A 162 162 0 0 1 736.62 405.85 L 765.45 387.83 A 128 128 0 0 0 806.17 428.55 Z" fill="#edcc7a" stroke="#c09a42" stroke-dasharray="3 2"/>
+<path d="M 730.96 396.05 A 162 162 0 0 1 712.10 325.65 L 746.08 324.47 A 128 128 0 0 0 760.98 380.09 Z" fill="#d99a86"/>
+<text x="733.94" y="362.53" text-anchor="middle" font-size="15" font-weight="bold" fill="white">!</text>
+<path d="M 712.10 314.35 A 162 162 0 0 1 730.96 243.95 L 760.98 259.91 A 128 128 0 0 0 746.08 315.53 Z" fill="#e5e9de"/>
+<path d="M 736.62 234.15 A 162 162 0 0 1 788.15 182.62 L 806.17 211.45 A 128 128 0 0 0 765.45 252.17 Z" fill="#e5e9de"/>
+<path d="M 797.95 176.96 A 162 162 0 0 1 868.35 158.10 L 869.53 192.08 A 128 128 0 0 0 813.91 206.98 Z" fill="#e5e9de"/>
+<path d="M 878.19 200.07 A 120 120 0 0 1 930.34 214.05 L 914.37 244.07 A 86 86 0 0 0 877.00 234.05 Z" fill="#83a56c"/>
+<text x="900.66" y="225.51" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 937.59 218.23 A 120 120 0 0 1 975.77 256.41 L 946.93 274.43 A 86 86 0 0 0 919.57 247.07 Z" fill="#83a56c"/>
+<text x="946.83" y="252.17" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 979.95 263.66 A 120 120 0 0 1 993.93 315.81 L 959.95 317.00 A 86 86 0 0 0 949.93 279.63 Z" fill="#83a56c"/>
+<text x="973.49" y="298.34" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 993.93 324.19 A 120 120 0 0 1 979.95 376.34 L 949.93 360.37 A 86 86 0 0 0 959.95 323.00 Z" fill="#83a56c"/>
+<text x="973.49" y="351.66" text-anchor="middle" font-size="15" font-weight="bold" fill="white">✓</text>
+<path d="M 975.77 383.59 A 120 120 0 0 1 937.59 421.77 L 919.57 392.93 A 86 86 0 0 0 946.93 365.57 Z" fill="#edcc7a" stroke="#c09a42" stroke-dasharray="3 2"/>
+<path d="M 930.34 425.95 A 120 120 0 0 1 878.19 439.93 L 877.00 405.95 A 86 86 0 0 0 914.37 395.93 Z" fill="#d99a86"/>
+<text x="900.66" y="424.49" text-anchor="middle" font-size="15" font-weight="bold" fill="white">!</text>
+<path d="M 869.81 439.93 A 120 120 0 0 1 817.66 425.95 L 833.63 395.93 A 86 86 0 0 0 871.00 405.95 Z" fill="#e5e9de"/>
+<path d="M 810.41 421.77 A 120 120 0 0 1 772.23 383.59 L 801.07 365.57 A 86 86 0 0 0 828.43 392.93 Z" fill="#e5e9de"/>
+<path d="M 768.05 376.34 A 120 120 0 0 1 754.07 324.19 L 788.05 323.00 A 86 86 0 0 0 798.07 360.37 Z" fill="#e5e9de"/>
+<path d="M 754.07 315.81 A 120 120 0 0 1 768.05 263.66 L 798.07 279.63 A 86 86 0 0 0 788.05 317.00 Z" fill="#e5e9de"/>
+<path d="M 772.23 256.41 A 120 120 0 0 1 810.41 218.23 L 828.43 247.07 A 86 86 0 0 0 801.07 274.43 Z" fill="#e5e9de"/>
+<path d="M 817.66 214.05 A 120 120 0 0 1 869.81 200.07 L 871.00 234.05 A 86 86 0 0 0 833.63 244.07 Z" fill="#e5e9de"/>
+
+<circle cx="874" cy="320" r="64" fill="#f3f6ee"/>
+<ellipse cx="874" cy="311" rx="34" ry="16" fill="#d4dfc7"/>
+<circle cx="862" cy="301" r="10" fill="#8bac63"/><circle cx="886" cy="299" r="8" fill="#9a809e"/>
+<text x="874" y="346" text-anchor="middle" font-size="14">食物中心</text>
+<text x="874" y="165" text-anchor="middle" font-size="11" fill="#7d8a73">起点 0°</text>
+<path d="M716 366l-15 22 30-5z" fill="#6497b0"/>
+<path d="M731 379L754 368" stroke="#6497b0" stroke-width="2" stroke-dasharray="3 3"/>
+<text x="693" y="418" font-size="12" fill="#57879f">当前位置</text>
+<text x="874" y="503" text-anchor="middle" font-size="13" fill="#6c7e62">外圈：低视角　内圈：高视角</text>
+<rect x="32" y="558" width="1056" height="130" rx="18" fill="white" stroke="#e1e7dc"/>
+<text x="54" y="591" font-size="16" font-weight="bold">拍过，不等于拍好了</text>
+
+<rect x="54" y="610" width="20" height="20" rx="5" fill="#83a56c"/><text x="84" y="626" font-size="14">✓ 合格照片</text>
+<rect x="270" y="610" width="20" height="20" rx="5" fill="#e5e9de"/><text x="300" y="626" font-size="14">未拍摄</text>
+<rect x="486" y="610" width="20" height="20" rx="5" fill="#edcc7a"/><text x="516" y="626" font-size="14">待确认</text>
+<rect x="702" y="610" width="20" height="20" rx="5" fill="#d99a86"/><text x="732" y="626" font-size="14">! 需要补拍</text>
+<text x="54" y="660" font-size="12" fill="#7c8972">点击方向格查看对应照片；位置不可靠时不计覆盖。结束后进行几何复核，再提示缺失方向。</text>
+</g></svg>

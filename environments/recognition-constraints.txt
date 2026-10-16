@@ -1,0 +1,11 @@
+# Verified recognition environment (Python 3.13).
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+numpy==2.5.4
+Pillow==11.3.0
+pycolmap==4.2.1
+opencv-python-headless==5.0.0.93
+open_clip_torch==2.32.0
+gradio==5.49.1
+pytest==9.1.1
+transformers==5.15.0

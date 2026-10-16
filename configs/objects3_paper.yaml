@@ -1,0 +1,25 @@
+schema_version: 1
+frames:
+  ffmpeg: .tools/ffmpeg/bin/ffmpeg.exe
+  ffprobe: .tools/ffmpeg/bin/ffprobe.exe
+  fps: 2.5
+  max_frames: 80
+  max_long_edge: 960
+  min_sharpness: 12.0
+  min_difference: 1.0
+  jpeg_quality: 95
+colmap:
+  backend: pycolmap
+  camera_model: SIMPLE_RADIAL
+  single_camera: true
+  use_gpu: false
+  matcher: exhaustive
+  guided_matching: true
+  minimum_registered_frames: 20
+  num_threads: 8
+  max_runtime_seconds: 900
+reconstruction:
+  cull_alpha_thresh: 0.01
+  densify_grad_thresh: 0.0004
+  stop_split_at: 6000
+  use_absgrad: false

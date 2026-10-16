@@ -1,0 +1,10 @@
+schema_version: 1
+reconstruction:
+  cull_alpha_thresh: 0.01
+  densify_grad_thresh: 0.0004
+  stop_split_at: 12000
+  use_absgrad: false
+# Run with --iterations 15000. Final 3000 steps consolidate the fixed set.
+fusion:
+  max_views: 108
+  minimum_support_views: 3

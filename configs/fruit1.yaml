@@ -1,0 +1,32 @@
+schema_version: 1
+scene_name: fruit1
+photos:
+  max_frames: 120
+  max_long_edge: 960
+  min_sharpness: 12.0
+  min_difference: 0.0
+  jpeg_quality: 95
+colmap:
+  backend: pycolmap
+  camera_model: PINHOLE
+  single_camera: true
+  use_gpu: false
+  matcher: sequential
+  sequential_overlap: 10
+  minimum_registered_frames: 8
+  num_threads: 8
+  max_runtime_seconds: 900
+reconstruction:
+  method: splatfacto
+  max_iterations: 7000
+segmentation:
+  model: sam2.1_hiera_small
+recognition:
+  model: ViT-B-32
+  pretrained: laion2b_s34b_b79k
+  candidates: [apple, banana, durian, bread, orange, pear, table, plate, unknown]
+fusion:
+  minimum_support_views: 3
+viewer:
+  host: 127.0.0.1
+  port: 7860
