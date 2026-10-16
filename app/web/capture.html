@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f8f3"><title>盘感 · 手机环绕扫描</title><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/capture.css"></head>
+<body class="phone-capture"><header class="scan-header"><a href="/capture.html">盘感 <small>PanSense</small></a><span id="connectionStatus">正在连接电脑…</span></header>
+<main class="scan-shell"><div class="scan-heading"><div><p class="scan-kicker">CAMERA CAPTURE</p><h1 id="scanTitle">环绕扫描</h1></div><span id="savedCount" aria-live="polite">0 张已保存</span></div>
+<p id="scanMessage" class="scan-message" role="status">请从电脑“手机扫描”入口扫码连接。</p>
+<div class="scan-workspace"><section class="scan-preview" aria-label="手机摄像头取景"><video id="captureVideo" autoplay playsinline muted></video><div id="cameraPlaceholder" class="scan-camera-placeholder">后置摄像头<br><small>食物保持静止，围绕餐盘移动</small></div><div class="scan-reticle" aria-hidden="true"></div><span id="cameraState" class="scan-camera-state">摄像头未开启</span></section><section id="coverageMap" aria-label="拍摄角度地图"></section></div>
+<div class="scan-mode" role="group" aria-label="角度记录方式"><label><input type="radio" name="scanMode" value="auto" checked> 定位板自动识别</label><label><input type="radio" name="scanMode" value="manual"> 手动选方向（无定位板）</label></div>
+<div class="scan-actions"><button id="startCapture" class="scan-primary" disabled>开启摄像头并扫描</button><button id="shotCapture" class="scan-primary" hidden disabled>拍摄所选方向</button><button id="pauseCapture" disabled>暂停</button><button id="finishCapture" disabled>结束并检查</button></div>
+<div class="scan-guide"><strong>首次使用</strong><p>将食物放在定位板中央，不要移动餐盘。缓慢环绕一圈，再抬高手机补拍。保持同一镜头、方向和变焦。没有定位板也能拍摄，但角度会保持“待确认”。</p><a href="/api/scans/board-20cm.png" target="_blank" rel="noopener">20×20 cm 定位板（100% 打印）</a> · <a href="/api/scans/board.svg" target="_blank" rel="noopener">A3 定位板</a><p>没有打印机？选“手动选方向”：点圆环里的格子表示你所在方向，再点“拍摄所选方向”。外圈为较低视角，内圈为较高俯视。手动方向只是你的标注，不是测量。</p></div>
+<section class="scan-photos-section"><div class="scan-photos-heading"><h2 id="photoHeading">最近照片</h2><button id="showAllFrames">显示最近照片</button></div><div id="captureFrames" class="scan-frames"></div></section>
+<p class="scan-note">照片只发送到配对的电脑。结束后在电脑选择分割方式并生成三维餐盘；拍摄角度齐全不等于食物所有表面都无遮挡。</p>
+</main><dialog id="photoDialog"><button id="closePhoto">关闭</button><img id="fullPhoto" alt="采集照片"></dialog><script type="module" src="/capture.js"></script></body></html>

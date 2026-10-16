@@ -1,5 +1,5 @@
-const CACHE = 'pansense-shell-v11-semantic-history';
-const SHELL = ['/', '/index.html', '/prototype.css', '/app.css', '/app.js', '/icon.svg', '/icon-192.png', '/icon-512.png', '/manifest.webmanifest'];
+const CACHE = 'pansense-shell-v13-phone-scan';
+const SHELL = ['/', '/index.html', '/prototype.css', '/app.css', '/app.js', '/scan-desktop.js', '/scan-map.js', '/capture.css', '/icon.svg', '/icon-192.png', '/icon-512.png', '/manifest.webmanifest'];
 self.addEventListener('install', event => {event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})))));self.skipWaiting();});
 self.addEventListener('activate', event => {event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))));self.clients.claim();});
 self.addEventListener('fetch', event => {

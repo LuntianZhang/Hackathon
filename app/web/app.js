@@ -1,3 +1,4 @@
+import {phoneScan} from './scan-desktop.js';
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const state = {page:'home',profile:null,catalog:[],meals:[],drafts:[],summary:null,meal:null,selected:null,
@@ -97,8 +98,9 @@ function onboard() {
  <button class="button primary" data-action="onboard-goal">选择每日热量参考值</button><button class="text-btn" style="width:100%;margin-top:8px" data-action="onboard-skip">先记录，跳过设置</button></div>`;
 }
 function scan() {
+ if(state.captureFlow==='mobile')return phoneScan.html()+`<button class="text-btn" data-capture-flow="photo">← 返回照片 / 视频记录</button>`;
  const edit=state.captureFlow==='edit',video=state.captureFlow==='video';
- const navigation=`<div class="capture-modes" role="group" aria-label="记录方式">${[['photo','照片记录'],['video','三维记录'],['edit','调整已有餐盘']].map(([value,label])=>`<button data-capture-flow="${value}" class="${state.captureFlow===value?'active':''}" aria-pressed="${state.captureFlow===value}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div>`;
+ const navigation=`<div class="capture-modes" role="group" aria-label="记录方式">${[['photo','照片记录'],['video','三维记录'],['mobile','手机扫描'],['edit','调整已有餐盘']].map(([value,label])=>`<button data-capture-flow="${value}" class="${state.captureFlow===value?'active':''}" aria-pressed="${state.captureFlow===value}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div>`;
  const heading=`<div class="eyebrow">${edit?'EDIT THIS PLATE':'RECORD A MEAL'}</div><h1 class="screen-heading">${edit?'调整已有餐盘':'记录这一餐。'}</h1><p class="muted tiny">${edit?'从历史记录选择餐盘，更新食物名称与区域。':video?'环绕视频，生成可观察的三维餐盘。':'拍下完整餐盘，快速识别并核对。'}</p>${navigation}`;
  if(edit&&!state.recognitionParent)return heading+historyPlates();
  const preview = state.stream?'<video id="cameraPreview" autoplay muted playsinline></video>':(state.fileUrl||state.seedSourceUrl)?
@@ -207,7 +209,7 @@ function semanticPanel(){
 function result() {
  if (!state.meal) return '<div class="empty">先拍照或导入一餐。</div>';
  const meal = state.meal;
- if(meal.video_reference_ready||meal.video_preparing)return `<div class="eyebrow">PREPARE YOUR PLATE</div><h1 class="screen-heading">准备视频参考帧</h1>${processing(meal)}<p class="estimate-note">先完成相机位姿估计，再在同一张参考帧上标记食物，继续重建与语义融合。草稿会保留，可以稍后继续。</p><button class="button primary" data-action="resume-video">${meal.video_reference_ready?'继续标记食物':'查看参考帧准备进度'}</button>`;
+ if(meal.video_reference_ready||meal.video_preparing)return `<div class="eyebrow">PREPARE YOUR PLATE</div><h1 class="screen-heading">准备${meal.source_kind==='scan'?'扫描':'视频'}参考帧</h1>${processing(meal)}<p class="estimate-note">先完成相机位姿估计，再在同一张参考帧上标记食物，继续重建与语义融合。草稿会保留，可以稍后继续。</p><button class="button primary" data-action="resume-video">${meal.video_reference_ready?'继续标记食物':'查看参考帧准备进度'}</button>`;
  return `<div class="backline">${state.nutritionReturnMealId===meal.id?`<button class="back" data-action="return-edit">${icon('back')}返回餐盘调整</button>`:`<button class="back" data-page="${meal.saved_at?'diary':'scan'}">${icon('back')} ${meal.saved_at?'返回日记':'返回拍摄'}</button>`}<span class="source-pill">${meal.source_kind==='demo'?'已有三维示例':meal.saved_at?'已保存':'等待确认'}</span></div>
  <div class="eyebrow">MEAL INSIGHT</div><h1 class="screen-heading">${esc(meal.title)}</h1><p class="tiny muted">${mealType[meal.meal_type]} · ${dateLabel(meal.occurred_at)} ${timeLabel(meal.occurred_at)}</p>${meal.note?`<p class="record-note">${esc(meal.note)}</p>`:''}${processing(meal)}
  ${mealImage(state.mode==='3d')}<div class="segmented"><button class="${state.mode==='photo'?'selected':''}" data-mode="photo">原始照片</button>${meal.semantic_overlay_url?`<button class="${state.mode==='semantic'?'selected':''}" data-mode="semantic">语义分割</button>`:''}<button class="${state.mode==='3d'?'selected':''}" data-mode="3d">3D 餐盘</button></div>
@@ -298,6 +300,7 @@ function render(preserve=false) {
  $('tabbar').innerHTML=nav();$('modal').innerHTML=modalHTML();screen.scrollTop=preserve?scroll:0;
  if(state.stream&&$('cameraPreview')) $('cameraPreview').srcObject=state.stream;
  paintSeeds();
+ if(state.page==='scan'&&state.captureFlow==='mobile')phoneScan.mount();
  if($('plateImage')) {state.imageReady=false;$('plateImage').onload=()=>{state.imageReady=true;};if($('plateImage').complete)state.imageReady=true;}
  if(viewActive()&&!state.view&&!state.viewBusy) queueMicrotask(()=>requestView(true));
 }
@@ -309,12 +312,14 @@ async function refreshRecords() {
  state.meals=records.meals;state.drafts=all.meals.filter(meal=>!meal.saved_at);state.summary=summary;
 }
 async function go(page, push=true) {
+ if(page!=='scan')phoneScan.leave();
  if(page!=='scan')stopCamera();
  if(['result','plate'].includes(page)&&!state.meal){toast('请先拍照或选择一餐');page='scan';}
  if(page==='plate')state.mode='3d';
  if(page==='home'){state.date=localDay();await refreshRecords();}
  if(page==='diary')await refreshRecords();
  if(page==='scan'&&state.captureFlow==='edit'&&!state.recognitionParent)await refreshRecords();
+ if(page==='scan'&&state.captureFlow==='mobile')await phoneScan.enter();
  state.page=page;
  if(push)history.pushState(null,'',`#${page}${['result','plate'].includes(page)?'/'+state.meal.id:''}`);
  render();
@@ -471,6 +476,7 @@ async function chooseFile(file,kind) {
  state.file=file;state.fileKind=kind;state.fileUrl=URL.createObjectURL(file);state.page='scan';render();
 }
 function resetCapture(){
+ phoneScan.leave();
  resetViewer();
  stopCamera();clearTimeout(state.preparePoll);state.captureEpoch++;
  if(state.fileUrl)URL.revokeObjectURL(state.fileUrl);
@@ -594,7 +600,7 @@ async function action(name){
   case 'prepare-video':await prepareVideo();break;
   case 'resume-video':{
    const meal=await api(`/meals/${state.meal.id}`);resetCapture();state.captureFlow='video';state.fileKind='video';
-   state.videoPrepared=meal;state.assistMode='manual';state.file={name:'已上传的环绕视频'};state.paperPresent=meal.paper_present!==false;
+   state.videoPrepared=meal;state.assistMode='manual';state.file={name:meal.source_kind==='scan'?'已上传的扫描照片':'已上传的环绕视频'};state.paperPresent=meal.paper_present!==false;
    state.fileUrl=meal.photo_url;state.seedSourceUrl=meal.video_reference_ready?meal.photo_url:null;
    state.page='scan';history.pushState(null,'','#scan');
    if(meal.video_preparing&&meal.analysis.status!=='failed'){state.videoPreparing=true;await pollVideoPreparation(state.captureEpoch);}
@@ -650,7 +656,7 @@ document.addEventListener('click',async event=>{
    if(state.uploading)return;
    resetCapture();state.captureFlow=button.dataset.captureFlow;state.fileKind=state.captureFlow==='video'?'video':'photo';
    state.assistMode='grounded';state.historyMealId=null;
-   if(state.captureFlow==='edit')await refreshRecords();render();return;
+   if(state.captureFlow==='edit')await refreshRecords();if(state.captureFlow==='mobile')await phoneScan.enter();render();return;
   }
   if(button.dataset.editPreview){state.editPreview=button.dataset.editPreview;state.editViewError=null;render(true);return;}
   if(button.dataset.captureAssist){state.assistMode=button.dataset.captureAssist;if(state.captureFlow==='edit'&&state.assistMode==='manual')state.editPreview='reference';render(true);return;}
@@ -721,5 +727,6 @@ async function bootstrap(){
   if(!profile.onboarded){state.page='onboard';render();}else{state.page='home';await route();render();}
  }catch(error){state.offline=true;render();toast(error.message);}
 }
+phoneScan.configure({api,redraw:()=>{if(state.page==='scan'&&state.captureFlow==='mobile')render(true);},openMeal});
 if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 await bootstrap();

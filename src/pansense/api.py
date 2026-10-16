@@ -91,16 +91,19 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
     gpu_lock = threading.Lock()
     views = Views(gpu_lock)
     jobs = Jobs(store, project, gpu_lock, enabled=jobs_enabled, release_gpu=views.release_gpu)
+    from .scans import Scans
+    scans = Scans(store,jobs,project)
 
     @asynccontextmanager
     async def lifespan(app):
         jobs.recover()
         yield
         jobs.close()
+        scans.gateway.close()
         views.release_gpu()
 
     app = FastAPI(title='PanSense P0',version='0.1.0',lifespan=lifespan)
-    app.state.store, app.state.jobs, app.state.views = store, jobs, views
+    app.state.store, app.state.jobs, app.state.views, app.state.scans = store, jobs, views, scans
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1','localhost','testserver'])
 
     @app.middleware('http')
@@ -291,21 +294,21 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         from food3d.segmentation.hints import validate_assistance
         options = validate_assistance(body.assistance, list(catalog.foods.values()), allow_none=True)
         def start(value):
-            if value['source_kind'] != 'video' or not value.get('prepared_video'):
+            if value['source_kind'] not in {'video','scan'} or not value.get('prepared_video'):
                 raise ValueError('请先准备视频参考帧')
             if value['analysis']['status'] != 'ready' or value.get('video_started'):
                 raise ValueError('该视频尚未准备好，或已经开始分析')
             value.update(assistance=options, paper_present=body.paper_present, video_started=True,
                          analysis={'status':'queued','stage':'等待分析','progress':0,'error':None})
         value = store.mutate(identifier, start, body.revision)
-        jobs.submit(identifier,'video',owned_path(value['input_file']))
+        jobs.submit(identifier,'scan' if value['source_kind']=='scan' else 'video',owned_path(value['input_file']))
         return public(store.get(identifier))
     @app.post('/api/meals/{identifier}/retry')
     def retry(identifier: str):
         meal = store.get(identifier)
         if meal['analysis']['status'] in {'running','queued'}: raise ValueError('这餐正在分析，请稍候')
-        if not meal.get('input_file') or not Path(meal['input_file']).is_file(): raise ValueError('源文件已不可用，可继续手工记录')
-        kind = 'video-prepare' if meal['source_kind']=='video' and meal.get('video_preparing') else meal['source_kind']
+        if not meal.get('input_file') or not Path(meal['input_file']).exists(): raise ValueError('源文件已不可用，可继续手工记录')
+        kind = meal['source_kind']+'-prepare' if meal['source_kind'] in {'video','scan'} and meal.get('video_preparing') else meal['source_kind']
         jobs.submit(identifier,kind,owned_path(meal['input_file']))
         return public(store.get(identifier))
 
@@ -339,12 +342,14 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
             value = store.mutate(identifier,strip)
             views.clear_meal(identifier)
             clean_uploads(identifier)
+            scans.remove_for_meal(identifier)
         return public(value)
 
     @app.delete('/api/meals/{identifier}')
     def delete_meal(identifier: str):
         store.delete(identifier)
         jobs.cancel(identifier)
+        scans.remove_for_meal(identifier)
         views.clear_meal(identifier)
         clean_uploads(identifier)
         return {'deleted':True}
@@ -414,6 +419,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         if body.confirmation != 'DELETE': raise ValueError('请确认删除本机全部餐食记录')
         identifiers = [meal['id'] for meal in store.list(include_drafts=True)]
         store.purge()
+        scans.purge()
         for identifier in identifiers:
             jobs.cancel(identifier); clean_uploads(identifier); views.clear_meal(identifier)
         return {'deleted':True,'profile':store.profile()}
@@ -422,6 +428,8 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
     register_assistance(app, store, jobs, project, public, owned_path)
     from .meal_semantics import register_meal_semantics
     register_meal_semantics(app, store, jobs, project, public, owned_path)
+    from .scan_api import register_scan_routes
+    register_scan_routes(app,scans,public)
     app.mount('/',StaticFiles(directory=project/'app/web',html=True),name='pansense-web')
     return app
 

@@ -44,7 +44,7 @@ class Jobs:
 
     def submit(self, meal_id, kind, input_path):
         self.cancelled.discard(meal_id)
-        if kind == 'video-prepare': self.store.fields(meal_id, video_preparing=True)
+        if kind in {'video-prepare','scan-prepare'}: self.store.fields(meal_id, video_preparing=True)
         self.store.fields(meal_id, analysis={'status':'queued','stage':'等待分析','progress':0,'error':None})
         if self.enabled:
             self.futures[meal_id] = self.pool.submit(self.run, meal_id, kind, Path(input_path))
@@ -158,7 +158,7 @@ class Jobs:
                       'progress':100,'error':None if entries else '未找到可靠候选，请手工添加食物'},
                       three_d_reason='单张照片缺少多视角信息，可继续使用二维食物清单记录')
                 else:
-                    self.video(meal_id, input_path, work, log, prepare_only=kind=='video-prepare')
+                    self.video(meal_id, input_path, work, log, prepare_only=kind in {'video-prepare','scan-prepare'},from_photos=kind in {'scan','scan-prepare'})
             # Queue after releasing the shared GPU lock. The recognition result
             # and its masks are the input to this meal's geometry, not a second
             # independent recognition of a canned demo.
@@ -180,15 +180,18 @@ class Jobs:
                 self.store.fields(meal_id, analysis={'status':'failed','stage':'分析未完成','progress':0,
                     'error':detail}, three_d_reason='三维暂不可用，已有食物清单仍可修改和保存')
 
-    def video(self, meal_id, input_path, work, log, prepare_only=False):
+    def video(self, meal_id, input_path, work, log, prepare_only=False,from_photos=False):
         config = load_config(self.project/self.settings['scene_config'])
         tools = config['frames']
-        probe = subprocess.run([tools['ffprobe'],'-v','error','-show_format','-of','json',str(input_path)],
-                               capture_output=True, text=True, encoding='utf-8', check=True)
-        duration = float(json.loads(probe.stdout)['format']['duration'])
-        if not 3 <= duration <= 180:
-            raise ValueError('请使用 3 秒至 3 分钟的环绕视频')
-        config['frames']['fps'] = min(3, 119/duration)
+        if not from_photos:
+            probe = subprocess.run([tools['ffprobe'],'-v','error','-show_format','-of','json',str(input_path)],
+                                   capture_output=True, text=True, encoding='utf-8', check=True)
+            duration = float(json.loads(probe.stdout)['format']['duration'])
+            if not 3 <= duration <= 180:
+                raise ValueError('请使用 3 秒至 3 分钟的环绕视频')
+            config['frames']['fps'] = min(3, 119/duration)
+        else:
+            config['photos']={'max_frames':180,'max_long_edge':1280,'min_sharpness':12,'min_difference':.5,'jpeg_quality':95}
         config['reconstruction']['stop_split_at'] = int(self.settings['stop_split_at'])
         config_path = work/'config.yaml'
         config_path.write_text(yaml.safe_dump(config, allow_unicode=True), encoding='utf-8')
@@ -201,11 +204,16 @@ class Jobs:
             if not scene.is_relative_to((self.store.root/'uploads'/meal_id).resolve()):
                 raise ValueError('视频参考帧不属于当前餐盘')
         else:
-            self.stage(meal_id,'筛选视频画面',5)
-            recognition('extract','--video',input_path,'--scene',scene,'--config',config_path)
+            self.stage(meal_id,'导入手机扫描照片' if from_photos else '筛选视频画面',5)
+            if from_photos:
+                recognition('photos','--input',input_path,'--scene',scene,'--config',config_path)
+            else:
+                recognition('extract','--video',input_path,'--scene',scene,'--config',config_path)
             self.stage(meal_id,'关联不同拍摄角度，准备标注参考帧' if prepare_only else '关联不同拍摄角度',15)
             recognition('colmap','--scene',scene,'--config',config_path)
         _, frames = load_scene(scene/'scene.json')
+        if from_photos and hasattr(self,'verify_scan'):
+            self.verify_scan(self.store.get(meal_id)['scan_id'],scene,input_path)
         seed = next((f for f in frames if prepared and f.frame_id==prepared['reference_frame']),None) if prepared else frames[min(15,len(frames)-1)]
         if seed is None: raise ValueError('标注参考帧已不可用，请重新导入视频')
         if prepare_only:
