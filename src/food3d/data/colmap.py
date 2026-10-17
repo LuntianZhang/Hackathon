@@ -12,6 +12,7 @@ from PIL import Image
 from ..io import read_json, run_logged, write_json, write_point_cloud_ply
 from ..schemas import CameraFrame, save_scene
 from .cameras import export_nerfstudio_transforms, quaternion_to_rotation
+from .board_background import feature_mask_path,apply_background
 
 
 def _help(executable: str, command: str) -> str:
@@ -106,7 +107,9 @@ def reconstruct_cameras(scene: Path, options: dict) -> dict:
     sparse.mkdir()
     log = scene / "logs" / "colmap.log"
     database = work / "database.db"
-    run_logged([executable, "feature_extractor", "--database_path", str(database), "--image_path", str(scene / "frames"), "--ImageReader.camera_model", str(options.get("camera_model", "OPENCV")), "--ImageReader.single_camera", "1" if options.get("single_camera", True) else "0", feature_gpu, gpu], log)
+    mask_root=feature_mask_path(scene,manifest)
+    mask_args=['--ImageReader.mask_path',str(mask_root)] if mask_root else []
+    run_logged([executable, "feature_extractor", "--database_path", str(database), "--image_path", str(scene / "frames"), "--ImageReader.camera_model", str(options.get("camera_model", "OPENCV")), "--ImageReader.single_camera", "1" if options.get("single_camera", True) else "0", feature_gpu, gpu,*mask_args], log)
     run_logged([executable, match_command, "--database_path", str(database), match_gpu, gpu], log)
     run_logged([executable, "mapper", "--database_path", str(database), "--image_path", str(scene / "frames"), "--output_path", str(sparse)], log)
     models = []
@@ -127,10 +130,10 @@ def reconstruct_cameras(scene: Path, options: dict) -> dict:
     text_path = work / "undistorted_text"
     text_path.mkdir()
     run_logged([executable, "model_converter", "--input_path", str(dense / "sparse"), "--output_path", str(text_path), "--output_type", "TXT"], log)
-    return _export_scene_data(scene, manifest, text_path, dense)
+    return _export_scene_data(scene, manifest, text_path, dense,work/'model_text'/best.name)
 
 
-def _export_scene_data(scene: Path, manifest: dict, text_path: Path, dense: Path) -> dict:
+def _export_scene_data(scene: Path, manifest: dict, text_path: Path, dense: Path, original_model=None) -> dict:
     accepted = [frame for frame in manifest["frames"] if frame["accepted"]]
     shutil.copytree(dense / "images", scene / "images")
     cameras = read_cameras(text_path / "cameras.txt")
@@ -152,6 +155,7 @@ def _export_scene_data(scene: Path, manifest: dict, text_path: Path, dense: Path
         pose[:3, :3] = rotation.T
         pose[:3, 3] = -rotation.T @ image["t"]
         frames.append(CameraFrame(original["frame_id"], relative_image.as_posix(), width, height, k.tolist(), pose.tolist(), source_frame_id=original["frame_id"], timestamp_seconds=original["timestamp_seconds"], colmap_image_id=image["image_id"], colmap_camera_id=image["camera_id"]))
+    frames=apply_background(scene,manifest,frames,original_model)
     points, colors, errors = read_points(text_path / "points3D.txt")
     np.savez_compressed(scene / "sparse_points.npz", positions=points, colors=colors, reprojection_errors=errors)
     write_point_cloud_ply(scene / "sparse_points.ply", points, colors)
@@ -181,6 +185,8 @@ def _reconstruct_pycolmap(scene: Path, options: dict, manifest: dict) -> dict:
         print(f"COLMAP: {stage}", flush=True)
     reader = p.ImageReaderOptions()
     reader.camera_model = str(options.get("camera_model", "OPENCV"))
+    mask_root=feature_mask_path(scene,manifest)
+    if mask_root:reader.mask_path=mask_root
     # These names were checked against the installed pycolmap 4.2.1 API.
     if not hasattr(p, "FeatureExtractionOptions"):
         raise RuntimeError("当前 pycolmap 版本不支持 FeatureExtractionOptions，请升级至验证版本")
@@ -189,6 +195,8 @@ def _reconstruct_pycolmap(scene: Path, options: dict, manifest: dict) -> dict:
     extraction.use_gpu = bool(options.get("use_gpu", False))
     device = p.Device.cuda if extraction.use_gpu else p.Device.cpu
     reuse_database = options.get("reuse_database")
+    if reuse_database and mask_root:
+        raise ValueError('排除背景需要重新提取特征，不能复用旧的匹配数据库')
     if reuse_database:
         previous_database = Path(reuse_database).resolve()
         if not previous_database.is_file():
@@ -248,7 +256,7 @@ def _reconstruct_pycolmap(scene: Path, options: dict, manifest: dict) -> dict:
     text_path = work / "undistorted_text"
     text_path.mkdir()
     p.Reconstruction(dense / "sparse").write_text(text_path)
-    statistics = _export_scene_data(scene, manifest, text_path, dense)
+    statistics = _export_scene_data(scene, manifest, text_path, dense,best_path)
     progress("complete")
     return statistics
 

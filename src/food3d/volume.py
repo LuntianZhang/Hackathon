@@ -119,10 +119,13 @@ def load_calibration(bundle: Path, report: dict) -> dict | None:
     if not path.exists():
         return None
     value = read_json(path)
-    if value.get('source')=='white_paper_rectangle_multiview':
+    if value.get('source') in {'white_paper_rectangle_multiview','pansense_aruco_board_multiview'}:
         from .paper_scale import camera_hash
         if value.get('status')!='calibrated' or value.get('model_sha256')!=report['model_sha256'] or value.get('camera_sha256')!=camera_hash(bundle):
             return None
+        if value['source']=='pansense_aruco_board_multiview':
+            from .board_scale import board_hash
+            if value.get('board_sha256')!=board_hash():return None
         scaled_volume({'volume_model_units3':1.0},value['cm_per_model_unit'])
         return value
     if any(value.get(key) != report[key] for key in ("model_sha256", "semantics_sha256", "method", "options")):
@@ -156,7 +159,8 @@ def volume_text(report: dict, selected: int, calibration: dict | None) -> str:
         return "可靠三维采样不足，暂时无法估算体积"
     factor = None if calibration is None else calibration["cm_per_model_unit"]
     ml = scaled_volume(entry, factor)
-    basis='基于白色纸片标定' if calibration and calibration.get('source')=='white_paper_rectangle_multiview' else '基于输入尺寸标定'
+    source=calibration.get('source') if calibration else None
+    basis='基于定位板估算' if source=='pansense_aruco_board_multiview' else '基于白色纸片标定' if source=='white_paper_rectangle_multiview' else '基于输入尺寸标定'
     value = (f"约 {ml:.1f} mL（cm³，{basis}）" if ml is not None
              else f"约 {entry['volume_model_units3']:.6g} 模型单位³（未标定）")
     span = entry["max_span_model_units"]
@@ -175,14 +179,20 @@ def published_measurements(bundle: Path):
         return {'status':'stale','instances':[]}
     calibration=load_calibration(bundle,report)
     scale=calibration['cm_per_model_unit'] if calibration else None
-    paper_path=bundle/'measurements/paper_reference.json'
-    paper=read_json(paper_path) if paper_path.is_file() else {}
+    reference_path=bundle/'measurements/board_reference.json'
+    reference=read_json(reference_path) if reference_path.is_file() else {}
     return {'status':'calibrated' if calibration else 'unscaled',
         'scale_source':calibration.get('source') if calibration else None,
+        'board_name':calibration.get('board_name') if calibration else None,
+        'board_width_cm':calibration.get('board_width_cm') if calibration else None,
+        'board_height_cm':calibration.get('board_height_cm') if calibration else None,
+        'marker_size_cm':calibration.get('marker_size_cm') if calibration else None,
+        'reference_markers':len(calibration.get('marker_ids',[])) if calibration else 0,
+        'reprojection_rms_px':calibration.get('reprojection_rms_px') if calibration else None,
         'paper_length_cm':calibration.get('paper_length_cm') if calibration else None,
         'paper_width_cm':calibration.get('paper_width_cm') if calibration else None,
         'reference_views':len(calibration.get('inlier_views',[])) if calibration else 0,
-        'reason':paper.get('reason') if not calibration else None,
+        'reason':reference.get('reason') if not calibration else None,
         'instances':[{**entry,'volume_ml':scaled_volume(entry,scale),
             'max_span_cm':entry['max_span_model_units']*scale if scale and entry['max_span_model_units'] else None} for entry in report['instances']],
         'limitation':'可靠高斯中心的凸包包围体积粗估；凹陷、遮挡和缺失表面会产生误差，非视觉称重。'}

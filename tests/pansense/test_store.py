@@ -52,6 +52,7 @@ def test_empty_draft_cannot_save_and_catalog_has_traceable_sources(store):
     empty = store.create('manual')
     with pytest.raises(ValueError):
         store.save(empty['id'], {}, empty['revision'])
-    assert len(store.catalog.foods) == 21
+    assert len(store.catalog.foods) >= 300
     assert store.catalog.data['source_sha256']
-    assert all(food['ndb_number'] and len(food['per_100g']) == 4 for food in store.catalog.foods.values())
+    assert all((food['ndb_number'] and len(food['per_100g'])==4) if food['nutrient_status']=='verified'
+               else food['per_100g'] is None for food in store.catalog.foods.values())

@@ -5,7 +5,13 @@ let desired={yaw:0,pitch:0,zoom:1},cameraId=null,timer=null,epoch=0,lastSent=-In
 const frameInterval=65;
 const status=text=>{$('modelStatus').textContent=text;};
 async function api(path,body){const response=await fetch('/api'+path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const value=await response.json();if(!response.ok){const error=new Error(value.detail||'操作未完成');error.code=response.status;throw error;}return value;}
-function foodButtons(){const parent=$('foods');parent.replaceChildren();for(const food of meal.items){const button=document.createElement('button');button.className='button secondary'+(selected===food.id?' selected':'');button.textContent=`ID ${food.instance_id} · ${food.name}`;button.onclick=()=>{selected=food.id;$('selection').textContent=`Instance ${food.instance_id}：${food.name}`;foodButtons();schedule();};parent.append(button);}}
+function selectionText(food){
+ if(!food)return '';
+ const volume=food.volume?.volume_ml;
+ const basis=meal.volume_summary?.scale_source==='pansense_aruco_board_multiview'?' · 定位板估算':'';
+ return `ID ${food.instance_id}：${food.name}${volume!=null?` · 约 ${volume.toFixed(1)} mL${basis}`:''}`;
+}
+function foodButtons(){const parent=$('foods');parent.replaceChildren();for(const food of meal.items){const button=document.createElement('button');button.className='button secondary'+(selected===food.id?' selected':'');button.textContent=selectionText(food);button.onclick=()=>{selected=food.id;$('selection').textContent=selectionText(food);foodButtons();schedule();};parent.append(button);}}
 // Fixed-rate sampling, not debounce: pointer moves never postpone a frame.
 // One request in flight; all subsequent gestures coalesce into the latest pose.
 function schedule(minDelay=0){dirty=true;if(busy||timer!==null)return;timer=setTimeout(()=>{timer=null;render();},Math.max(minDelay,frameInterval-(performance.now()-lastSent)));}
@@ -26,6 +32,6 @@ image.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId
 image.addEventListener('pointerup',event=>{if(drag?.id!==event.pointerId)return;if(drag.moved){suppressUntil=performance.now()+400;schedule();}drag=null;$('modelShell').classList.remove('dragging');});
 image.addEventListener('pointercancel',()=>{drag=null;$('modelShell').classList.remove('dragging');});
 image.addEventListener('wheel',event=>{event.preventDefault();zoom(Math.exp(Math.max(-200,Math.min(200,event.deltaY))*.0015));},{passive:false});
-image.addEventListener('click',async event=>{if(!ready||busy||dirty||!frame||performance.now()<suppressUntil)return;const box=image.getBoundingClientRect();try{const value=await api(`/meals/${runId}/pick`,{token:frame.token,x:(event.clientX-box.left)/box.width,y:(event.clientY-box.top)/box.height});selected=value.food_id;$('selection').textContent=value.message;foodButtons();schedule();}catch(error){status(error.message);}});
+image.addEventListener('click',async event=>{if(!ready||busy||dirty||!frame||performance.now()<suppressUntil)return;const box=image.getBoundingClientRect();try{const value=await api(`/meals/${runId}/pick`,{token:frame.token,x:(event.clientX-box.left)/box.width,y:(event.clientY-box.top)/box.height});selected=value.food_id;$('selection').textContent=selectionText(meal.items.find(item=>item.id===selected))||value.message;foodButtons();schedule();}catch(error){status(error.message);}});
 async function load(){if(!runId){status('请从识别对比页选择一个版本');return;}try{meal=await api(`/meals/${runId}`);$('back').href='/recognition.html?session='+meal.comparison_parent;if(meal.three_d_available){foodButtons();await render();return;}const job=meal.three_d_analysis;status(job?`${job.stage} · ${job.progress}%`:(meal.three_d_reason||'请先选择版本并生成三维关联'));$('loading').textContent=job?.error||job?.stage||meal.three_d_reason||'三维模型尚未生成';if(['queued','running'].includes(job?.status))setTimeout(load,1500);}catch(error){status(error.message);}}
 load();

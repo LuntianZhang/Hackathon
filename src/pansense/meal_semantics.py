@@ -29,12 +29,17 @@ class RecognitionRestart(BaseModel):
 
 def register_meal_semantics(app, store, jobs, project, public, owned_path):
     data_root = ProjectPaths(project).data_root
+    @app.get('/api/recognition/model-status')
+    def vision_model_status():
+        from food3d.segmentation.vision_llm import service_status
+        return service_status(project)
     @app.get('/api/meals/{identifier}/scale-reference')
     def scale_reference(identifier:str):
         meal=store.get(identifier)
-        if not meal.get('bundle_ref'): raise KeyError('这餐尚无纸片标定结果')
-        path=(Path(meal['bundle_ref'])/'measurements/paper_detections.jpg').resolve()
-        if not path.is_relative_to((data_root).resolve()) or not path.is_file(): raise KeyError('纸片检测图片不可用')
+        if not meal.get('bundle_ref'): raise KeyError('这餐尚无定位板标定结果')
+        path=(Path(meal['bundle_ref'])/'measurements/board_detections.jpg').resolve()
+        allowed=[data_root.resolve(),(store.root/'uploads').resolve()]
+        if not any(path.is_relative_to(root) for root in allowed) or not path.is_file(): raise KeyError('定位板检测图片不可用')
         return FileResponse(path)
 
     @app.get('/api/recognition/results')

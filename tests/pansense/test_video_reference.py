@@ -1,7 +1,6 @@
 """Video prompts must refer to the exact registered, undistorted reference frame."""
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
 import numpy as np
 from fastapi.testclient import TestClient
@@ -34,12 +33,13 @@ def test_prepare_does_not_start_recognition_and_manual_start_is_revision_checked
         assert meal['video_preparing'] and not meal['video_reference_ready']
         calls = []
         def command(identifier, argv, log, *args, **kwargs):
+            if kwargs.get('output'):
+                kwargs['output'].write_text(json.dumps({'format': {'duration': '10'}}))
+                return
             calls.append(argv)
             if 'colmap' in argv:
                 reference_scene(Path(argv[argv.index('--scene')+1]))
         monkeypatch.setattr(jobs, 'command', command)
-        monkeypatch.setattr('pansense.jobs.subprocess.run', lambda *a, **k:
-            SimpleNamespace(stdout=json.dumps({'format': {'duration': '10'}})))
         work = tmp_path/'uploads'/meal['id']/'preparation'
         work.mkdir()
         jobs.video(meal['id'], work.parent/'source.mp4', work, work/'analysis.log', prepare_only=True)
@@ -98,8 +98,6 @@ def test_video_without_segmentation_only_builds_geometry(tmp_path, monkeypatch):
             else:
                 raise AssertionError(f'Unexpected processing: {argv}')
         monkeypatch.setattr(jobs,'command',command)
-        monkeypatch.setattr('pansense.jobs.subprocess.run',lambda *a,**k:
-            SimpleNamespace(stdout=json.dumps({'format':{'duration':'10'}})))
         jobs.video(meal['id'],root/'source.mp4',work,work/'analysis.log')
         ready=client.get('/api/meals/'+meal['id']).json()
         assert ready['three_d_available'] and ready['analysis']['status']=='ready'
@@ -122,7 +120,7 @@ def test_video_start_rejects_missing_reference_invalid_regions_and_wrong_kind(tm
 
 
 @pytest.mark.parametrize('paper_present', [False, True])
-def test_prepared_video_keeps_manual_identity_and_respects_paper_choice(tmp_path, monkeypatch, paper_present):
+def test_prepared_video_keeps_manual_identity_and_uses_board_regardless_of_legacy_paper_choice(tmp_path, monkeypatch, paper_present):
     with TestClient(create_app(Path.cwd(), tmp_path, jobs_enabled=False)) as client:
         store, jobs = client.app.state.store, client.app.state.jobs
         meal = store.create('video', paper_present=paper_present, assistance={'mode': 'manual', 'foods': [],
@@ -146,13 +144,12 @@ def test_prepared_video_keeps_manual_identity_and_respects_paper_choice(tmp_path
                 folder = work/'evaluation'; folder.mkdir()
                 (folder/'report.json').write_text(json.dumps({'mean_instance_iou': .9, 'food_click_accuracy': .9}))
         monkeypatch.setattr(jobs, 'command', command)
-        monkeypatch.setattr('pansense.jobs.subprocess.run', lambda *a, **k:
-            SimpleNamespace(stdout=json.dumps({'format': {'duration': '10'}})))
         jobs.video(meal['id'], root/'source.mp4', work, work/'analysis.log')
         done = store.get(meal['id'])
         assert done['analysis']['status'] == 'ready' and done['bundle_ref']
         assert done['items'][0]['instance_id'] == 9 and done['items'][0]['name'] == '自定义水果'
         assert done['items'][0]['source'] == 'manual_prompt' and not done['items'][0]['needs_review']
         assert done['items'][0]['region']['path'].endswith('000001.png')
-        assert any('paper-scale' in c for c in calls) == paper_present
+        assert any('board-scale' in c for c in calls)
+        assert not any('paper-scale' in c for c in calls)
         assert not any('extract' in c or 'colmap' in c for c in calls)

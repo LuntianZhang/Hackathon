@@ -1,4 +1,4 @@
-"""Three independent recognition variants on the exact same source photo."""
+"""Four independent recognition variants on the same source photo/scene."""
 from __future__ import annotations
 
 from hashlib import sha256
@@ -83,12 +83,13 @@ def register_assistance(app, store, jobs, project, public, owned_path):
         children = [m for m in store.list(include_drafts=True) if m.get('comparison_parent') == identifier]
         if len(children) >= 40:
             raise ValueError('每张照片最多保留 40 次对比，请删除旧结果后重试')
-        # Disable duplicates on double-click while still permitting three modes
+        # Disable duplicates on double-click while still permitting all modes
         # to queue for one source. No result can overwrite a sibling or 3D model.
         if any(m['analysis']['status'] in {'queued','running'} and m.get('assistance') == assistance for m in children):
             raise ValueError('相同输入正在分析，请等待结果')
         meal = store.create('photo', title='辅助识别 · '+assistance['mode'], comparison_parent=identifier,
-                            source_sha256=parent['source_sha256'], assistance=assistance)
+                            source_sha256=parent['source_sha256'], assistance=assistance,
+                            reconstruction_binding=source_binding(parent, project, store.root/'uploads'))
         folder = owned_path(store.root/'uploads'/meal['id'])
         folder.mkdir(parents=True)
         photo = folder/'source.jpg'

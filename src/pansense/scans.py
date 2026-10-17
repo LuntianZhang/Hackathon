@@ -170,7 +170,7 @@ class Scans:
             self.recalculate(value);self.save(value);path.unlink(missing_ok=True)
             return self.public(value)
 
-    def make_meal(self,identifier,options,paper_present,prepare_only=False):
+    def make_meal(self,identifier,options,paper_present,prepare_only=False,board_background=False):
         with self.lock:
             value=self.get(identifier)
             if value.get('meal_id'): return self.store.get(value['meal_id'])
@@ -179,7 +179,7 @@ class Scans:
             minimum=int(self.jobs.settings.get('scan_minimum_frames',20))
             if len(frames)<minimum: raise ValueError(f'至少需要 {minimum} 张清晰且不重复的照片，当前 {len(frames)} 张')
             meal=self.store.create('scan',title=value['title'],scan_id=identifier,assistance=options,
-                                   paper_present=paper_present)
+                                   paper_present=paper_present,board_background=board_background)
             folder=self.store.root/'uploads'/meal['id'];source=folder/'capture';source.mkdir(parents=True)
             try:
                 for i,frame in enumerate(frames): shutil.copyfile(self.frame_path(identifier,frame['id']),source/f'{i:06d}.jpg')

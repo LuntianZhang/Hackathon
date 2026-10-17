@@ -5,6 +5,7 @@ import math
 import re
 
 from .recognition import NAMES_ZH
+from ..food_catalog import FoodIndex,visual_label,normalize_name
 
 REJECT_LABELS = ('table', 'plate', 'background', 'unknown')
 ALIASES = {**{value: key for key, value in NAMES_ZH.items()},
@@ -22,7 +23,8 @@ def parse_foods(text: str, catalog: list[dict] = ()) -> list[dict]:
     """Chinese aliases or `display name|English description`; no hidden translation API."""
     if not isinstance(text, str) or len(text) > 2000:
         raise ValueError('食物清单最多 2000 字符')
-    aliases = {**ALIASES, **{entry['name']: entry['key'] for entry in catalog}}
+    index=FoodIndex(catalog)
+    aliases={normalize_name(name):label for name,label in ALIASES.items()}
     foods = []
     seen = set()
     for token in re.split(r'[,，、;；\n]+', text):
@@ -33,7 +35,9 @@ def parse_foods(text: str, catalog: list[dict] = ()) -> list[dict]:
         if len(parts) > 2:
             raise ValueError('自定义名称格式为：中文名称|English description')
         name = parts[0].strip()
-        query = (parts[1].strip() if len(parts) == 2 else aliases.get(name, name)).lower()
+        key=index.match(name)
+        query = (parts[1].strip() if len(parts) == 2 else
+            visual_label(index.foods[key]) if key else aliases.get(normalize_name(name),name)).lower()
         if not name or not query or len(name) > 80 or len(query) > 100:
             raise ValueError('名称最多 80 字符，英文描述最多 100 字符')
         if not re.fullmatch(r"[a-z][a-z0-9 '\-]*", query):
@@ -54,8 +58,8 @@ def validate_assistance(value: dict | None, catalog: list[dict] = (), *, allow_n
     if not isinstance(value, dict) or set(value) - {'mode', 'food_text', 'foods', 'instances'}:
         raise ValueError('辅助识别配置格式不正确')
     mode = value.get('mode', 'list')
-    if mode not in {'auto', 'list', 'grounded', 'manual'} and not (allow_none and mode == 'none'):
-        raise ValueError('请选择清单辅助、文字定位或点击框选')
+    if mode not in {'auto', 'list', 'grounded', 'manual', 'llm'} and not (allow_none and mode == 'none'):
+        raise ValueError('请选择清单辅助、文字定位、点击框选或大模型识别')
     if mode == 'none':
         if value.get('food_text') or value.get('foods') or value.get('instances'):
             raise ValueError('不使用语义分割时无需提供食物提示或区域')
@@ -69,6 +73,8 @@ def validate_assistance(value: dict | None, catalog: list[dict] = (), *, allow_n
         foods = parse_foods('\n'.join(f"{f['name']}|{f['text']}" for f in raw), catalog)
     if mode in {'list', 'grounded'} and not foods:
         raise ValueError('请先输入可能有哪些食物')
+    if mode == 'llm' and foods:
+        raise ValueError('大模型识别会自动判断对象，无需输入食物清单')
     raw_instances = value.get('instances', [])
     if not isinstance(raw_instances, list) or len(raw_instances) > 20:
         raise ValueError('最多指定 20 个食物实例')
@@ -116,4 +122,5 @@ def allowed_food(assistance: dict, label: str) -> bool:
 
 
 def display_names(assistance: dict, catalog: list[dict] = ()) -> dict[str, str]:
-    return {**NAMES_ZH, **{f['key']: f['name'] for f in catalog}, **{f['text']: f['name'] for f in assistance['foods']}}
+    return {**NAMES_ZH, **{f['key']: f['name'] for f in catalog},
+        **{visual_label(f):f['name'] for f in catalog}, **{f['text']: f['name'] for f in assistance['foods']}}

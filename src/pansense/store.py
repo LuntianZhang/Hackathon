@@ -34,6 +34,8 @@ def parse_timestamp(value: str):
 class Store:
     def __init__(self, root: Path, catalog: Catalog):
         self.root, self.catalog = root.resolve(), catalog
+        self.nutrition_lookup = None
+        self.quantities = None
         self.root.mkdir(parents=True, exist_ok=True)
         self.database = self.root/'pansense.sqlite3'
         with self.connection() as db:
@@ -78,6 +80,8 @@ class Store:
     def new_item(self, name: str, catalog_key=None, instance_id=None, **metadata):
         if not name.strip(): raise ValueError('请输入食物名称')
         key = catalog_key if catalog_key is not None else self.catalog.match(name)
+        if metadata.get('object_kind') in {'packaged_food', 'non_food'}:
+            key = None
         return {'id': uuid4().hex, 'name': name.strip(), 'catalog_key': key,
                 'instance_id': instance_id, 'nutrition': self.catalog.estimate(key), **metadata}
 
@@ -91,6 +95,7 @@ class Store:
         with self.connection() as db:
             db.execute('INSERT INTO meals VALUES(?,?,?,?,?,?)',
                        (identifier, 1, json.dumps(meal, ensure_ascii=False), None, meal['occurred_at'], timestamp))
+        if self.nutrition_lookup: self.nutrition_lookup.ensure_items(meal['items'])
         return self.get(identifier)
 
     def get(self, identifier: str):
@@ -99,6 +104,8 @@ class Store:
         if row is None:
             raise KeyError('这条餐食不存在或已删除')
         value = json.loads(row[0])
+        if self.nutrition_lookup: value['items'] = self.nutrition_lookup.enrich_items(value['items'])
+        if self.quantities: value = self.quantities.enrich(value)
         value['totals'] = total_nutrition(value['items'])
         return value
 
@@ -122,28 +129,37 @@ class Store:
             db.execute('UPDATE meals SET revision=?,value=?,saved_at=?,occurred_at=? WHERE id=?',
                        (value['revision'], json.dumps(value, ensure_ascii=False, allow_nan=False),
                         value['saved_at'], value['occurred_at'], identifier))
+        if self.nutrition_lookup: self.nutrition_lookup.ensure_items(value['items'])
         return self.get(identifier)
 
     def fields(self, identifier: str, **fields):
         return self.mutate(identifier, lambda value: value.update(fields))
 
-    def edit_item(self, identifier: str, item_id: str, name: str, catalog_key, revision: int):
+    def edit_item(self, identifier: str, item_id: str, name: str, catalog_key, revision: int, *, density=None):
         if not name.strip(): raise ValueError('请输入食物名称')
         def edit(value):
             item = next((item for item in value['items'] if item['id'] == item_id), None)
             if item is None:
                 raise KeyError('这项食物已不存在')
             key = catalog_key if catalog_key is not None else self.catalog.match(name)
+            previous_identity = [item['name'].strip(), item.get('catalog_key')]
             item.update(name=name.strip(), catalog_key=key, nutrition=self.catalog.estimate(key),
                         name_source='manual_correction', needs_review=False)
+            if previous_identity != [item['name'], key]: item.pop('density_selection', None)
+            if density is not None:
+                if not self.quantities: raise ValueError('密度服务暂不可用')
+                item['density_selection'] = self.quantities.selection(item, density)
         return self.mutate(identifier, edit, revision)
 
-    def add_item(self, identifier: str, name: str, catalog_key, revision: int, region=None):
+    def add_item(self, identifier: str, name: str, catalog_key, revision: int, region=None, *, density=None):
         def add(value):
             if len(value['items']) >= 40:
                 raise ValueError('一餐最多记录 40 项食物')
-            value['items'].append(self.new_item(name, catalog_key, source='manual', region=region,
-                                               needs_review=False))
+            item = self.new_item(name, catalog_key, source='manual', region=region, needs_review=False)
+            if density is not None:
+                if not self.quantities: raise ValueError('密度服务暂不可用')
+                item['density_selection'] = self.quantities.selection(item, density)
+            value['items'].append(item)
         return self.mutate(identifier, add, revision)
 
     def delete_item(self, identifier: str, item_id: str, revision: int):
@@ -190,6 +206,7 @@ class Store:
         return meal
 
     def purge(self):
+        if self.nutrition_lookup: self.nutrition_lookup.clear()
         with self.connection() as db:
             db.execute('DELETE FROM meals')
             db.execute('UPDATE settings SET value=? WHERE id=1', (json.dumps(DEFAULT_PROFILE),))

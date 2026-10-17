@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf",
+  "policy": "Manual selection overrides food-specific references; otherwise use the median food-specific reference, then the computed category fallback. Estimates are labeled, not measured. No specific-gravity substitution.",
+  "references": [
+    {
+      "id": "milk_whole",
+      "catalog_keys": [
+        "milk"
+      ],
+      "name": "全脂牛奶（液态）",
+      "value_g_ml": 1.03,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Milk, liquid, whole",
+      "biblio_id": "TB",
+      "pdf_page": 13
+    },
+    {
+      "id": "milk_lowfat",
+      "catalog_keys": [
+        "milk_lowfat"
+      ],
+      "name": "低脂牛奶（液态）",
+      "value_g_ml": 1.034,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Milk, liquid, partially skimmed",
+      "biblio_id": "DK",
+      "pdf_page": 13
+    },
+    {
+      "id": "milk_skim",
+      "catalog_keys": [
+        "milk_skim"
+      ],
+      "name": "脱脂牛奶（液态）",
+      "value_g_ml": 1.033,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Milk, liquid, skimmed",
+      "biblio_id": "TB",
+      "pdf_page": 13
+    },
+    {
+      "id": "goat_milk",
+      "catalog_keys": [
+        "goat_milk"
+      ],
+      "name": "全脂羊奶（液态）",
+      "value_g_ml": 1.08,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Milk, goat, whole",
+      "biblio_id": "FNDDS 4.1",
+      "pdf_page": 13
+    },
+    {
+      "id": "evaporated_milk",
+      "catalog_keys": [
+        "evaporated_milk"
+      ],
+      "name": "蒸发乳（淡奶）",
+      "value_g_ml": 1.07,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Milk, evaporated",
+      "biblio_id": "UK 6th",
+      "pdf_page": 13
+    },
+    {
+      "id": "yogurt_fndds",
+      "catalog_keys": [
+        "yogurt"
+      ],
+      "name": "无糖原味酸奶（FNDDS参考）",
+      "value_g_ml": 1.06,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Yoghurt, plain, unsweetened",
+      "biblio_id": "FNDDS 4.1",
+      "pdf_page": 14
+    },
+    {
+      "id": "yogurt_dk",
+      "catalog_keys": [
+        "yogurt"
+      ],
+      "name": "无糖原味酸奶（丹麦参考）",
+      "value_g_ml": 1.031,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Yoghurt, plain, unsweetened",
+      "biblio_id": "DK",
+      "pdf_page": 14
+    },
+    {
+      "id": "heavy_cream",
+      "catalog_keys": [
+        "whipping_cream"
+      ],
+      "name": "重奶油（未打发）",
+      "value_g_ml": 0.994,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Cream, heavy",
+      "biblio_id": "TB",
+      "pdf_page": 13
+    },
+    {
+      "id": "butter",
+      "catalog_keys": [
+        "butter",
+        "salted_butter"
+      ],
+      "name": "黄油（原文未注明装填状态）",
+      "value_g_ml": 0.911,
+      "unit": "g/mL",
+      "kind": "unspecified",
+      "note": "原文未完整说明体积或装填形态，需核对或本地校准后采用。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=13",
+      "source_description": "Butter",
+      "biblio_id": "TB",
+      "pdf_page": 13
+    },
+    {
+      "id": "lard",
+      "catalog_keys": [
+        "lard"
+      ],
+      "name": "猪油（原文未注明温度）",
+      "value_g_ml": 0.919,
+      "unit": "g/mL",
+      "kind": "unspecified",
+      "note": "原文未完整说明体积或装填形态，需核对或本地校准后采用。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Lard",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    },
+    {
+      "id": "olive_oil",
+      "catalog_keys": [
+        "olive_oil"
+      ],
+      "name": "橄榄油",
+      "value_g_ml": 0.918,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, vegetable, olive",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    },
+    {
+      "id": "corn_oil",
+      "catalog_keys": [
+        "corn_oil"
+      ],
+      "name": "玉米油",
+      "value_g_ml": 0.922,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, vegetable, corn",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    },
+    {
+      "id": "peanut_oil",
+      "catalog_keys": [
+        "peanut_oil"
+      ],
+      "name": "花生油",
+      "value_g_ml": 0.914,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, vegetable, peanut",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    },
+    {
+      "id": "soybean_oil",
+      "catalog_keys": [
+        "soybean_oil"
+      ],
+      "name": "大豆油",
+      "value_g_ml": 0.927,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, vegetable, soya",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    },
+    {
+      "id": "sesame_oil",
+      "catalog_keys": [
+        "sesame_oil"
+      ],
+      "name": "芝麻油（15.6℃参考）",
+      "value_g_ml": 0.923,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, seasame seed (at 15.6 C)",
+      "biblio_id": "CSG",
+      "pdf_page": 14
+    },
+    {
+      "id": "rapeseed_oil",
+      "catalog_keys": [
+        "rapeseed_oil"
+      ],
+      "name": "菜籽油（20℃参考）",
+      "value_g_ml": 0.92,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Oil, rapeseed (at 20 C)",
+      "biblio_id": "CSG",
+      "pdf_page": 14
+    },
+    {
+      "id": "rice_cooked",
+      "catalog_keys": [
+        "rice"
+      ],
+      "name": "白米饭（水煮，体积换算参考）",
+      "value_g_ml": 0.73,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=17",
+      "source_description": "Rice, white, boiled",
+      "biblio_id": "RC",
+      "pdf_page": 17
+    },
+    {
+      "id": "rice_raw",
+      "catalog_keys": [
+        "rice_raw"
+      ],
+      "name": "白米（生，堆积）",
+      "value_g_ml": 0.82,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=17",
+      "source_description": "Rice, white, raw",
+      "biblio_id": "RC",
+      "pdf_page": 17
+    },
+    {
+      "id": "white_bread_sliced",
+      "catalog_keys": [
+        "bread"
+      ],
+      "name": "白面包（切片预包装）",
+      "value_g_ml": 0.29,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=15",
+      "source_description": "Bread, white, sliced, prepacked",
+      "biblio_id": "FNDDS 4.1",
+      "pdf_page": 15
+    },
+    {
+      "id": "white_bread",
+      "catalog_keys": [
+        "bread"
+      ],
+      "name": "白面包（另一体积换算参考）",
+      "value_g_ml": 0.42,
+      "unit": "g/mL",
+      "kind": "unspecified",
+      "note": "原文未完整说明体积或装填形态，需核对或本地校准后采用。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=15",
+      "source_description": "Bread, white",
+      "biblio_id": "KEN",
+      "pdf_page": 15
+    },
+    {
+      "id": "flour_white",
+      "catalog_keys": [
+        "wheat_flour"
+      ],
+      "name": "白小麦粉（堆积）",
+      "value_g_ml": 0.67,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=17",
+      "source_description": "Wheat, flour, white",
+      "biblio_id": "RC",
+      "pdf_page": 17
+    },
+    {
+      "id": "flour_whole",
+      "catalog_keys": [
+        "whole_wheat_flour"
+      ],
+      "name": "全麦粉（堆积）",
+      "value_g_ml": 0.55,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=17",
+      "source_description": "Wheat, flour, wholemeal",
+      "biblio_id": "RC",
+      "pdf_page": 17
+    },
+    {
+      "id": "cornstarch_loose",
+      "catalog_keys": [
+        "corn_starch"
+      ],
+      "name": "玉米淀粉（松散装填）",
+      "value_g_ml": 0.54,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=15",
+      "source_description": "Corn/maize starch, loosely packed",
+      "biblio_id": "TB",
+      "pdf_page": 15
+    },
+    {
+      "id": "cornstarch_packed",
+      "catalog_keys": [
+        "corn_starch"
+      ],
+      "name": "玉米淀粉（紧实装填）",
+      "value_g_ml": 0.63,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=16",
+      "source_description": "Corn/maize, starch, tightly packed",
+      "biblio_id": "TB",
+      "pdf_page": 16
+    },
+    {
+      "id": "millet",
+      "catalog_keys": [
+        "millet_raw"
+      ],
+      "name": "小米（生，堆积）",
+      "value_g_ml": 0.64,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=16",
+      "source_description": "Millet",
+      "biblio_id": "TB",
+      "pdf_page": 16
+    },
+    {
+      "id": "oats",
+      "catalog_keys": [
+        "oats"
+      ],
+      "name": "燕麦（堆积参考）",
+      "value_g_ml": 0.41,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=16",
+      "source_description": "Oats",
+      "biblio_id": "TB",
+      "pdf_page": 16
+    },
+    {
+      "id": "mung_beans",
+      "catalog_keys": [
+        "mung_beans"
+      ],
+      "name": "绿豆（生，堆积）",
+      "value_g_ml": 0.79,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=19",
+      "source_description": "Greengram, raw",
+      "biblio_id": "KEN",
+      "pdf_page": 19
+    },
+    {
+      "id": "kidney_beans",
+      "catalog_keys": [
+        "kidney_beans"
+      ],
+      "name": "红腰豆（干，堆积）",
+      "value_g_ml": 0.75,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=19",
+      "source_description": "Kidney beans, dry, raw",
+      "biblio_id": "KEN",
+      "pdf_page": 19
+    },
+    {
+      "id": "soybeans",
+      "catalog_keys": [
+        "soybeans"
+      ],
+      "name": "黄豆（堆积）",
+      "value_g_ml": 0.74,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=19",
+      "source_description": "Soybean",
+      "biblio_id": "ASI",
+      "pdf_page": 19
+    },
+    {
+      "id": "almond",
+      "catalog_keys": [
+        "almond"
+      ],
+      "name": "巴旦木仁（堆积参考）",
+      "value_g_ml": 0.46,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=18",
+      "source_description": "Almonds",
+      "biblio_id": "ASI",
+      "pdf_page": 18
+    },
+    {
+      "id": "cashew",
+      "catalog_keys": [
+        "cashew"
+      ],
+      "name": "腰果仁（堆积参考）",
+      "value_g_ml": 0.5,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=18",
+      "source_description": "Cashews",
+      "biblio_id": "ASI",
+      "pdf_page": 18
+    },
+    {
+      "id": "peanut",
+      "catalog_keys": [
+        "peanut_raw"
+      ],
+      "name": "花生仁（去壳，堆积）",
+      "value_g_ml": 0.69,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=18",
+      "source_description": "Peanuts, shelled",
+      "biblio_id": "ASI",
+      "pdf_page": 18
+    },
+    {
+      "id": "pistachio",
+      "catalog_keys": [
+        "pistachio"
+      ],
+      "name": "开心果仁（去壳生，堆积）",
+      "value_g_ml": 0.646,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=18",
+      "source_description": "Pistachio, raw, without shell",
+      "biblio_id": "RC",
+      "pdf_page": 18
+    },
+    {
+      "id": "flaxseed",
+      "catalog_keys": [
+        "flaxseed"
+      ],
+      "name": "亚麻籽（堆积）",
+      "value_g_ml": 0.7,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=18",
+      "source_description": "Flaxseed",
+      "biblio_id": "ASI",
+      "pdf_page": 18
+    },
+    {
+      "id": "soy_sauce",
+      "catalog_keys": [
+        "soy_sauce"
+      ],
+      "name": "酱油",
+      "value_g_ml": 1.12,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21",
+      "source_description": "Sauce, soy",
+      "biblio_id": "FNDDS 4.1",
+      "pdf_page": 21
+    },
+    {
+      "id": "sugar",
+      "catalog_keys": [
+        "white_sugar"
+      ],
+      "name": "白砂糖（体积换算参考）",
+      "value_g_ml": 0.88,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=20",
+      "source_description": "Sugar, white",
+      "biblio_id": "FNDDS 4.1",
+      "pdf_page": 20
+    },
+    {
+      "id": "sugar_powder",
+      "catalog_keys": [
+        "powdered_sugar"
+      ],
+      "name": "糖粉（堆积）",
+      "value_g_ml": 0.56,
+      "unit": "g/mL",
+      "kind": "bulk",
+      "note": "堆积或量杯体积换算参考，受切分和松紧影响；不能直接套用于整颗、整块实体。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=20",
+      "source_description": "Sugar, powdered",
+      "biblio_id": "ASI",
+      "pdf_page": 20
+    },
+    {
+      "id": "beef_raw_lean",
+      "catalog_keys": [
+        "beef"
+      ],
+      "name": "生瘦牛肉（去骨，装填方式未详）",
+      "value_g_ml": 0.96,
+      "unit": "g/mL",
+      "kind": "unspecified",
+      "note": "原文未完整说明体积或装填形态，需核对或本地校准后采用。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=20",
+      "source_description": "Cow, lean, no bone, raw",
+      "biblio_id": "KEN",
+      "pdf_page": 20
+    },
+    {
+      "id": "mayonnaise",
+      "catalog_keys": [
+        "mayonnaise"
+      ],
+      "name": "传统蛋黄酱",
+      "value_g_ml": 0.91,
+      "unit": "g/mL",
+      "kind": "liquid",
+      "note": "液态或稠液态参考；体积须对应食品本身，不含容器。",
+      "source": "FAO/INFOODS Density Database v2 (2012)",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=14",
+      "source_description": "Mayonnaise, traditional",
+      "biblio_id": "TB",
+      "pdf_page": 14
+    }
+  ]
+}

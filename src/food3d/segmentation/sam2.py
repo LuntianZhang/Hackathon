@@ -44,6 +44,13 @@ def select_proposals(proposals: list[dict], classifications: list[dict], image_a
 
 
 def segment(scene: Path, output: Path, checkpoint: Path, reference_frame: str | None = None, prompts: Path | None = None, candidates: list[str] | None = None, assistance: dict | None = None, seed_masks: Path | None = None) -> dict:
+    if assistance and assistance.get('mode') == 'llm':
+        from .hints import validate_assistance
+        validate_assistance(assistance)
+        if prompts or seed_masks:
+            raise ValueError('大模型多视图识别不能同时使用单帧人工种子')
+        from .llm_segment import segment_llm
+        return segment_llm(scene, output, checkpoint, reference_frame)
     import torch
     from sam2.build_sam import build_sam2, build_sam2_video_predictor
     from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
@@ -54,7 +61,11 @@ def segment(scene: Path, output: Path, checkpoint: Path, reference_frame: str | 
     if seed_masks and prompts:
         raise ValueError('不能同时使用种子掩码与点框提示')
     manual_names = bool(prompts or seed_masks) or assistance['mode'] == 'manual'
-    names = display_names(assistance)
+    catalog_path=ProjectPaths().project/'app/catalog/foods.json'
+    catalog=read_json(catalog_path)['foods'] if catalog_path.is_file() else []
+    from ..food_catalog import FoodIndex
+    food_index=FoodIndex(catalog)
+    names = display_names(assistance,catalog)
     scene, output, checkpoint = scene.resolve(), output.resolve(), checkpoint.resolve()
     if not checkpoint.is_file():
         raise FileNotFoundError(f"SAM 2 权重不存在：{checkpoint}")
@@ -73,7 +84,7 @@ def segment(scene: Path, output: Path, checkpoint: Path, reference_frame: str | 
     config = "configs/sam2.1/sam2.1_hiera_s.yaml"
     with Image.open(scene / frames[seed_index].image_path) as source:
         image = source.convert("RGB")
-    recognizer = ClipRecognizer(candidate_names(assistance, candidates or ["apple", "banana", "durian", "bread", "orange", "pear", "mango", "grapes"]), cache)
+    recognizer = ClipRecognizer(candidate_names(assistance, candidates or food_index.labels() or ["apple", "banana", "durian", "bread", "orange", "pear", "mango", "grapes"]), cache)
     if seed_masks:
         seeds, chosen = load_seed_masks(seed_masks, image.size)
     elif prompts:

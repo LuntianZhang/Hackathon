@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import threading
 from urllib.parse import urlsplit
+from typing import Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -23,6 +24,8 @@ from food3d.paths import ProjectPaths
 from food3d.schemas import load_scene
 from .jobs import Jobs
 from .nutrition import Catalog
+from .nutrition_lookup import NutritionLookup
+from .quantities import FoodQuantities
 from .rendering import RenderBusy, Views
 from .store import ConflictError, Store
 
@@ -41,16 +44,28 @@ class Revision(Body):
 
 class VideoStart(Revision):
     assistance: dict
-    paper_present: bool = True
+    paper_present: bool = False  # Accepted for older clients; scale now uses the board.
 
 class Region(Body):
     kind: str = 'bbox'
     bbox: list[float] = Field(min_length=4,max_length=4)
 
+class DensityInput(Body):
+    mode: Literal['reference','custom','clear']
+    reference_id: str | None = Field(None,max_length=80)
+    value_g_ml: float | None = Field(None,gt=0,le=10)
+    note: str = Field('',max_length=200)
+
 class FoodEdit(Revision):
     name: str = Field(min_length=1,max_length=80)
     catalog_key: str | None = None
     region: Region | None = None
+    density: DensityInput | None = None
+
+class NutritionSearch(Body):
+    name: str = Field(min_length=1,max_length=80)
+    catalog_key: str | None = None
+    retry: bool = False
 
 class MealSave(Revision):
     title: str = Field(min_length=1,max_length=80)
@@ -81,13 +96,19 @@ class PhotoPickBody(Body):
 class DeleteBody(Body):
     confirmation: str
 
-def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_enabled=True):
+def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_enabled=True,
+               *, nutrition_provider=None, nutrition_enabled=None):
     project = (project or Path(__file__).resolve().parents[2]).resolve()
     paths = ProjectPaths(project)
     data_root = paths.data_root
     root = paths.resolve(data_dir) if data_dir is not None else data_root/'pansense'
     catalog = Catalog(project/'app/catalog/foods.json')
     store = Store(root, catalog)
+    quantities = FoodQuantities(catalog, project/'app/catalog/densities.json')
+    store.quantities = quantities
+    nutrition_lookup = NutritionLookup(store, enabled=jobs_enabled if nutrition_enabled is None else nutrition_enabled,
+                                     provider=nutrition_provider)
+    store.nutrition_lookup = nutrition_lookup
     gpu_lock = threading.Lock()
     views = Views(gpu_lock)
     jobs = Jobs(store, project, gpu_lock, enabled=jobs_enabled, release_gpu=views.release_gpu)
@@ -99,11 +120,14 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         jobs.recover()
         yield
         jobs.close()
+        nutrition_lookup.close()
         scans.gateway.close()
         views.release_gpu()
 
     app = FastAPI(title='PanSense P0',version='0.1.0',lifespan=lifespan)
     app.state.store, app.state.jobs, app.state.views, app.state.scans = store, jobs, views, scans
+    app.state.nutrition_lookup = nutrition_lookup
+    app.state.quantities = quantities
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1','localhost','testserver'])
 
     @app.middleware('http')
@@ -153,19 +177,20 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         value['reconstruction_available'] = binding is not None
         value['semantic_targets_3d'] = binding is not None
         value['photo_url'] = f'/api/meals/{meal["id"]}/photo' if meal.get('source_photo') else None
+        value['background_preview_url']=f'/api/meals/{meal["id"]}/background-preview' if meal.get('background_preview') else None
         value['three_d_available'] = bool(meal.get('bundle_ref'))
         value['video_reference_ready'] = bool(meal.get('prepared_video')) and not meal.get('video_started')
         value.pop('prepared_video',None)
-        from food3d.volume import published_measurements
-        measurements=published_measurements(Path(meal['bundle_ref'])) if meal.get('bundle_ref') else {'status':'unavailable','instances':[]}
+        measurements=value.pop('_measurements',{'status':'unavailable','instances':[]})
         value['volume_summary']={k:v for k,v in measurements.items() if k!='instances'}
-        value['volume_summary']['reference_image_url']=f'/api/meals/{meal["id"]}/scale-reference' if meal.get('bundle_ref') and (Path(meal['bundle_ref'])/'measurements/paper_detections.jpg').is_file() else None
+        value['volume_summary']['reference_image_url']=f'/api/meals/{meal["id"]}/scale-reference' if meal.get('bundle_ref') and (Path(meal['bundle_ref'])/'measurements/board_detections.jpg').is_file() else None
         by_instance={entry['instance_id']:entry for entry in measurements['instances']}
         value.pop('source_photo',None)
         value.pop('bundle_ref',None)
         value.pop('input_file',None)
         value.pop('recognition_result',None)
         value.pop('reconstruction_binding',None)
+        value.pop('background_preview',None)
         value['items'] = [{**{key:val for key,val in item.items() if key != 'region'},
                          'volume':by_instance.get(item.get('instance_id')),
                          'region_available':bool(item.get('region')),
@@ -205,12 +230,42 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
         return store.update_profile(patch)
 
     @app.get('/api/catalog')
-    def foods(): return {'foods':list(catalog.foods.values()),'source':catalog.data['source'],'basis':catalog.data['basis']}
+    def foods(q: str='',category: str | None=None):
+        matches=catalog.search(q,category)
+        return {'foods':[{**food,'density_candidates':quantities.candidates(food['key']),
+                         'density_default':quantities.default_density(food['key'])} for food in matches],
+            'category_densities':list(quantities.category_defaults.values()),
+            'source':catalog.data['source'],'basis':catalog.data['basis'],
+            'categories':catalog.categories(),'total':len(catalog.foods),'filtered_count':len(matches),
+            'nutrition_available':sum(food.get('per_100g') is not None for food in catalog.foods.values())}
 
     @app.get('/api/meals')
     def list_meals(date: str | None = None, drafts=False):
         return {'meals':[public(meal) for meal in store.list(date,include_drafts=drafts)
                          if meal['source_kind'] != 'assist-session' and (not meal.get('comparison_parent') or meal.get('comparison_imported'))]}
+
+    @app.post('/api/nutrition/lookups',status_code=202)
+    def search_nutrition(body: NutritionSearch):
+        return nutrition_lookup.start(body.name,body.catalog_key,retry=body.retry)
+
+    @app.post('/api/meals/{identifier}/nutrition/lookup',status_code=202)
+    def lookup_meal_nutrition(identifier: str):
+        meal=store.get(identifier)
+        nutrition_lookup.ensure_items(meal['items'])
+        return public(store.get(identifier))
+
+    @app.get('/api/nutrition/lookups/{lookup_id}')
+    def nutrition_status(lookup_id: str):
+        return nutrition_lookup.get(lookup_id)
+
+    @app.post('/api/meals/{identifier}/foods/{food_id}/nutrition/retry',status_code=202)
+    def retry_nutrition(identifier: str,food_id: str):
+        meal=store.get(identifier)
+        item=next((item for item in meal['items'] if item['id']==food_id),None)
+        if item is None:raise KeyError('这项食物不存在')
+        if item.get('object_kind') in {'non_food','packaged_food'}:raise ValueError('请先确认可食用食品名称，包装外形和非食物不查询营养')
+        nutrition_lookup.start(item['name'],item.get('catalog_key'),retry=True)
+        return public(store.get(identifier))
     @app.get('/api/summary')
     def summary(date: str): return store.summary(date)
     @app.post('/api/meals/manual',status_code=201)
@@ -237,7 +292,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
 
     @app.post('/api/meals/upload',status_code=201)
     async def upload(file: UploadFile = File(...), kind: str = 'photo', assistance: str = Form(''),
-                     prepare: bool = Form(False), paper_present: bool = Form(True)):
+                     prepare: bool = Form(False), paper_present: bool = Form(False),board_background: bool = Form(False)):
         if kind not in {'photo','video'}: raise ValueError('请选择照片或视频')
         if prepare and kind != 'video': raise ValueError('仅环绕视频需要准备参考帧')
         from food3d.segmentation.hints import validate_assistance
@@ -247,7 +302,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
             raise ValueError('辅助识别配置不是有效 JSON') from error
         if kind == 'video' and options['mode'] == 'manual':
             raise ValueError('请先准备视频参考帧，再点击或框选食物')
-        meal = store.create(kind,assistance=options,paper_present=paper_present,
+        meal = store.create(kind,assistance=options,paper_present=paper_present,board_background=board_background and kind=='video',
                             analysis={'status':'queued','stage':'接收文件','progress':0,'error':None})
         folder = owned_path(root/'uploads'/meal['id'])
         folder.mkdir(parents=True)
@@ -306,11 +361,16 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
     @app.post('/api/meals/{identifier}/retry')
     def retry(identifier: str):
         meal = store.get(identifier)
-        if meal['analysis']['status'] in {'running','queued'}: raise ValueError('这餐正在分析，请稍候')
+        if any(meal.get(key,{}).get('status') in {'running','queued'} for key in ('analysis','three_d_analysis')):
+            raise ValueError('这餐正在分析，请先中断再重新分析')
         if not meal.get('input_file') or not Path(meal['input_file']).exists(): raise ValueError('源文件已不可用，可继续手工记录')
         kind = meal['source_kind']+'-prepare' if meal['source_kind'] in {'video','scan'} and meal.get('video_preparing') else meal['source_kind']
         jobs.submit(identifier,kind,owned_path(meal['input_file']))
         return public(store.get(identifier))
+
+    @app.post('/api/meals/{identifier}/interrupt')
+    def interrupt(identifier: str):
+        return public(jobs.interrupt(identifier))
 
     @app.post('/api/meals/{identifier}/foods',status_code=201)
     def add_food(identifier: str, body: FoodEdit):
@@ -319,10 +379,12 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
             box = region['bbox']
             if region['kind'] != 'bbox' or not all(0<=number<=1 for number in box) or not (box[0]<box[2] and box[1]<box[3]):
                 raise ValueError('食物区域必须位于照片内且具有正面积')
-        return public(store.add_item(identifier,body.name,body.catalog_key,body.revision,region))
+        return public(store.add_item(identifier,body.name,body.catalog_key,body.revision,region,
+                                     density=body.density.model_dump() if body.density else None))
     @app.patch('/api/meals/{identifier}/foods/{food_id}')
     def edit_food(identifier: str,food_id: str,body: FoodEdit):
-        return public(store.edit_item(identifier,food_id,body.name,body.catalog_key,body.revision))
+        return public(store.edit_item(identifier,food_id,body.name,body.catalog_key,body.revision,
+                                      density=body.density.model_dump() if body.density else None))
     @app.delete('/api/meals/{identifier}/foods/{food_id}')
     def delete_food(identifier: str,food_id: str,revision: int):
         return public(store.delete_item(identifier,food_id,revision))
@@ -335,7 +397,7 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
             jobs.cancel(identifier)
             def strip(meal):
                 meal.update(source_photo=None,bundle_ref=None,input_file=None,three_d_reason='按隐私偏好仅保存食物记录',
-                            prepared_video=None,video_preparing=False,
+                            prepared_video=None,video_preparing=False,background_preview=None,background_summary=None,
                             recognition_result=None,semantic_summary=None,reconstruction_binding=None,semantic_auto_3d=False,
                             analysis={'status':'ready','stage':'仅保存文字与营养记录','progress':100,'error':None})
                 for item in meal['items']: item['region'] = None
@@ -356,6 +418,14 @@ def create_app(project: Path | None = None, data_dir: Path | None = None, jobs_e
 
     @app.get('/api/meals/{identifier}/photo')
     def photo(identifier: str): return FileResponse(image_path(store.get(identifier)))
+    @app.get('/api/meals/{identifier}/background-preview')
+    def background_preview(identifier: str):
+        path=store.get(identifier).get('background_preview')
+        if not path:raise KeyError('还没有背景处理预览')
+        owned=owned_path(path)
+        if not owned.is_relative_to((root/'uploads'/identifier).resolve()) or not owned.is_file():
+            raise KeyError('背景处理预览已不可用')
+        return FileResponse(owned)
     @app.get('/api/meals/{identifier}/foods/{food_id}/region')
     def region(identifier: str,food_id: str):
         meal = store.get(identifier)

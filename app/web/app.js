@@ -1,14 +1,14 @@
 import {phoneScan} from './scan-desktop.js';
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state = {page:'home',profile:null,catalog:[],meals:[],drafts:[],summary:null,meal:null,selected:null,
+const state = {page:'home',profile:null,catalog:[],categoryDensities:[],meals:[],drafts:[],summary:null,meal:null,selected:null,
   mode:'photo',date:null,file:null,fileUrl:null,fileKind:'photo',uploading:false,modal:null,
   view:null,viewBusy:false,viewDirty:false,imageReady:false,desired:{yaw:0,pitch:0,zoom:1},
   drag:null,suppressUntil:0,poll:null,stream:null,offline:false,installPrompt:null,assistMode:'grounded',foodText:'',
   manualRegions:[],seedName:'',seedTool:'box',seedPicture:null,seedPictureUrl:null,seedDrag:null,
   recognitionParent:null,recognitionChoices:[],viewEpoch:0,captureFlow:'photo',
-  historyMealId:null,videoPrepared:null,videoPreparing:false,preparePoll:null,captureEpoch:0,seedSourceUrl:null,paperPresent:true,
-  editPreview:'3d',editViewError:null,nutritionReturnMealId:null};
+  historyMealId:null,videoPrepared:null,videoPreparing:false,preparePoll:null,captureEpoch:0,seedSourceUrl:null,
+  editPreview:'3d',editViewError:null,nutritionReturnMealId:null,interrupting:false,boardBackground:true};
 const zone = () => state.profile?.timezone || 'Asia/Shanghai';
 const localDay = (date = new Date()) => new Intl.DateTimeFormat('sv-SE',{timeZone:zone()}).format(date);
 const kcal = n => Math.round(n || 0).toLocaleString('zh-CN');
@@ -16,13 +16,127 @@ const grams = n => Number(n || 0).toFixed(1);
 const energyPending = total => !total.known_items && total.unknown_items > 0;
 const energyLabel = total => energyPending(total) ? '待估算' : kcal(total.kcal);
 const catalogItem = key => state.catalog.find(food => food.key === key);
+const portionLabel = total => total.volume_density_items?(total.reference_items?'估重与参考份量':'体积与密度估算'):total.quantity_pending_items&&!total.reference_items?'待密度或体积':'固定参考份量';
+function densityText(item){
+ const d=item.density,m=item.mass_estimate;
+ if(d?.status==='blocked')return d.message;
+ const label=d?.status==='category_default'?'分类默认密度':d?.status==='food_reference'?'食品参考密度':'密度';
+ const density=d?.value_g_ml!=null?`${label} ${d.value_g_ml.toFixed(3)} g/mL`:'密度待补充';
+ return `${density} · ${m?.weight_grams!=null?`估重 ${m.weight_grams.toFixed(1)} g`:'重量待估算'}`;
+}
+function densitySourceHTML(entry){
+ if(!entry)return '';
+ let link='';try{const url=new URL(entry.source_url);if(url.protocol==='https:'&&['www.fao.org','fdc.nal.usda.gov'].includes(url.hostname))link=`<a href="${esc(url.href)}" target="_blank" rel="noopener">${esc(entry.source)}</a>`;}catch{}
+ return `${esc(entry.name||'手动密度')} · ${entry.value_g_ml} g/mL<br>${esc(entry.note||entry.message||'')}${link?`<br>${link}`:entry.source?`<br>${esc(entry.source)}`:''}`;
+}
+function foodNutritionLabel(item){
+ const n=item.nutrition;
+ if(n)return `${n.portion_method==='volume_density'?'估重':'参考'} ${grams(n.reference_grams)} g · 非称重 · 约 ${kcal(n.kcal)} kcal${item.nutrition_needs_review?' · 在线参考待核对':''}`;
+ if(nutritionPending(item))return '<span class="nutrition-spinner" aria-hidden="true"></span>营养数据查询中…';
+ if(item.reference_nutrition)return item.mass_estimate?.status==='density_pending'?'已有营养参考，待设置密度后计算本份营养':'已有营养参考，待已标定体积后计算本份营养';
+ return esc(item.nutrition_lookup?.message||'营养待补充');
+}
+function referenceNutritionHTML(item){
+ const n=item.reference_nutrition;if(!n||!(n.reference_grams>0))return '';
+ return `每 100 g 营养参考：${kcal(n.kcal*100/n.reference_grams)} kcal；本份营养等待估重。${nutritionSourceHTML(n)}`;
+}
+function densityFood(){
+ const selected=catalogItem($('foodCatalog')?.value);if(selected)return selected;
+ const name=($('foodName')?.value||'').normalize('NFKC').trim().toLocaleLowerCase();
+ return state.catalog.find(food=>[food.name,food.key,food.recognition_label,...(food.aliases||[])].some(value=>String(value||'').normalize('NFKC').trim().toLocaleLowerCase()===name));
+}
+function densityFieldsHTML(item){
+ if(['non_food','packaged_food'].includes(item?.object_kind))return '<p class="estimate-note">非食物和包装外形不用于食物密度估重。</p>';
+ const food=item?catalogItem(item.catalog_key||item.density?.catalog_key):densityFood(),refs=food?.density_candidates||[],choice=item?.density_selection;
+ const mode=choice?.mode==='custom'?'custom':choice?.mode==='reference'?`ref:${choice.reference_id}`:'clear';
+ const automatic=food?.density_default;
+ const autoLabel=automatic?.value_g_ml!=null?`自动 · ${automatic.status==='category_default'?'分类默认估值':'食品参考密度'} ${automatic.value_g_ml.toFixed(3)} g/mL`:'自动 · 待匹配食品分类';
+ return `<fieldset class="density-fields"><legend>密度与估计重量</legend><label for="densityMode">密度来源</label><select id="densityMode"><option value="clear" ${mode==='clear'?'selected':''}>${esc(autoLabel)}</option>${refs.map(ref=>`<option value="ref:${ref.id}" ${mode===`ref:${ref.id}`?'selected':''}>${esc(ref.name)} · ${ref.value_g_ml} g/mL</option>`).join('')}<option value="custom" ${mode==='custom'?'selected':''}>手动填写密度</option></select><div id="customDensityFields" ${mode==='custom'?'':'hidden'}><label for="densityValue">密度（g/mL）</label><input id="densityValue" type="number" min="0.000001" max="10" step="any" value="${choice?.mode==='custom'?esc(choice.value_g_ml):''}" placeholder="填写有依据的数值"><label for="densityNote">密度依据（可选）</label><input id="densityNote" maxlength="200" value="${choice?.mode==='custom'?esc(choice.note||''):''}" placeholder="如测量方法或数据来源"></div><small id="densityDescription"></small><small id="densityWeightPreview" role="status" aria-live="polite"></small><small>优先使用食品参考密度，缺失时使用分类默认估值；手动修改优先。分类估值包含量杯与堆积状态的差异，体积须对应可食用区域。</small></fieldset>`;
+}
+function updateDensityPreview(){
+ const mode=$('densityMode')?.value;if(!mode)return;
+ $('customDensityFields').hidden=mode!=='custom';
+ const food=densityFood(),entry=mode==='clear'?food?.density_default:(food?.density_candidates||[]).find(ref=>`ref:${ref.id}`===mode);
+ const value=entry?.value_g_ml||(mode==='custom'?Number($('densityValue').value):null);
+ $('densityDescription').innerHTML=entry?.value_g_ml!=null?densitySourceHTML(entry):mode==='custom'?'手动填写的密度仅用于本食品，系统不会把它标为已实测。':'尚未匹配食品分类，请选择参考食品或手动填写密度。';
+ const item=state.meal?.items.find(item=>item.id===state.modal?.itemId),ml=item?.volume?.volume_ml;
+ $('densityWeightPreview').textContent=state.meal?.volume_summary?.status==='calibrated'&&item?.volume?.status==='estimated'&&ml>0?
+  value>0&&value<=10?`估重预览：${ml.toFixed(1)} mL × ${value} g/mL = ${(ml*value).toFixed(1)} g`:`当前体积约 ${ml.toFixed(1)} mL，待设置密度。`:'当前没有可用的已标定体积，密度可先保存，体积可用后再估重。';
+}
+function refreshDensityFields(){
+ if(!$('densityFields'))return;$('densityFields').innerHTML=densityFieldsHTML(null);updateDensityPreview();
+}
+const nutritionPending = item => ['queued','searching'].includes(item.nutrition_lookup?.status);
+let nutritionReferenceTimer=null,nutritionReferenceEpoch=0;
+function nutritionSourceHTML(value){
+ if(!value?.source_url)return '';
+ let url;try{url=new URL(value.source_url);}catch{return '';}
+ if(url.protocol!=='https:'||!['fdc.nal.usda.gov','world.openfoodfacts.org'].includes(url.hostname))return '';
+ return `<br><a href="${esc(url.href)}" target="_blank" rel="noopener">${esc(value.source)}</a> · ${esc(value.reference_name)} · 在线参考，待核对`;
+}
+function nutritionLookupHTML(value){
+ if(!value)return '';
+ if(value.status==='found'&&value.nutrition){const n=value.nutrition;return `已查到：参考 ${n.reference_grams} g，约 ${kcal(n.kcal)} kcal；蛋白质 ${grams(n.protein)} g，碳水 ${grams(n.carbs)} g，脂肪 ${grams(n.fat)} g。${nutritionSourceHTML(n)}`;}
+ return `${['queued','searching'].includes(value.status)?'<span class="nutrition-spinner" aria-hidden="true"></span>':''}${esc(value.message||'营养待补充')}`;
+}
+async function queryNutritionReference(retry=false){
+ clearTimeout(nutritionReferenceTimer);const epoch=++nutritionReferenceEpoch;
+ if(state.modal?.kind!=='food')return;
+ const name=$('foodName')?.value.trim(),key=$('foodCatalog')?.value||null,node=$('nutritionSearchStatus');
+ if(!node||!name)return;
+ const editing=state.meal?.items.find(item=>item.id===state.modal.itemId);
+ if(editing&&['non_food','packaged_food'].includes(editing.object_kind)){node.textContent='请先确认可食用食品；非食物对象和包装外形不自动查询营养。';return;}
+ if(catalogItem(key)?.per_100g){node.innerHTML='';return;}
+ node.innerHTML='<span class="nutrition-spinner" aria-hidden="true"></span>营养数据查询中…';
+ try{
+  let value=await api('/nutrition/lookups',{method:'POST',body:{name,catalog_key:key,retry}});
+  if(epoch!==nutritionReferenceEpoch||state.modal?.kind!=='food')return;
+  node.innerHTML=nutritionLookupHTML(value);
+  const update=async()=>{
+   try{value=await api(`/nutrition/lookups/${value.id}`);
+    if(epoch!==nutritionReferenceEpoch||state.modal?.kind!=='food')return;
+    node.innerHTML=nutritionLookupHTML(value);
+    if(['queued','searching'].includes(value.status))nutritionReferenceTimer=setTimeout(update,1500);
+   }catch(error){if(epoch===nutritionReferenceEpoch)node.textContent=error.message;}
+  };
+  if(['queued','searching'].includes(value.status))nutritionReferenceTimer=setTimeout(update,1500);
+ }catch(error){if(epoch===nutritionReferenceEpoch)node.textContent=error.message;}
+}
 function historyFoodNames(){
  const seen=new Set();
  return state.meals.flatMap(meal=>meal.items).map(item=>String(item.name||'').trim()).filter(name=>{
   const key=name.toLocaleLowerCase('zh-CN');if(!name||seen.has(key))return false;seen.add(key);return true;
  });
 }
-const historyFoodOptions = () => historyFoodNames().map(name=>`<option value="${esc(name)}"></option>`).join('');
+const historyFoodOptions = () => [...new Set([...historyFoodNames(),...state.catalog.flatMap(food=>[food.name,...(food.aliases||[]).filter(name=>/[\u4e00-\u9fff]/.test(name))])])].map(name=>`<option value="${esc(name)}"></option>`).join('');
+function foodCatalogCategories(){
+ const groups=new Map(state.catalog.map(food=>[food.category||'other',food.category_label||'其他食物']));
+ const order=['fruit','meat','vegetable','staple','dairy','soy','nut','drink','snack','dish','condiment','other'];
+ const rank=key=>order.includes(key)?order.indexOf(key):order.length;
+ return [...groups.entries()].sort((a,b)=>rank(a[0])-rank(b[0]));
+}
+function catalogOptions(selected='',query='',category=''){
+ const term=query.trim().toLocaleLowerCase();
+ const foods=state.catalog.filter(food=>(!category||food.category===category)&&(!term||[food.name,food.key,food.recognition_label,...(food.aliases||[])].some(value=>String(value||'').toLocaleLowerCase().includes(term))));
+ const option=food=>`<option value="${food.key}" ${food.key===selected?'selected':''}>${esc(food.name)}${food.per_100g?'':' · 营养待补充'}</option>`;
+ const current=state.catalog.find(food=>food.key===selected);
+ return '<option value="">自定义名称 · 营养待补充</option>'+(current&&!foods.includes(current)?`<optgroup label="当前选择">${option(current)}</optgroup>`:'')+foodCatalogCategories().map(([key,name])=>{
+  const group=foods.filter(food=>(food.category||'other')===key);return group.length?`<optgroup label="${esc(name)} · ${group.length} 项">${group.map(option).join('')}</optgroup>`:'';
+ }).join('')+(!foods.length?'<option disabled>没有匹配食物，可填写自定义名称</option>':'');
+}
+function catalogReferenceHTML(key){
+ const food=catalogItem(key);if(!food)return `已收录 ${state.catalog.length} 项食物，可按分类或名称、别名搜索。`;
+ const value=food.per_100g;
+ if(!value)return `${esc(food.name)}：本机暂缺营养数据，将自动联网查询；查到后显示在线参考。`;
+ const item=state.meal?.items.find(item=>item.id===state.modal?.itemId);
+ const portion=item?.instance_id&&state.meal?.three_d_available?'本份按体积与密度估重，见下方预览。':`本次使用固定参考 ${food.reference_grams} g，未称重。`;
+ return `${esc(food.name)} · 每 100 g 可食部：${value.kcal} kcal，蛋白质 ${value.protein} g，碳水 ${value.carbs} g，脂肪 ${value.fat} g。<br>${portion}数据：USDA SR28 · ${esc(food.ndb_number)}。`;
+}
+function filterFoodCatalog(){
+ const select=$('foodCatalog');if(!select)return;
+ const selected=select.value;select.innerHTML=catalogOptions(selected,$('foodSearch')?.value||'',$('foodCategory')?.value||'');
+}
+
 const chosen = () => state.meal?.items.find(item => item.id === state.selected);
 function timeLabel(value) {return new Intl.DateTimeFormat('zh-CN',{timeZone:zone(),hour:'2-digit',minute:'2-digit'}).format(new Date(value));}
 function dateLabel(value) {return new Intl.DateTimeFormat('zh-CN',{timeZone:zone(),month:'long',day:'numeric',weekday:'short'}).format(new Date(value));}
@@ -63,8 +177,10 @@ function illustration() {
 function macro(name,value,color) {return `<div class="macro"><div class="label">${name}</div><div class="value">${value===null?'—':grams(value)} <span>g</span></div><div class="progress"><span style="width:100%;background:${color}"></span></div></div>`;}
 function macros(total) {const unavailable=total.known_items===0&&total.unknown_items>0;return `<div class="macros">${macro('蛋白质',unavailable?null:total.protein,'#97aa6d')}${macro('碳水',unavailable?null:total.carbs,'#d4a876')}${macro('脂肪',unavailable?null:total.fat,'#8ab2aa')}</div>`;}
 function nutritionCard(total) {
- return `<section class="surface nutrition" id="mealNutrition" tabindex="-1"><div class="nutrition-main"><div><div class="eyebrow">ESTIMATED ENERGY</div><h3>${total.known_items?'约 '+kcal(total.kcal):'待估算'} <small>${total.known_items?'kcal':''}</small></h3></div><span class="nutri-tag">参考份量估算</span></div>${macros(total)}
- ${total.unknown_items?`<p class="estimate-note">另有 ${total.unknown_items} 项营养待补充，尚未计入汇总。</p>`:''}</section>`;
+ return `<section class="surface nutrition" id="mealNutrition" tabindex="-1"><div class="nutrition-main"><div><div class="eyebrow">ESTIMATED ENERGY</div><h3>${total.known_items?'约 '+kcal(total.kcal):'待估算'} <small>${total.known_items?'kcal':''}</small></h3></div><span class="nutri-tag">${portionLabel(total)}</span></div>${macros(total)}
+ ${state.meal?.items.some(nutritionPending)?`<p class="estimate-note" role="status"><span class="nutrition-spinner" aria-hidden="true"></span>${state.meal.items.filter(nutritionPending).length} 项营养数据查询中，查到后自动更新。</p>`:''}
+ ${total.quantity_pending_items?`<p class="estimate-note">${total.quantity_pending_items} 项已有营养参考，等待合适的密度或已标定体积，尚未计入本餐营养。</p>`:''}
+ ${total.unknown_items?`<p class="estimate-note">另有 ${total.unknown_items} 项营养尚未完整，尚未计入汇总。</p>`:''}</section>`;
 }
 function mealLine(meal) {
  const symbols = meal.items.map(item => catalogItem(item.catalog_key)?.emoji || '🍽️').slice(0,3).join('');
@@ -112,14 +228,13 @@ function scan() {
  const edit3d=edit&&state.meal?.three_d_available;
  const viewer=edit3d?`<div class="segmented edit-preview-tabs" role="group" aria-label="餐盘查看方式"><button data-edit-preview="3d" class="${state.editPreview==='3d'?'selected':''}" aria-pressed="${state.editPreview==='3d'}">三维拖动查看</button><button data-edit-preview="reference" class="${state.editPreview==='reference'?'selected':''}" aria-pressed="${state.editPreview==='reference'}">参考图标注</button></div>${state.editPreview==='3d'?editablePlateViewer():reference}${state.editViewError?`<p class="record-note">${esc(state.editViewError)}<button class="text-btn" data-edit-preview="3d">重试三维预览 →</button></p>`:''}`:reference;
  return heading+parent+`<div class="capture-progress">${edit?'已选餐盘 → 调整识别 → 核对并保存':active?(video?'视频已选择 → 选择分割方式 → 生成三维餐盘':'照片已选择 → 选择分割方式 → 核对清单'):(video?'选择环绕视频 → 选择分割方式 → 生成三维餐盘':'拍照 / 相册 → 选择分割方式 → 核对并保存')}</div>
- ${viewer}<div class="hint-card">${icon('info')}<div>${video?'食物和标尺保持静止，缓慢环绕拍摄。放置平整的 10 × 2 cm 白色纸片，并拍到完整四角，可用于估计真实体积。':edit?(state.recognitionParent.threeD?'三维视图可拖动、缩放和点击查看现有食物。点框标注请切换到固定参考图，更新后才应用新的名称与区域。':'在原照片上重新标记和识别食物，完成后核对清单。'):'光线充足、食物分开摆放会更容易识别。照片提供二维识别结果。'}</div></div>
+ ${viewer}<div class="hint-card">${icon('info')}<div>${video?boardCaptureTips():edit?(state.recognitionParent.threeD?'三维视图可拖动、缩放和点击查看现有食物。点框标注请切换到固定参考图，更新后才应用新的名称与区域。':'在原照片上重新标记和识别食物，完成后核对清单。'):'光线充足、食物分开摆放会更容易识别。照片提供二维识别结果。'}</div></div>
  ${captureAssistance()}
- ${video&&state.file&&state.assistMode!=='none'?`<section class="surface assist-input"><label class="checkbox-line"><input id="paperPresent" type="checkbox" ${state.paperPresent?'checked':''}>视频中有 10 × 2 cm 白色纸片</label><p class="estimate-note">可靠标定后显示体积；无标尺时仍可查看三维餐盘。</p></section>`:''}
  <div class="buttons">${state.stream?`<button class="button primary" data-action="capture">${icon('camera')}拍下这一餐</button>`:state.file?
  `<button class="button primary" data-action="analyze" ${state.uploading||state.videoPreparing||video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?'disabled':''}>${icon('arrow')}${state.uploading?'正在接收文件…':state.assistMode==='none'?(edit?'直接调整食物清单':video?'仅生成三维外观':'继续填写食物清单'):edit?(state.recognitionParent.threeD?'分割并更新此三维餐盘':'重新识别照片'):video?'生成三维餐盘':'开始识别'}</button>${edit?'':`<button class="text-btn" data-action="reselect-capture" ${state.uploading?'disabled':''}>← 重新选择素材</button>`}`:
  video?`<button class="button primary" data-action="upload-video">${icon('image')}拍摄 / 导入环绕视频</button>`:`<button class="button primary" data-action="camera">${icon('camera')}拍一张照片</button><button class="button ghost" data-action="upload-photo">${icon('image')}从相册选择</button>`}</div>
  ${!active&&!edit?'<button class="text-btn" data-action="manual">直接手工记录</button>':''}
- <p class="estimate-note">${edit?'确认保存后生成新的餐食记录，原餐食保留。':video?'视频限 3 秒至 3 分钟、240 MB，三维处理需要数分钟。':'照片最多 20 MB。'}内容仅发送到本机分析服务。</p>
+ <p class="estimate-note">${edit?'确认保存后生成新的餐食记录，原餐食保留。':video?'视频限 3 秒至 3 分钟、240 MB，三维处理需要数分钟。':'照片最多 20 MB。'}${state.assistMode==='llm'||video&&state.boardBackground?'关键帧会发送给当前 Agent 使用的模型服务，其余计算在本机进行。':'内容仅发送到本机分析服务。'}</p>
  <details class="capture-extras"><summary>示例与识别对比工具</summary><div class="semantic-entry"><button class="text-btn" data-action="semantic-reference">参考照片识别</button><button class="text-btn" data-action="recognition-results">导入已有识别结果</button><button class="text-btn" data-action="demo">已有三维示例</button><a class="text-btn" href="/recognition.html">识别对比页 →</a></div></details>`;
 }
 function historyPlates(){
@@ -134,13 +249,23 @@ function captureMealActive(){return state.page==='scan'&&state.captureFlow==='ed
 function viewActive(){return state.meal?.three_d_available&&(state.page==='plate'||state.page==='result'&&state.mode==='3d'||captureMealActive()&&state.editPreview==='3d');}
 function captureAssistance(){
  const video=state.captureFlow==='video',edit=state.captureFlow==='edit';
- const options=[['list','食物清单分割','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位分割','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选分割','在参考照片中逐个指定食物名称与区域。'],['none','不使用语义分割',video?'只重建三维外观，不识别食物区域；食物清单可手工补充。':edit?'保留原餐盘，直接调整食物名称与清单，不重新分割。':'保留原始照片，手工填写食物清单，不运行分割模型。']];
- return `<section class="surface assist-input"><label>食物语义识别 <small>三种分割方式，或不使用语义分割</small></label><div class="capture-assist-modes" role="group" aria-label="食物分割方式">${options.map(([id,label])=>`<button data-capture-assist="${id}" aria-pressed="${state.assistMode===id}" class="${state.assistMode===id?'active':''}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div><p class="estimate-note">${options.find(([id])=>id===state.assistMode)?.[2]||'请选择食物分割方式。'}</p>
+ const options=[['list','食物清单分割','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位分割','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选分割','在参考照片中逐个指定食物名称与区域。'],['llm','大模型识别','只识别白色定位板内的物体；有多视角素材时联合识别并追踪。'],['none','不使用语义分割',video?'只重建三维外观，不识别食物区域；食物清单可手工补充。':edit?'保留原餐盘，直接调整食物名称与清单，不重新分割。':'保留原始照片，手工填写食物清单，不运行分割模型。']];
+ return `${video?boardBackgroundControl():''}<section class="surface assist-input"><label>食物语义识别 <small>四种识别方式，或不使用语义分割</small></label><div class="capture-assist-modes" role="group" aria-label="食物分割方式">${options.map(([id,label])=>`<button data-capture-assist="${id}" aria-pressed="${state.assistMode===id}" class="${state.assistMode===id?'active':''}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div><p class="estimate-note">${options.find(([id])=>id===state.assistMode)?.[2]||'请选择食物分割方式。'}</p>
  ${['list','grounded'].includes(state.assistMode)?`<label for="foodHints">${state.assistMode==='list'?'可能有哪些食物？':'希望定位哪些食物？'}</label><textarea id="foodHints" rows="2" placeholder="苹果、香蕉、面包">${esc(state.foodText)}</textarea><p class="estimate-note">自定义名称可写成“中文名称|English name”。</p>`:''}
  ${video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?state.file?`<p class="estimate-note">先关联视频相机，取得与三维融合一致的参考帧，再点击或框选食物。此步骤需要一些时间。</p><button class="button ghost" data-action="prepare-video" ${state.uploading||state.videoPreparing?'disabled':''}>${state.videoPreparing?'正在准备参考帧…':state.videoPrepared?'重新准备参考帧':'准备标注参考帧'}</button>`:'<p class="estimate-note">请先选择环绕视频，再准备标注参考帧。</p>':''}
- ${state.videoPreparing?`<p class="record-note" role="status">${esc(state.videoPreparedStatus||'正在准备视频参考帧')}</p>`:''}
+ ${state.videoPreparing?`<p class="record-note" role="status">${esc(state.videoPreparedStatus||'正在准备视频参考帧')}</p><button class="button ghost" data-action="interrupt-prepare" ${state.interrupting?'disabled':''}>${state.interrupting?'正在中断…':'中断参考帧准备'}</button>`:''}
  ${state.assistMode==='manual'&&(!video||state.videoPrepared?.video_reference_ready)?!state.file?'<p class="estimate-note">请先选择照片，再点击或框选食物。</p>':edit&&state.meal?.three_d_available&&state.editPreview==='3d'?'<p class="estimate-note">请在固定参考图中标记食物，已有标记会保留。</p><button class="button ghost" data-edit-preview="reference">切换到参考图标注</button>':manualSeedControls():''}
  ${edit&&state.assistMode!=='none'?`<p class="estimate-note">${state.recognitionParent.threeD?'本次分割会传播到其他视角，并更新当前模型的语义版本，无需重新训练几何。':'本次识别生成新草稿，确认后保存。'}</p>`:''}</section>`;
+}
+function boardCaptureTips(){
+ return (state.boardBackground?'可固定相机，让定位板和物体一起转动；物体不能相对板滑动，停稳后再拍。也可固定物体、环绕拍摄。':'固定物体和定位板，缓慢环绕拍摄。')+'定位板按原尺寸打印，保持至少 3 个标记可见，以估算体积。';
+}
+function boardBackgroundControl(){
+ return `<section class="surface"><label class="board-background-control"><input id="boardBackground" type="checkbox" ${state.boardBackground?'checked':''} ${state.uploading||state.videoPrepared?'disabled':''}>自动跟随定位板排除背景</label><p class="estimate-note">转动定位板时建议开启。定位板和物体一起转动，保留完整物体与标记；至少露出 3 个标记。会将关键帧发送给当前 Agent 使用的模型服务来识别前景，再在本机跟踪，需要额外时间。</p></section>`;
+}
+function backgroundPanel(){
+ const value=state.meal?.background_summary;if(!value?.enabled)return '';
+ return `<section class="surface semantic-summary"><strong>已跟随定位板排除背景</strong><p>${value.processed_frames} 个视角保留定位板与完整物体${value.excluded_frames?`，另有 ${value.excluded_frames} 帧因定位板不清晰被排除`:''}。${value.status==='applied_to_sfm_and_training'?'已应用于相机匹配和三维重建。':''}</p>${state.meal.background_preview_url?`<details><summary>查看背景处理预览</summary><img class="background-preview" src="${state.meal.background_preview_url}" alt="定位板及物体保留区域预览" loading="lazy"></details>`:''}</section>`;
 }
 function manualSeedControls(){
  return `<div class="seed-controls"><label for="seedName">当前食物名称</label><input id="seedName" maxlength="80" value="${esc(state.seedName)}" placeholder="输入名称或选择历史食物" list="seedFoodNames" autocomplete="off"><datalist id="seedFoodNames">${historyFoodOptions()}</datalist><p class="estimate-note">${historyFoodNames().length?'候选来自已保存的历史餐食，也可以直接输入新名称。':'还没有历史食物，可以直接输入新名称。'}</p>
@@ -162,15 +287,25 @@ function refreshSeeds(){if($('seedList'))$('seedList').innerHTML=seedListHTML();
 function seedPoint(event){const box=$('mealSeedCanvas').getBoundingClientRect();return [Math.max(0,Math.min(1,(event.clientX-box.left)/box.width)),Math.max(0,Math.min(1,(event.clientY-box.top)/box.height))];}
 function processing(meal) {
  const threeD=meal.three_d_analysis;
- const analysis = threeD&&['queued','running','failed'].includes(threeD.status)?threeD:meal.analysis;
- if (['queued','running'].includes(analysis.status)) return `<div class="processing" role="status"><strong>${esc(analysis.stage)}</strong>已有清单可以核对，分析结束后自动更新三维状态。<div class="progress"><span style="width:${analysis.progress}%;background:#9db474"></span></div><span class="tiny">${Math.round(analysis.progress)}%</span></div>`;
+ const analysis = ['queued','running'].includes(meal.analysis.status)?meal.analysis:threeD&&['queued','running','failed','cancelled'].includes(threeD.status)?threeD:meal.analysis;
+ if (['queued','running'].includes(analysis.status)) return `<div class="processing" role="status"><strong>${esc(analysis.stage)}</strong>已有清单可以核对，分析结束后自动更新三维状态。<div class="progress"><span style="width:${analysis.progress}%;background:#9db474"></span></div><div class="processing-actions"><span class="tiny">${Math.round(analysis.progress)}%</span><button class="text-btn" data-action="interrupt" ${state.interrupting?'disabled':''}>${state.interrupting?'正在中断…':'中断识别与重建'}</button></div></div>`;
+ if (analysis.status==='cancelled') return `<div class="processing" role="status"><strong>${esc(analysis.stage)}</strong>原始素材和已完成的食物清单已保留，可稍后重新运行。<br><button class="text-btn" data-action="${analysis===threeD?'semantic-3d':'retry'}">${analysis===threeD?'重新生成三维关联':'重新分析'}</button></div>`;
  if (analysis.error) return `<div class="hint-card warning">${icon('info')}<div>${esc(analysis.error)}<br><button class="text-btn" data-action="${analysis===threeD?'semantic-3d':'retry'}">${analysis===threeD?'重试三维关联':'重新分析'}</button></div></div>`;
  return '';
 }
+function foodVolume(item) {
+ const value=item.volume?.volume_ml;
+ if(typeof value==='number'&&Number.isFinite(value)&&value>=0)return {value:`约 ${value.toFixed(1)} mL`,label:'外形体积',available:true};
+ if(item.volume?.status==='estimated')return {value:'体积待标定',label:'尚无真实尺度',available:false};
+ if(item.volume)return {value:'体积暂不可估',label:'三维采样不足',available:false};
+ const analysis=state.meal.three_d_analysis||state.meal.analysis;
+ if(['queued','running'].includes(analysis?.status))return {value:'体积计算中',label:'分析完成后更新',available:false};
+ return {value:'体积待估算',label:state.meal.three_d_available&&!item.instance_id?'尚未关联三维区域':'暂无体积结果',available:false};
+}
 function foodList() {
- return state.meal.items.map(item=>`<button class="food-row ${state.selected===item.id?'selected':''}" data-food="${item.id}"><span class="food-dot" style="background:#edf1de">${catalogItem(item.catalog_key)?.emoji || '🍽️'}</span>
- <span class="food-text"><strong>${esc(item.name)} ${item.instance_id?`<span class="instance-badge">ID ${item.instance_id}</span>`:''}</strong><span class="small">${item.nutrition?`参考 ${item.nutrition.reference_grams} g · 未称重`:'营养待补充'}${item.needs_review?' · 名称待核对':''}</span></span><span class="kcal">${item.nutrition?'约 '+kcal(item.nutrition.kcal):'待补充'}<span class="small">${item.nutrition?'kcal':''}</span></span></button>
- <div class="food-actions"><button data-edit="${item.id}">更正名称</button><button class="remove" data-remove-food="${item.id}">移除</button></div>`).join('');
+ return state.meal.items.map(item=>{const volume=foodVolume(item);return `<button class="food-row ${state.selected===item.id?'selected':''}" data-food="${item.id}"><span class="food-dot" style="background:#edf1de">${catalogItem(item.catalog_key)?.emoji || '🍽️'}</span>
+ <span class="food-text"><strong>${esc(item.name)} ${item.object_kind==='non_food'?'<span class="instance-badge">非食物对象</span>':item.object_kind==='packaged_food'?'<span class="instance-badge">包装外形</span>':''}${item.instance_id?`<span class="instance-badge">ID ${item.instance_id}</span>`:''}</strong><span class="small" ${nutritionPending(item)?'role="status"':''}>${foodNutritionLabel(item)}${item.needs_review?' · 名称待核对':''}</span><span class="small">${esc(densityText(item))}</span></span><span class="food-volume ${volume.available?'':'pending'}"><strong>${esc(volume.value)}</strong><span class="small">${esc(volume.label)}</span></span></button>
+ <div class="food-actions"><button data-edit="${item.id}">修改</button>${!item.nutrition&&!item.reference_nutrition&&!nutritionPending(item)&&!['non_food','packaged_food'].includes(item.object_kind)?`<button data-retry-nutrition="${item.id}">重试营养查询</button>`:''}<button class="remove" data-remove-food="${item.id}">移除</button></div>`;}).join('');
 }
 function mealImage(threeD=false) {
  if (threeD) {
@@ -180,27 +315,30 @@ function mealImage(threeD=false) {
  }
  if (!state.meal.photo_url) return '<div class="empty">这餐没有照片。<br>食物清单仍可以正常修改和保存。</div>';
  const item = chosen();
- return `<div class="stage result-stage"><img id="mealPhoto" src="${state.mode==='semantic'&&state.meal.semantic_overlay_url?state.meal.semantic_overlay_url:state.meal.photo_url}" alt="${state.mode==='semantic'?'食物语义分割结果':'这餐的原始照片'}">${item?.region_url?`<img class="photo-mask" src="${item.region_url}" alt="选中食物的视觉区域">`:''}</div>`;
+ return `<div class="stage result-stage"><img id="mealPhoto" src="${state.mode==='semantic'&&state.meal.semantic_overlay_url?state.meal.semantic_overlay_url:state.meal.photo_url}" alt="${state.mode==='semantic'?'食物语义分割结果':state.meal.background_summary?.enabled?'排除背景后的参考照片':'这餐的原始照片'}">${item?.region_url?`<img class="photo-mask" src="${item.region_url}" alt="选中食物的视觉区域">`:''}</div>`;
 }
 function selectedCard() {
  const item = chosen();
  if (!item) return '';
- return `<div class="chosen-note"><strong>${esc(item.name)}</strong>${item.instance_id?` · 食物 ${item.instance_id}`:''}<br>${item.nutrition?
-  `约 ${kcal(item.nutrition.kcal)} kcal · 蛋白质 ${grams(item.nutrition.protein)} g<br>碳水 ${grams(item.nutrition.carbs)} g · 脂肪 ${grams(item.nutrition.fat)} g`:'尚无匹配营养数据，请选择近似参考食物或保留自定义名称。'}
+ return `<div class="chosen-note"><strong>${esc(item.name)}</strong>${item.instance_id?` · 对象 ${item.instance_id}`:''}<br>${item.nutrition?
+  `约 ${kcal(item.nutrition.kcal)} kcal · 蛋白质 ${grams(item.nutrition.protein)} g<br>碳水 ${grams(item.nutrition.carbs)} g · 脂肪 ${grams(item.nutrition.fat)} g${nutritionSourceHTML(item.nutrition)}`:item.object_kind==='non_food'?'非食物测试对象，不计入营养。':item.object_kind==='packaged_food'?'当前测量包装外形，无法据此确定包内食物体积或重量。':item.reference_nutrition?referenceNutritionHTML(item):item.nutrition_lookup?nutritionLookupHTML(item.nutrition_lookup):'尚无匹配营养数据，添加或更正食品后将自动联网查询。'}
+  <br><strong>${esc(densityText(item))}</strong>${item.density?.value_g_ml!=null?`<br>${densitySourceHTML(item.density)}`:item.density?.message?`<br>${esc(item.density.message)}`:''}
   ${state.mode!=='3d'&&!item.region_available?'<br>这项食物暂未定位到照片区域。':''}
   ${(state.mode==='3d'||state.page==='plate')&&!item.instance_id?'<br>手工补充项尚未关联三维区域，已保留在清单中。':''}
-  ${item.volume?`<br><strong>${item.volume.volume_ml!=null?`体积约 ${item.volume.volume_ml.toFixed(1)} mL`:item.volume.status==='estimated'?'体积暂未完成真实尺度标定':'三维采样不足，暂不能估算体积'}</strong>${item.volume.max_span_cm?` · 最大跨度 ${item.volume.max_span_cm.toFixed(1)} cm`:''}<br>凸包包围体积粗估，不能直接换算成重量或热量。`:''}</div>`;
+  ${item.volume?`<br><strong>${item.volume.volume_ml!=null?`体积约 ${item.volume.volume_ml.toFixed(1)} mL${state.meal.volume_summary?.scale_source==='pansense_aruco_board_multiview'?'（定位板估算）':''}`:item.volume.status==='estimated'?'体积暂未完成真实尺度标定':'三维采样不足，暂不能估算体积'}</strong>${item.volume.max_span_cm?` · 最大跨度 ${item.volume.max_span_cm.toFixed(1)} cm`:''}<br>外形包围体积为粗估；密度匹配食物状态后才用于估重，仍受凹陷和遮挡影响。`:''}</div>`;
 }
 function volumePanel(){
  const value=state.meal.volume_summary;if(!state.meal.three_d_available||!value||value.status==='unavailable')return '';
- return `<section class="surface semantic-summary"><strong>体积估计</strong><p>${value.status==='calibrated'?(value.scale_source==='white_paper_rectangle_multiview'?`已用 ${value.paper_length_cm} × ${value.paper_width_cm} cm 白色纸片标定，${value.reference_views} 个视角通过校验。点击三维物体查看约多少 mL。`:'已用手工实测尺寸标定。点击三维物体查看约多少 mL。'):'未获得可靠的纸片尺度，暂不显示 mL。请保持纸片平整、静止，拍到完整四角及多个角度。'}</p><p class="estimate-note">凸包包围体积会包含凹陷空隙，遮挡或缺失表面也会造成误差；营养仍按参考份量计算。</p>${value.reference_image_url?'<button class="text-btn" data-action="paper-reference">查看纸片识别</button>':''}</section>`;
+ const board=value.scale_source==='pansense_aruco_board_multiview';
+ const items=state.meal.items.filter(item=>item.volume?.volume_ml!=null);
+ return `<section class="surface semantic-summary"><strong>${board?'定位板估算体积':'体积估计'}</strong><p>${value.status==='calibrated'?(board?`已用${esc(value.board_name||'定位板')}估算，${value.reference_views} 个视角、${value.reference_markers} 个标记通过校验。`:'已用实测尺寸标定。'):'暂未获得可靠定位板尺度。请按原尺寸打印定位板，保持平整静止，并拍到多个标记及不同视角。'}</p>${items.map(item=>`<div class="row"><span>${esc(item.name)}<small class="density-summary">${esc(densityText(item))}</small></span><strong>约 ${item.volume.volume_ml.toFixed(1)} mL</strong></div>`).join('')}<p class="estimate-note">mL 与 cm³ 数值相同。估算基于物体外形；包装包含内部空气，凹陷、遮挡和缺失表面也会产生误差。</p>${value.reference_image_url?'<button class="text-btn" data-action="board-reference">查看定位板识别</button>':''}</section>`;
 }
 function semanticPanel(){
- const meal=state.meal,summary=meal.semantic_summary||{},labels={auto:'自动分割识别',list:'食物清单辅助',grounded:'名称定位分割',manual:'点击 / 框选命名',none:'不使用语义分割'};
+ const meal=state.meal,summary=meal.semantic_summary||{},labels={auto:'自动分割识别',list:'食物清单辅助',grounded:'名称定位分割',manual:'点击 / 框选命名',llm:'大模型多视图识别',none:'不使用语义分割'};
  if(!meal.photo_url||meal.source_kind==='manual')return '';
  const count=meal.items.filter(i=>i.instance_id).length,active=['queued','running'].includes(meal.three_d_analysis?.status);
  return `<section class="surface semantic-summary"><div class="row">${meal.can_refine_semantics?'<button class="text-btn" data-action="refine-semantics">食物语义识别 →</button>':'<strong>食物语义识别</strong>'}<span class="nutri-tag">${labels[summary.mode]||'食物实例'}</span></div>
- <p>${summary.mode==='none'?'本餐未使用语义分割，可手工补充或修改食物清单。':count?`${count} 个独立食物区域，点击图片或清单核对名称。`:'正在准备食物区域；识别完成后可点击核对。'}</p>
+ <p>${summary.mode==='none'?'本餐未使用语义分割，可手工补充或修改食物清单。':count?`${count} 个独立对象区域，点击图片或清单核对名称。`:'正在准备食物区域；识别完成后可点击核对。'}</p>
  ${summary.missing_hints?.length?`<p class="estimate-note">未可靠识别：${esc(summary.missing_hints.join('、'))}。可重新标注补充。</p>`:''}
  <div class="semantic-actions">${meal.can_refine_semantics?`<button class="text-btn" data-action="refine-semantics">${meal.semantic_targets_3d?'输入食物，辅助此三维餐盘':'调整识别 / 重新标注'}</button>`:''}
  ${meal.three_d_available?'<button class="text-btn" data-page="plate">查看语义三维餐盘 →</button>':meal.reconstruction_available&&count&&!active?'<button class="text-btn" data-action="semantic-3d">生成三维食物关联 →</button>':''}</div>
@@ -212,21 +350,21 @@ function result() {
  if(meal.video_reference_ready||meal.video_preparing)return `<div class="eyebrow">PREPARE YOUR PLATE</div><h1 class="screen-heading">准备${meal.source_kind==='scan'?'扫描':'视频'}参考帧</h1>${processing(meal)}<p class="estimate-note">先完成相机位姿估计，再在同一张参考帧上标记食物，继续重建与语义融合。草稿会保留，可以稍后继续。</p><button class="button primary" data-action="resume-video">${meal.video_reference_ready?'继续标记食物':'查看参考帧准备进度'}</button>`;
  return `<div class="backline">${state.nutritionReturnMealId===meal.id?`<button class="back" data-action="return-edit">${icon('back')}返回餐盘调整</button>`:`<button class="back" data-page="${meal.saved_at?'diary':'scan'}">${icon('back')} ${meal.saved_at?'返回日记':'返回拍摄'}</button>`}<span class="source-pill">${meal.source_kind==='demo'?'已有三维示例':meal.saved_at?'已保存':'等待确认'}</span></div>
  <div class="eyebrow">MEAL INSIGHT</div><h1 class="screen-heading">${esc(meal.title)}</h1><p class="tiny muted">${mealType[meal.meal_type]} · ${dateLabel(meal.occurred_at)} ${timeLabel(meal.occurred_at)}</p>${meal.note?`<p class="record-note">${esc(meal.note)}</p>`:''}${processing(meal)}
- ${mealImage(state.mode==='3d')}<div class="segmented"><button class="${state.mode==='photo'?'selected':''}" data-mode="photo">原始照片</button>${meal.semantic_overlay_url?`<button class="${state.mode==='semantic'?'selected':''}" data-mode="semantic">语义分割</button>`:''}<button class="${state.mode==='3d'?'selected':''}" data-mode="3d">3D 餐盘</button></div>
+ ${mealImage(state.mode==='3d')}<div class="segmented"><button class="${state.mode==='photo'?'selected':''}" data-mode="photo">${meal.background_summary?.enabled?'参考照片':'原始照片'}</button>${meal.semantic_overlay_url?`<button class="${state.mode==='semantic'?'selected':''}" data-mode="semantic">语义分割</button>`:''}<button class="${state.mode==='3d'?'selected':''}" data-mode="3d">3D 餐盘</button></div>
  ${state.mode==='3d'&&meal.three_d_available?'<button class="text-btn" data-page="plate">打开完整三维餐盘 →</button>':''}${selectedCard()}${nutritionCard(meal.totals)}
  <div class="row"><h2 class="section-head" style="margin:0">食物构成</h2><button class="text-btn" data-action="add-food">＋ 补充食物</button></div>${foodList() || '<div class="empty">还没有可靠候选。<br>可以补充食物，先完成这餐记录。</div>'}
- <p class="estimate-note">营养按目录参考份量计算，未进行视觉称重。油脂、酱汁、烹饪方式和隐藏配料可能造成差异。名称和食物清单请先核对。</p>
+ <p class="estimate-note">已标定体积与密度用于估重，再换算营养。食品缺少专属密度时自动使用分类默认估值，可点击“修改”调整。缺少密度或营养数据的项目暂不计入营养汇总；二维记录仍标注固定参考份量。估重不是称重，请核对食物状态和可食用范围。</p>
  <button class="button primary" data-action="save">${icon(meal.saved_at?'check':'arrow')}${meal.saved_at?'修改记录信息':'确认并保存这餐'}</button>
  ${meal.saved_at?'<button class="text-btn" style="width:100%;color:#a47b68" data-action="delete-meal">删除这条记录</button>':''}
- ${semanticPanel()}${volumePanel()}`;
+ ${backgroundPanel()}${semanticPanel()}${volumePanel()}`;
 }
 function plate() {
  if (!state.meal) return '<div class="empty">请先选择一条餐食。</div>';
  return `<div class="backline"><button class="back" data-page="result">${icon('back')}返回结果</button><span class="pill">3D VIEW</span></div><div class="eyebrow">SEE YOUR PLATE</div>
- <h1 class="screen-heading">从不同角度，<br>看见这一餐。</h1><p class="estimate-note">拖动视角，轻点食物查看对应营养。</p>${mealImage(true)}
+ <h1 class="screen-heading">从不同角度，<br>看见这一餐。</h1><p class="estimate-note">拖动视角，轻点食物查看对应营养。</p>${processing(state.meal)}${mealImage(true)}
  ${state.meal.three_d_available?'<button class="button ghost" data-action="reset-view">恢复拍摄视角</button>':'<button class="button ghost" data-mode="photo">返回原图与清单</button>'}
  ${state.meal.can_refine_semantics?'<button class="button primary" data-action="refine-semantics">输入食物，辅助此三维餐盘</button>':''}
- ${selectedCard()}${volumePanel()}<h2 class="section-head">餐盘包含</h2>${foodList()}<p class="estimate-note">未拍到的表面可能有重建伪影。三维体积未标定为真实重量，热量仍按参考份量估算。</p>`;
+ ${selectedCard()}${backgroundPanel()}${volumePanel()}<h2 class="section-head">餐盘包含</h2>${foodList()}<p class="estimate-note">未拍到的表面可能有重建伪影。三维体积未标定为真实重量，热量仍按参考份量估算。</p>`;
 }
 function diary() {
  const records = state.meals.filter(meal=>localDay(new Date(meal.occurred_at))===state.date);
@@ -253,7 +391,7 @@ function modalHTML() {
  const modal = state.modal;
  if (!modal) return '';
  let content = '';
- if(modal.kind==='paper-reference')content=`<h3>白色纸片标尺</h3><p>标尺尺寸 10 × 2 cm。绿色轮廓为识别到的纸片四角，系统结合多个视角检查尺度。</p><img src="${state.meal.volume_summary.reference_image_url}" alt="多个视角的白色纸片检测" style="width:100%;height:auto;border-radius:12px"><p>该检查用于尺度估计，不能证明物体体积没有误差。</p>`;
+ if(modal.kind==='board-reference')content=`<h3>定位板体积标定</h3><p>${esc(state.meal.volume_summary.board_name||'PanSense 定位板')}按原尺寸打印。绿色轮廓为识别到的标记，系统结合多个视角检查物理尺度。</p><img src="${state.meal.volume_summary.reference_image_url}" alt="多个视角的定位板标记检测" style="width:100%;height:auto;border-radius:12px"><p>该检查用于尺度估计，不能证明物体体积没有误差。</p>`;
  if(modal.kind==='recognition-results')content=`<h3>使用已有识别结果</h3><p>将分割区域、食物名称和已有三维关联用于餐食草稿；确认保存后才计入日记。</p>${state.recognitionChoices.map(m=>`<button class="recognition-choice" data-import-run="${m.id}">${m.photo_url?`<img src="${m.photo_url}" alt="识别照片">`:''}<span><strong>${esc(m.items.map(i=>i.name).join('、'))}</strong><small>${m.items.length} 个食物${m.three_d_available?' · 已有三维关联':''}${m.comparison_imported?' · 已在餐食中':''}</small></span></button>`).join('')||'<p>还没有可用结果。可以先导入照片进行识别。</p>'}`;
  if (modal.kind==='goal') content = `<h3>每日热量参考值</h3><p>仅用于显示记录进度，由你选择，不是自动制定的饮食计划；可以不设置。</p>
  <form id="goalForm"><div class="form-row"><label for="goalValue">参考热量（kcal）</label><input id="goalValue" type="number" min="100" max="10000" value="${state.profile.goal_kcal || ''}" placeholder="例如 1900"></div><button class="button primary" type="submit">保存参考值</button><button class="text-btn" type="button" data-action="clear-goal" style="width:100%">${modal.onboard?'跳过并开始记录':'不设置参考值'}</button></form>`;
@@ -262,8 +400,9 @@ function modalHTML() {
  <label class="checkbox-line"><input id="retainMedia" type="checkbox" ${state.profile.retain_media?'checked':''}>保存餐食照片和三维资产</label><p>关闭后新保存的餐食仅保留文字与营养记录，已有餐食不自动删除。随时可单独删除记录。</p><button class="button primary" type="submit">保存偏好</button></form>`;
  if (modal.kind==='food') {
   const item = modal.itemId?state.meal.items.find(item=>item.id===modal.itemId):null;
-  content = `<h3>${item?'更正食物':'补充食物'}</h3><form id="foodForm"><div class="form-row"><label for="foodCatalog">营养参考食物</label><select id="foodCatalog"><option value="">自定义名称 · 营养待补充</option>${state.catalog.map(food=>`<option value="${food.key}" ${food.key===item?.catalog_key?'selected':''}>${esc(food.name)}</option>`).join('')}</select><small>使用最接近的食物作为参考，首版不调整份量。</small></div>
-  <div class="form-row"><label for="foodName">食物名称</label><input id="foodName" maxlength="80" required value="${esc(item?.name || '')}" placeholder="输入名称或选择历史食物" list="mealFoodNames" autocomplete="off"><datalist id="mealFoodNames">${historyFoodOptions()}</datalist><small>候选来自已保存的历史餐食，可直接输入其他名称。</small></div>
+  content = `<h3>${item?'更正食物':'补充食物'}</h3><form id="foodForm"><div class="form-row"><label for="foodSearch">搜索食物库</label><input id="foodSearch" type="search" placeholder="如：馒头、牛奶、番茄炒蛋" autocomplete="off"><label for="foodCategory">食物分类</label><select id="foodCategory"><option value="">全部分类 · ${state.catalog.length} 项</option>${foodCatalogCategories().map(([key,name])=>`<option value="${key}">${esc(name)}</option>`).join('')}</select><label for="foodCatalog">营养参考食物</label><select id="foodCatalog">${catalogOptions(item?.catalog_key||'')}</select><small id="catalogReference">${catalogReferenceHTML(item?.catalog_key)}</small><small>请核对生熟、部位和处理方式，再选择参考食物。</small></div>
+  <div class="form-row"><label for="foodName">食物名称</label><input id="foodName" maxlength="80" required value="${esc(item?.name || '')}" placeholder="输入名称或选择历史食物" list="mealFoodNames" autocomplete="off"><datalist id="mealFoodNames">${historyFoodOptions()}</datalist><small>候选包含食物库与历史食物，也可以填写自定义名称。缺少营养数据时将后台联网查询食品名称。</small><small id="nutritionSearchStatus" role="status" aria-live="polite">${item?.nutrition_lookup?nutritionLookupHTML({...item.nutrition_lookup,nutrition:item.nutrition}):''}</small><button class="text-btn" type="button" data-action="nutrition-reference">重新查询营养数据</button></div>
+  <div id="densityFields">${densityFieldsHTML(item)}</div>
   ${!item&&state.meal.photo_url?`<p>可选：在照片上拖出区域，便于查看。</p><div class="region-picker"><img id="regionPhoto" class="region-draw" src="${state.meal.photo_url}" alt="拖动标记补充食物的位置"><span id="regionBox" class="region-box"></span></div>`:''}
   <button class="button primary" type="submit" style="margin-top:18px">${item?'保存更正':'添加食物'}</button></form>`;
  }
@@ -272,8 +411,8 @@ function modalHTML() {
  <div class="two-fields"><div class="form-row"><label for="mealType">餐次</label><select id="mealType">${Object.entries(mealType).map(([key,name])=>`<option value="${key}" ${key===state.meal.meal_type?'selected':''}>${name}</option>`).join('')}</select></div><div class="form-row"><label for="mealTime">时间</label><input id="mealTime" type="datetime-local" required value="${inputTime(state.meal.occurred_at)}"></div></div>
  <div class="form-row"><label for="mealNote">备注（可选）</label><textarea id="mealNote" maxlength="1000" placeholder="记录口味、搭配或其他想记下的事">${esc(state.meal.note)}</textarea></div>
  <p class="save-note">估算信息会随食物清单一起保存。${!state.profile.retain_media?'当前偏好仅保留文字与营养，不保存照片和三维资产。':''}</p><button class="button primary" type="submit">保存到饮食日记</button></form>`;
- if (modal.kind==='privacy') content = `<h3>数据与隐私</h3><p>照片、分析文件、三维模型和餐食记录保存在本机服务的项目目录中，不发送到第三方识别接口。首次下载模型权重需要网络。</p><p>浏览器仅缓存应用界面，不缓存你的照片、营养记录或三维画面。导出文件包含记录和偏好，不包含照片和模型。</p><a class="button ghost" href="/api/privacy/export" download>导出记录 JSON</a><button class="button danger" style="margin-top:12px" data-action="confirm-purge">删除本机全部餐食数据</button>`;
- if (modal.kind==='about') content = `<h3>关于盘感</h3><p>盘感 P0 让拍照、核对、保存和查看日记连成一个轻松的流程。视频或已有多视角模型可以生成真实三维餐盘，单张照片使用二维清单回退。</p><p>识别使用预训练 SAM 2 与 CLIP，名称可能有误。营养来自 <a href="https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/methods-and-application-of-food-composition-laboratory/mafcl-site-pages/sr11-sr28/" target="_blank" rel="noopener">USDA SR28（2016 年修订）</a>，按固定参考份量换算，不代表实测重量。具体烹饪方式、油脂和隐藏配料可能造成差异。</p><p>交互份量调整与餐前餐后对比属于 P1，本阶段未开放。</p>`;
+ if (modal.kind==='privacy') content = `<h3>数据与隐私</h3><p>照片、分析文件、三维模型和餐食记录保存在本机项目目录。开启大模型识别或自动排除背景时，所选关键帧会发送给当前 Agent 使用的模型服务；本机执行后续掩码跟踪与重建。缺少营养数据时，后台会将食品名称发送到 USDA FoodData Central 和 Open Food Facts 查询；不发送照片、餐食备注或个人信息。首次下载模型权重也需要网络。</p><p>浏览器仅缓存应用界面，不缓存你的照片、营养记录或三维画面。导出文件包含记录和偏好，不包含照片和模型。</p><a class="button ghost" href="/api/privacy/export" download>导出记录 JSON</a><button class="button danger" style="margin-top:12px" data-action="confirm-purge">删除本机全部餐食数据</button>`;
+ if (modal.kind==='about') content = `<h3>关于盘感</h3><p>盘感 P0 让拍照、核对、保存和查看日记连成一个轻松的流程。视频或已有多视角模型可以生成真实三维餐盘，单张照片使用二维清单回退。</p><p>识别使用预训练 SAM 2 与 CLIP，名称可能有误。营养来自 <a href="https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/methods-and-application-of-food-composition-laboratory/mafcl-site-pages/sr11-sr28/" target="_blank" rel="noopener">USDA SR28（2016 年修订）</a>，及后台查询的 USDA FoodData Central、Open Food Facts 产品标签参考。有已标定体积时，按体积与密度估重并换算营养；其他记录使用固定参考份量，均非称重。在线结果保留来源并提示核对。具体烹饪方式、油脂和隐藏配料可能造成差异。</p><p>密度优先使用手动修改值，其次使用食品参考密度，缺失时自动使用所属分类的默认估值。分类值由 USDA 量杯份量与 FAO 菜肴样本计算，包含堆积空隙；整颗、切块及生熟状态会有差异。</p><details><summary>查看 11 类默认密度</summary><table class="density-table"><thead><tr><th>分类</th><th>默认 g/mL</th><th>样本数</th></tr></thead><tbody>${state.categoryDensities.map(d=>`<tr><td>${esc(d.category_label)}</td><td>${d.value_g_ml.toFixed(3)}</td><td>${d.sample_count}</td></tr>`).join('')}</tbody></table><p class="small">样本较少的分类仅作粗略估算；可在食品的“修改”中填写更合适的密度。</p></details><p>交互份量调整与餐前餐后对比属于 P1，本阶段未开放。</p>`;
  if (modal.kind==='install') content = `<h3>添加到主屏幕</h3><p>在支持安装的浏览器中打开菜单，选择“安装应用”或“添加到主屏幕”。iPhone 可在 Safari 的分享菜单中添加。</p><p>手机连接本机服务需要可访问的安全地址。离线时可打开应用界面，分析与日记数据仍需要连接本机服务。</p>`;
  if (modal.kind==='confirm') content = `<h3>${esc(modal.title)}</h3><p>${esc(modal.message)}</p><div class="modal-actions"><button class="button ghost" data-action="modal-close">取消</button><button class="button danger" data-action="confirm-action">${esc(modal.label || '确认删除')}</button></div>`;
  return `<div class="modal-scrim"><section class="modal-box" role="dialog" aria-modal="true" aria-label="${esc(modal.kind)}"><button class="modal-close" data-action="modal-close" aria-label="关闭弹窗">×</button>${content}</section></div>`;
@@ -326,19 +465,23 @@ async function go(page, push=true) {
 }
 async function openMeal(id, platePage=false, push=true) {
  resetViewer();
- state.meal=await api(`/meals/${id}`);state.selected=null;state.mode=platePage?'3d':state.meal.semantic_overlay_url?'semantic':'photo';
+ state.meal=await api(`/meals/${id}`);
+ if(state.meal.items.some(item=>!item.nutrition&&!['non_food','packaged_food'].includes(item.object_kind)))state.meal=await api(`/meals/${id}/nutrition/lookup`,{method:'POST'});
+ state.selected=null;state.mode=platePage?'3d':state.meal.semantic_overlay_url?'semantic':'photo';
  state.view=null;state.viewBusy=false;state.desired={yaw:0,pitch:0,zoom:1};
  await go(platePage?'plate':'result',push);pollMeal();
 }
 function pollMeal() {
  clearTimeout(state.poll);
- if(!state.meal||!(['queued','running'].includes(state.meal.analysis.status)||['queued','running'].includes(state.meal.three_d_analysis?.status)))return;
+ if(!state.meal||!(['queued','running'].includes(state.meal.analysis.status)||['queued','running'].includes(state.meal.three_d_analysis?.status)||state.meal.items.some(nutritionPending)))return;
  const id=state.meal.id;
  state.poll=setTimeout(async()=>{
   try{const meal=await api(`/meals/${id}`);if(state.meal?.id!==id)return;if(!state.meal.semantic_overlay_url&&meal.semantic_overlay_url&&state.mode==='photo')state.mode='semantic';
    if(!state.meal.three_d_available&&meal.three_d_available&&meal.semantic_auto_3d&&['result','plate'].includes(state.page)){state.mode='3d';state.view=null;toast('本次食物分割已应用到三维餐盘，可拖动和点击查看');}
+   const nutritionFinished=state.meal.items.some(nutritionPending)&&!meal.items.some(nutritionPending);
    state.meal=meal;
-   if(['result','plate'].includes(state.page)&&!state.modal)render(true);pollMeal();
+   if(nutritionFinished)await refreshRecords();
+   if((['result','plate'].includes(state.page)||nutritionFinished&&['home','diary'].includes(state.page))&&!state.modal)render(true);pollMeal();
   }catch(error){toast(error.message);}
  },1800);
 }
@@ -482,7 +625,7 @@ function resetCapture(){
  if(state.fileUrl)URL.revokeObjectURL(state.fileUrl);
  Object.assign(state,{file:null,fileUrl:null,manualRegions:[],seedDrag:null,seedPicture:null,seedPictureUrl:null,
   seedSourceUrl:null,recognitionParent:null,videoPrepared:null,videoPreparing:false,videoPreparedStatus:'',
-  seedName:'',foodText:'',paperPresent:true,editPreview:'3d',editViewError:null,nutritionReturnMealId:null});
+  seedName:'',foodText:'',editPreview:'3d',editViewError:null,nutritionReturnMealId:null});
 }
 async function refineMeal(id){
  const parent=await api(`/meals/${id}`);
@@ -492,7 +635,7 @@ async function refineMeal(id){
  state.captureFlow='edit';state.historyMealId=parent.id;
  state.meal=parent;state.editPreview=parent.three_d_available?'3d':'reference';
  state.recognitionParent={id:parent.id,revision:parent.revision,threeD:parent.semantic_targets_3d,title:parent.title};
- state.assistMode=['manual','list','grounded','none'].includes(parent.assistance?.mode)?parent.assistance.mode:'grounded';
+ state.assistMode=['manual','list','grounded','llm','none'].includes(parent.assistance?.mode)?parent.assistance.mode:'grounded';
  state.foodText=parent.assistance?.foods?.length?parent.assistance.foods.map(f=>`${f.name}|${f.text}`).join('、'):parent.items.map(i=>i.name).join('、');
  state.manualRegions=parent.assistance?.mode==='manual'?parent.assistance.instances.map(r=>({...r})):[];
  history.pushState(null,'','#scan');render();
@@ -503,11 +646,11 @@ async function prepareVideo(){
  state.uploading=true;render(true);
  try{
   if(!state.videoPrepared){
-   const form=new FormData();form.append('file',state.file);form.append('prepare','true');
+   const form=new FormData();form.append('file',state.file);form.append('prepare','true');form.append('board_background',String(state.boardBackground));
    state.videoPrepared=await api('/meals/upload?kind=video',{method:'POST',body:form});
   }else{
    const latest=await api(`/meals/${state.videoPrepared.id}`);
-   state.videoPrepared=latest.analysis.status==='failed'?await api(`/meals/${latest.id}/retry`,{method:'POST'}):latest;
+   state.videoPrepared=['failed','cancelled'].includes(latest.analysis.status)?await api(`/meals/${latest.id}/retry`,{method:'POST'}):latest;
   }
   if(epoch!==state.captureEpoch)return;
   state.videoPreparing=true;
@@ -521,7 +664,7 @@ async function pollVideoPreparation(epoch){
   if(epoch!==state.captureEpoch)return;
   state.videoPrepared=meal;state.videoPreparedStatus=meal.analysis.stage;
   if(meal.video_reference_ready&&meal.photo_url){state.videoPreparing=false;state.seedSourceUrl=meal.photo_url;toast('参考帧已准备好，可以点击或框选食物');}
-  else if(meal.analysis.status==='failed'){state.videoPreparing=false;toast(meal.analysis.error||'参考帧准备失败，可以重试');}
+  else if(['failed','cancelled'].includes(meal.analysis.status)){state.videoPreparing=false;toast(meal.analysis.status==='cancelled'?'已中断参考帧准备，原始素材已保留':meal.analysis.error||'参考帧准备失败，可以重试');}
   else state.preparePoll=setTimeout(()=>pollVideoPreparation(epoch),1800);
   if(state.page==='scan')render(true);
  }catch(error){state.videoPreparing=false;toast(error.message);if(state.page==='scan')render(true);}
@@ -553,15 +696,15 @@ async function analyze() {
  state.uploading=true;render(true);
  try{const assistance={mode:state.assistMode,food_text:['list','grounded'].includes(state.assistMode)?state.foodText:'',instances:state.assistMode==='manual'?state.manualRegions:[]};let meal;
   if(state.recognitionParent){meal=await api(`/meals/${state.recognitionParent.id}/recognize`,{method:'POST',body:{revision:state.recognitionParent.revision,assistance}});}
-  else if(state.fileKind==='video'&&state.videoPrepared){meal=await api(`/meals/${state.videoPrepared.id}/video-start`,{method:'POST',body:{revision:state.videoPrepared.revision,assistance,paper_present:state.paperPresent}});}
-  else{const form=new FormData();form.append('file',state.file);form.append('assistance',JSON.stringify(assistance));form.append('paper_present',String(state.paperPresent));meal=await api(`/meals/upload?kind=${state.fileKind}`,{method:'POST',body:form});}
+  else if(state.fileKind==='video'&&state.videoPrepared){meal=await api(`/meals/${state.videoPrepared.id}/video-start`,{method:'POST',body:{revision:state.videoPrepared.revision,assistance}});}
+  else{const form=new FormData();form.append('file',state.file);form.append('assistance',JSON.stringify(assistance));form.append('board_background',String(state.boardBackground));meal=await api(`/meals/upload?kind=${state.fileKind}`,{method:'POST',body:form});}
   state.file=null;if(state.fileUrl)URL.revokeObjectURL(state.fileUrl);state.fileUrl=null;
   state.manualRegions=[];state.seedPicture=null;state.seedSourceUrl=null;state.recognitionParent=null;state.videoPrepared=null;
   await openMeal(meal.id);
  }finally{state.uploading=false;if(state.page==='scan')render(true);}
 }
-function openModal(modal){state.modal=modal;$('modal').innerHTML=modalHTML();const input=$('modal').querySelector('input,select,button');input?.focus();}
-function closeModal(){state.modal=null;state.regionDrag=null;$('modal').innerHTML='';}
+function openModal(modal){state.modal=modal;$('modal').innerHTML=modalHTML();const input=$('modal').querySelector('input,select,button');input?.focus();if(modal.kind==='food'){updateDensityPreview();queryNutritionReference();}}
+function closeModal(){nutritionReferenceEpoch++;clearTimeout(nutritionReferenceTimer);state.modal=null;state.regionDrag=null;$('modal').innerHTML='';}
 async function setGoal(value,onboard=false){
  state.profile=await api('/profile',{method:'PATCH',body:{goal_kcal:value,...(onboard?{onboarded:true}:{})}});
  closeModal();await refreshRecords();await go(onboard?'home':state.page);toast(value?'参考值已保存':'可以先记录，不设置参考值');
@@ -576,14 +719,27 @@ async function action(name){
   case 'preferences':openModal({kind:'preferences'});break;
   case 'privacy':openModal({kind:'privacy'});break;
   case 'about':openModal({kind:'about'});break;
-  case 'paper-reference':openModal({kind:'paper-reference'});break;
+  case 'board-reference':openModal({kind:'board-reference'});break;
  case 'modal-close':closeModal();break;
+ case 'nutrition-reference':await queryNutritionReference(true);break;
   case 'semantic-reference':{
    const response=await fetch('/api/recognition/reference-photo');if(!response.ok)throw new Error('参考照片暂不可用');
    await chooseFile(new File([await response.blob()],'参考食物照片.jpg',{type:'image/jpeg'}),'photo');toast('已载入参考照片，可选择识别方式');break;
   }
   case 'recognition-results':state.recognitionChoices=(await api('/recognition/results')).results;openModal({kind:'recognition-results'});break;
   case 'semantic-3d':state.meal=await api(`/meals/${state.meal.id}/semantic-3d`,{method:'POST'});render(true);pollMeal();break;
+  case 'interrupt':case 'interrupt-prepare':{
+   if(state.interrupting)return;
+   const preparing=name==='interrupt-prepare',id=preparing?state.videoPrepared?.id:state.meal?.id;if(!id)return;
+   state.interrupting=true;render(true);
+   try{
+    const meal=await api(`/meals/${id}/interrupt`,{method:'POST'});
+    if(preparing&&state.videoPrepared?.id===id){state.videoPrepared=meal;state.videoPreparing=false;state.videoPreparedStatus=meal.analysis.stage;clearTimeout(state.preparePoll);}
+    if(state.meal?.id===id){state.meal=meal;pollMeal();}
+    toast('已中断，原始素材和已完成结果已保留');
+   }finally{state.interrupting=false;render(true);}
+   break;
+  }
   case 'history-plates':resetCapture();state.captureFlow='edit';await refreshRecords();render();break;
   case 'edit-history':if(state.historyMealId){
    const meal=await api(`/meals/${state.historyMealId}`);
@@ -600,10 +756,10 @@ async function action(name){
   case 'prepare-video':await prepareVideo();break;
   case 'resume-video':{
    const meal=await api(`/meals/${state.meal.id}`);resetCapture();state.captureFlow='video';state.fileKind='video';
-   state.videoPrepared=meal;state.assistMode='manual';state.file={name:meal.source_kind==='scan'?'已上传的扫描照片':'已上传的环绕视频'};state.paperPresent=meal.paper_present!==false;
+   state.videoPrepared=meal;state.boardBackground=!!meal.board_background;state.assistMode='manual';state.file={name:meal.source_kind==='scan'?'已上传的扫描照片':'已上传的环绕视频'};
    state.fileUrl=meal.photo_url;state.seedSourceUrl=meal.video_reference_ready?meal.photo_url:null;
    state.page='scan';history.pushState(null,'','#scan');
-   if(meal.video_preparing&&meal.analysis.status!=='failed'){state.videoPreparing=true;await pollVideoPreparation(state.captureEpoch);}
+   if(meal.video_preparing&&['queued','running'].includes(meal.analysis.status)){state.videoPreparing=true;await pollVideoPreparation(state.captureEpoch);}
    render();break;
   }
   case 'refine-semantics':{
@@ -649,9 +805,14 @@ async function confirmAction(){
 document.addEventListener('click',async event=>{
  try{
   if(event.target.closest('#plateImage,#mealPhoto')){await clickImage(event);return;}
-  const button=event.target.closest('[data-page],[data-action],[data-meal],[data-food],[data-edit],[data-remove-food],[data-mode],[data-import-run],[data-capture-flow],[data-capture-assist],[data-history-meal],[data-edit-preview]');
+  const button=event.target.closest('[data-page],[data-action],[data-meal],[data-food],[data-edit],[data-remove-food],[data-retry-nutrition],[data-mode],[data-import-run],[data-capture-flow],[data-capture-assist],[data-history-meal],[data-edit-preview]');
   if(!button)return;
   if(button.disabled)return;
+  if(button.dataset.retryNutrition){
+   const id=state.meal.id;button.disabled=true;
+   state.meal=await api(`/meals/${id}/foods/${button.dataset.retryNutrition}/nutrition/retry`,{method:'POST'});
+   render(true);pollMeal();return;
+  }
   if(button.dataset.captureFlow){
    if(state.uploading)return;
    resetCapture();state.captureFlow=button.dataset.captureFlow;state.fileKind=state.captureFlow==='video'?'video':'photo';
@@ -676,13 +837,16 @@ document.addEventListener('click',async event=>{
   if(button.dataset.action)await action(button.dataset.action);
  }catch(error){toast(error.message);}
 });
-document.addEventListener('input',event=>{if(event.target.id==='foodHints')state.foodText=event.target.value;if(event.target.id==='seedName')state.seedName=event.target.value;if(event.target.id==='paperPresent')state.paperPresent=event.target.checked;});
+document.addEventListener('input',event=>{if(event.target.id==='foodHints')state.foodText=event.target.value;if(event.target.id==='seedName')state.seedName=event.target.value;});
 document.addEventListener('change',async event=>{
  if(event.target.id==='assistMode'){state.assistMode=event.target.value;render(true);return;}
+ if(event.target.id==='boardBackground'){state.boardBackground=event.target.checked;render(true);return;}
  if(event.target.name==='seedTool'){state.seedTool=event.target.value;return;}
  try{
   if(event.target.id==='diaryDate'){state.date=event.target.value;await refreshRecords();render();}
-  if(event.target.id==='foodCatalog'){$('foodName').value=catalogItem(event.target.value)?.name || '';}
+  if(event.target.id==='foodCategory'){filterFoodCatalog();}
+  if(event.target.id==='densityMode')updateDensityPreview();
+  if(event.target.id==='foodCatalog'){$('foodName').value=catalogItem(event.target.value)?.name || '';$('catalogReference').innerHTML=catalogReferenceHTML(event.target.value);filterFoodCatalog();refreshDensityFields();await queryNutritionReference();}
  }catch(error){toast(error.message);}
 });
 document.addEventListener('submit',async event=>{
@@ -699,9 +863,13 @@ document.addEventListener('submit',async event=>{
    const modal=state.modal;
    const latest=await api(`/meals/${state.meal.id}`);
    const body={name,catalog_key:key,revision:latest.revision};
+   const densityMode=$('densityMode')?.value;
+   if(densityMode==='clear')body.density={mode:'clear'};
+   else if(densityMode==='custom'){const value=Number($('densityValue').value);if(!(value>0&&value<=10))throw new Error('请输入大于 0 且不超过 10 的密度，单位 g/mL');body.density={mode:'custom',value_g_ml:value,note:$('densityNote').value.trim()};}
+   else if(densityMode?.startsWith('ref:'))body.density={mode:'reference',reference_id:densityMode.slice(4)};
    if(!modal.itemId&&modal.box&&modal.box[2]>modal.box[0]&&modal.box[3]>modal.box[1])body.region={kind:'bbox',bbox:modal.box};
    state.meal=await api(`/meals/${latest.id}/foods${modal.itemId?'/'+modal.itemId:''}`,{method:modal.itemId?'PATCH':'POST',body});
-   state.selected=modal.itemId || state.meal.items.at(-1).id;closeModal();await refreshRecords();render(true);if(state.mode==='3d'){state.viewDirty=true;scheduleView();}toast('食物清单与营养已更新');
+   state.selected=modal.itemId || state.meal.items.at(-1).id;closeModal();await refreshRecords();render(true);pollMeal();if(state.mode==='3d'){state.viewDirty=true;scheduleView();}toast(state.meal.items.some(nutritionPending)?'食物已添加，营养数据查询中':'食物清单与营养已更新');
   }
   if(event.target.id==='saveForm'){
    const body={title:$('mealTitle').value.trim(),meal_type:$('mealType').value,occurred_at:zonedISO($('mealTime').value),note:$('mealNote').value};
@@ -722,7 +890,7 @@ async function route(){
 }
 async function bootstrap(){
  try{
-  const [profile,catalog]=await Promise.all([api('/profile'),api('/catalog')]);state.profile=profile;state.catalog=catalog.foods;state.date=localDay();
+  const [profile,catalog]=await Promise.all([api('/profile'),api('/catalog')]);state.profile=profile;state.catalog=catalog.foods;state.categoryDensities=catalog.category_densities||[];state.date=localDay();
   await refreshRecords();state.offline=false;
   if(!profile.onboarded){state.page='onboard';render();}else{state.page='home';await route();render();}
  }catch(error){state.offline=true;render();toast(error.message);}
@@ -730,3 +898,20 @@ async function bootstrap(){
 phoneScan.configure({api,redraw:()=>{if(state.page==='scan'&&state.captureFlow==='mobile')render(true);},openMeal});
 if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 await bootstrap();
+
+document.addEventListener('input',event=>{
+ if(event.target.id==='foodSearch')filterFoodCatalog();
+ if(event.target.id==='foodName')refreshDensityFields();
+ if(event.target.id==='densityValue')updateDensityPreview();
+ if(['foodSearch','foodName'].includes(event.target.id)){
+  nutritionReferenceEpoch++;clearTimeout(nutritionReferenceTimer);
+  if($('nutritionSearchStatus'))$('nutritionSearchStatus').textContent='输入完成后，缺失的营养数据将自动查询。';
+ }
+});
+document.addEventListener('focusout',event=>{
+ if(state.modal?.kind!=='food')return;
+ if(event.target.id==='foodName')queryNutritionReference();
+ if(event.target.id==='foodSearch'&&!$('foodCatalog').querySelector('optgroup')&&event.target.value.trim()){
+  $('foodName').value=event.target.value.trim();refreshDensityFields();queryNutritionReference();
+ }
+});

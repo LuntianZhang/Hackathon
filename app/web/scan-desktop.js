@@ -3,7 +3,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const statuses={capturing:'手机正在拍摄',paused:'已暂停，可继续',complete:'已结束，可检查照片'};
 export const phoneScan={
  active:false,sessions:[],connection:null,scan:null,pairing:null,error:'',busy:false,timer:null,sector:null,
- buildMode:'grounded',foodText:'',paperPresent:false,lanHost:'',
+ buildMode:'grounded',foodText:'',lanHost:'',boardBackground:true,
  configure(callbacks){Object.assign(this,callbacks);},
  async enter(){this.active=true;await this.refresh();this.schedule();},
  leave(){this.active=false;clearTimeout(this.timer);},
@@ -34,7 +34,7 @@ export const phoneScan={
    <div class="scan-controls"><button class="button ghost" data-phone-action="pause" ${scan.status!=='capturing'||this.busy?'disabled':''}>暂停拍摄</button><button class="button ghost" data-phone-action="finish" ${!scan.frame_count||scan.meal_id||this.busy?'disabled':''}>结束并检查</button></div>
    <div class="row"><h2 class="section-head">${this.sector===null?'最近照片':`${this.sector<12?'较低视角':'较高俯视'} · 第 ${this.sector%12+1} 格`}</h2><button class="text-btn" data-phone-action="all-frames">查看最近照片</button></div><div class="scan-frames">${frameListHTML(scan,this.sector)}</div>
    ${scan.meal_id?`<button class="button primary" data-phone-action="open-meal">查看餐盘与处理进度</button>`:
-   `<section class="scan-build-options"><label for="scanBuildMode">食物分割方式</label><select id="scanBuildMode">${[['list','食物清单分割'],['grounded','名称定位分割'],['manual','点击 / 框选分割'],['none','不使用语义分割']].map(([value,label])=>`<option value="${value}" ${this.buildMode===value?'selected':''}>${label}</option>`).join('')}</select>${this.buildMode==='manual'?'<p class="tiny muted">先关联扫描相机并准备固定参考图，再点击或框选食物。后续继续使用同一批相机与照片。</p>':''}${['list','grounded'].includes(this.buildMode)?`<label for="scanFoodText">有哪些食物？</label><textarea id="scanFoodText" placeholder="香蕉、青提、葡萄">${esc(this.foodText)}</textarea>`:''}<label><input type="checkbox" id="scanPaper" ${this.paperPresent?'checked':''}>画面中有 10 × 2 cm 白色纸片标尺</label><button class="button primary" data-phone-action="build" ${scan.status!=='complete'||scan.good_frames<20||this.busy?'disabled':''}>${this.busy?'正在提交…':this.buildMode==='manual'?'准备扫描参考图，继续点框标注':'使用扫描照片生成三维餐盘'}</button><p class="tiny muted">结束扫描后可提交，至少需要 20 张清晰且不重复的照片。电脑先用 COLMAP 复核，再进行重建。</p></section>`}`;
+   `<section class="scan-build-options"><label for="scanBuildMode">食物分割方式</label><select id="scanBuildMode">${[['list','食物清单分割'],['grounded','名称定位分割'],['manual','点击 / 框选分割'],['llm','大模型识别'],['none','不使用语义分割']].map(([value,label])=>`<option value="${value}" ${this.buildMode===value?'selected':''}>${label}</option>`).join('')}</select>${this.buildMode==='llm'?'<p class="tiny muted">只识别白色定位板内的物体，并联合多个视角追踪；所选图片会发送至已登录 Agent 或所配置的模型服务。</p>':''}${this.buildMode==='manual'?'<p class="tiny muted">先关联扫描相机并准备固定参考图，再点击或框选食物。后续继续使用同一批相机与照片。</p>':''}${['list','grounded'].includes(this.buildMode)?`<label for="scanFoodText">有哪些食物？</label><textarea id="scanFoodText" placeholder="香蕉、青提、葡萄">${esc(this.foodText)}</textarea>`:''}<label class="board-background-control"><input id="scanBoardBackground" type="checkbox" ${this.boardBackground?'checked':''}>自动跟随定位板排除背景</label><p class="tiny muted">定位板与物体一起转动，至少露出 3 个标记。会将关键帧发给当前 Agent 使用的模型服务，再在本机跟踪完整轮廓与排除背景，需要额外时间。按原尺寸打印定位板以估算体积。</p><button class="button primary" data-phone-action="build" ${scan.status!=='complete'||scan.good_frames<20||this.busy?'disabled':''}>${this.busy?'正在提交…':this.buildMode==='manual'?'准备扫描参考图，继续点框标注':'使用扫描照片生成三维餐盘'}</button><p class="tiny muted">结束扫描后可提交，至少需要 20 张清晰且不重复的照片。电脑先用 COLMAP 复核，再进行重建。</p></section>`}`;
  },
  mount(){
   for(const image of document.querySelectorAll('.desktop-scan-panel [data-scan-frame-src]'))image.src=image.dataset.scanFrameSrc;
@@ -51,7 +51,7 @@ export const phoneScan={
    if(name==='all-frames')this.sector=null;
    if(name==='build'){
     if(['list','grounded'].includes(this.buildMode)&&!this.foodText.trim())throw new Error('请填写食物名称');
-    const meal=await this.api(`/scans/${this.scan.id}/build`,{method:'POST',body:{assistance:{mode:this.buildMode==='manual'?'auto':this.buildMode,food_text:['list','grounded'].includes(this.buildMode)?this.foodText:''},paper_present:this.paperPresent,prepare:this.buildMode==='manual'}});
+    const meal=await this.api(`/scans/${this.scan.id}/build`,{method:'POST',body:{assistance:{mode:this.buildMode==='manual'?'auto':this.buildMode,food_text:['list','grounded'].includes(this.buildMode)?this.foodText:''},prepare:this.buildMode==='manual',board_background:this.boardBackground}});
     await this.refresh();await this.openMeal(meal.id);
    }
    if(name==='open-meal')await this.openMeal(this.scan.meal_id);
@@ -69,5 +69,5 @@ document.addEventListener('click',event=>{
  const photo=event.target.closest('.desktop-scan-panel [data-scan-photo]');if(photo){const frame=phoneScan.scan.frames.find(f=>f.id===photo.dataset.scanPhoto);if(frame)window.open(frame.url,'_blank','noopener');}
 });
 document.addEventListener('keydown',event=>{if(phoneScan.active&&['Enter',' '].includes(event.key)&&event.target.matches('.desktop-scan-panel [data-scan-sector]')){event.preventDefault();event.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}});
-document.addEventListener('input',event=>{if(event.target.id==='scanFoodText')phoneScan.foodText=event.target.value;if(event.target.id==='scanPaper')phoneScan.paperPresent=event.target.checked;});
-document.addEventListener('change',event=>{if(event.target.id==='scanBuildMode'){phoneScan.buildMode=event.target.value;phoneScan.redraw();}if(event.target.id==='scanLanHost')phoneScan.lanHost=event.target.value;});
+document.addEventListener('input',event=>{if(event.target.id==='scanFoodText')phoneScan.foodText=event.target.value;});
+document.addEventListener('change',event=>{if(event.target.id==='scanBoardBackground')phoneScan.boardBackground=event.target.checked;if(event.target.id==='scanBuildMode'){phoneScan.buildMode=event.target.value;phoneScan.redraw();}if(event.target.id==='scanLanHost')phoneScan.lanHost=event.target.value;});

@@ -1,0 +1,5040 @@
+{
+  "schema_version": 1,
+  "policy": "Manual selection > food-specific reference > category estimate; never applied to packaging or non-food.",
+  "basis": "Household-volume/bulk fallback estimates, not measured material densities or nutrition substitutes.",
+  "usda_source_sha256": "8308fd1d224ef1e5331093748007180da01a7ac713cbac6a1f5bc2a03e1ee70a",
+  "volume_units_ml": {
+    "cup": 236.5882365,
+    "cups": 236.5882365,
+    "tbsp": 14.78676478125,
+    "tsp": 4.92892159375
+  },
+  "unit_source_url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b9",
+  "categories": [
+    {
+      "category": "fruit",
+      "category_label": "水果",
+      "name": "水果分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.68,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 44,
+      "sample_range_g_ml": [
+        0.338,
+        1.057
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 44 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "apple",
+          "food_name": "苹果",
+          "ndb_number": "09003",
+          "source_description": "Apples, raw, with skin",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, quartered or chopped",
+              "grams": 125.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5283441047162969
+            }
+          ],
+          "value_g_ml": 0.5283441047162969
+        },
+        {
+          "food_key": "banana",
+          "food_name": "香蕉",
+          "ndb_number": "09040",
+          "source_description": "Bananas, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, mashed",
+              "grams": 225.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9510193884893343
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 150.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6340129256595562
+            }
+          ],
+          "value_g_ml": 0.7925161570744452
+        },
+        {
+          "food_key": "grapes",
+          "food_name": "葡萄",
+          "ndb_number": "09132",
+          "source_description": "Grapes, red or green (European type, such as Thompson seedless), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 151.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6382396784972866
+            }
+          ],
+          "value_g_ml": 0.6382396784972866
+        },
+        {
+          "food_key": "durian",
+          "food_name": "榴莲",
+          "ndb_number": "09422",
+          "source_description": "Durian, raw or frozen",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped or diced",
+              "grams": 243.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0271009395684811
+            }
+          ],
+          "value_g_ml": 1.0271009395684811
+        },
+        {
+          "food_key": "orange",
+          "food_name": "橙子",
+          "ndb_number": "09200",
+          "source_description": "Oranges, raw, all commercial varieties",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sections",
+              "grams": 180.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7608155107914675
+            }
+          ],
+          "value_g_ml": 0.7608155107914675
+        },
+        {
+          "food_key": "pear",
+          "food_name": "梨",
+          "ndb_number": "09252",
+          "source_description": "Pears, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, slices",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 161.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6805072068745903
+            }
+          ],
+          "value_g_ml": 0.6361263020784214
+        },
+        {
+          "food_key": "plum",
+          "food_name": "李子",
+          "ndb_number": "09279",
+          "source_description": "Plums, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.6974142182255119
+        },
+        {
+          "food_key": "kiwi",
+          "food_name": "猕猴桃",
+          "ndb_number": "09148",
+          "source_description": "Kiwifruit, green, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 180.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7608155107914675
+            }
+          ],
+          "value_g_ml": 0.7608155107914675
+        },
+        {
+          "food_key": "strawberry",
+          "food_name": "草莓",
+          "ndb_number": "09316",
+          "source_description": "Strawberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, halves",
+              "grams": 152.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.642466431335017
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, pureed",
+              "grams": 232.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.980606658353447
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 166.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7016409710632422
+            },
+            {
+              "sequence": "4",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 144.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6086524086331739
+            }
+          ],
+          "value_g_ml": 0.6720537011991297
+        },
+        {
+          "food_key": "apricot",
+          "food_name": "杏",
+          "ndb_number": "09021",
+          "source_description": "Apricots, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, halves",
+              "grams": 155.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6551466898482081
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.67628045403686
+        },
+        {
+          "food_key": "avocado",
+          "food_name": "牛油果",
+          "ndb_number": "09037",
+          "source_description": "Avocados, raw, all commercial varieties",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 150.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6340129256595562
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, pureed",
+              "grams": 230.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9721531526779862
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 146.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6171059143086347
+            }
+          ],
+          "value_g_ml": 0.6340129256595562
+        },
+        {
+          "food_key": "blackberry",
+          "food_name": "黑莓",
+          "ndb_number": "09042",
+          "source_description": "Blackberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 144.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6086524086331739
+            }
+          ],
+          "value_g_ml": 0.6086524086331739
+        },
+        {
+          "food_key": "blueberry",
+          "food_name": "蓝莓",
+          "ndb_number": "09050",
+          "source_description": "Blueberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 148.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6255594199840955
+            }
+          ],
+          "value_g_ml": 0.6255594199840955
+        },
+        {
+          "food_key": "starfruit",
+          "food_name": "杨桃",
+          "ndb_number": "09060",
+          "source_description": "Carambola, (starfruit), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 132.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5579313745804094
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 108.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.45648930647488045
+            }
+          ],
+          "value_g_ml": 0.5072103405276449
+        },
+        {
+          "food_key": "cherry",
+          "food_name": "樱桃",
+          "ndb_number": "09070",
+          "source_description": "Cherries, sweet, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, without pits",
+              "grams": 154.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6509199370104777
+            }
+          ],
+          "value_g_ml": 0.6509199370104777
+        },
+        {
+          "food_key": "sour_cherry",
+          "food_name": "酸樱桃",
+          "ndb_number": "09063",
+          "source_description": "Cherries, sour, red, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, without pits",
+              "grams": 155.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6551466898482081
+            }
+          ],
+          "value_g_ml": 0.6551466898482081
+        },
+        {
+          "food_key": "cranberry",
+          "food_name": "蔓越莓（鲜）",
+          "ndb_number": "09078",
+          "source_description": "Cranberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 110.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4649428121503412
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 100.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4226752837730375
+            }
+          ],
+          "value_g_ml": 0.44380904796168935
+        },
+        {
+          "food_key": "blackcurrant",
+          "food_name": "黑加仑",
+          "ndb_number": "09083",
+          "source_description": "Currants, european black, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 112.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.473396317825802
+            }
+          ],
+          "value_g_ml": 0.473396317825802
+        },
+        {
+          "food_key": "redcurrant",
+          "food_name": "红醋栗",
+          "ndb_number": "09084",
+          "source_description": "Currants, red and white, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 112.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.473396317825802
+            }
+          ],
+          "value_g_ml": 0.473396317825802
+        },
+        {
+          "food_key": "cape_gooseberry",
+          "food_name": "灯笼果",
+          "ndb_number": "09138",
+          "source_description": "Groundcherries, (cape-gooseberries or poha), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "lemon",
+          "food_name": "柠檬",
+          "ndb_number": "09150",
+          "source_description": "Lemons, raw, without peel",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sections",
+              "grams": 212.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8960716015988395
+            }
+          ],
+          "value_g_ml": 0.8960716015988395
+        },
+        {
+          "food_key": "lychee",
+          "food_name": "荔枝",
+          "ndb_number": "09164",
+          "source_description": "Litchis, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 190.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8030830391687712
+            }
+          ],
+          "value_g_ml": 0.8030830391687712
+        },
+        {
+          "food_key": "loquat",
+          "food_name": "枇杷",
+          "ndb_number": "09174",
+          "source_description": "Loquats, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubed",
+              "grams": 149.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6297861728218258
+            }
+          ],
+          "value_g_ml": 0.6297861728218258
+        },
+        {
+          "food_key": "jackfruit",
+          "food_name": "菠萝蜜",
+          "ndb_number": "09144",
+          "source_description": "Jackfruit, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.6974142182255119
+        },
+        {
+          "food_key": "guava",
+          "food_name": "番石榴",
+          "ndb_number": "09139",
+          "source_description": "Guavas, common, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.6974142182255119
+        },
+        {
+          "food_key": "cantaloupe",
+          "food_name": "哈密瓜（橙肉甜瓜）",
+          "ndb_number": "09181",
+          "source_description": "Melons, cantaloupe, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, balls",
+              "grams": 177.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7481352522782764
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 160.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.67628045403686
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, diced",
+              "grams": 156.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6593734426859384
+            }
+          ],
+          "value_g_ml": 0.67628045403686
+        },
+        {
+          "food_key": "honeydew",
+          "food_name": "蜜瓜（蜜露甜瓜）",
+          "ndb_number": "09184",
+          "source_description": "Melons, honeydew, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, diced (approx 20 pieces per cup)",
+              "grams": 170.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7185479824141637
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, balls",
+              "grams": 177.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7481352522782764
+            }
+          ],
+          "value_g_ml": 0.73334161734622
+        },
+        {
+          "food_key": "mulberry",
+          "food_name": "桑葚",
+          "ndb_number": "09190",
+          "source_description": "Mulberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "mandarin",
+          "food_name": "橘子",
+          "ndb_number": "09218",
+          "source_description": "Tangerines, (mandarin oranges), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sections",
+              "grams": 195.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8242168033574231
+            }
+          ],
+          "value_g_ml": 0.8242168033574231
+        },
+        {
+          "food_key": "papaya",
+          "food_name": "木瓜",
+          "ndb_number": "09226",
+          "source_description": "Papayas, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, mashed",
+              "grams": 230.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9721531526779862
+            }
+          ],
+          "value_g_ml": 0.9721531526779862
+        },
+        {
+          "food_key": "passionfruit",
+          "food_name": "百香果",
+          "ndb_number": "09231",
+          "source_description": "Passion-fruit, (granadilla), purple, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 236.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9975136697043684
+            }
+          ],
+          "value_g_ml": 0.9975136697043684
+        },
+        {
+          "food_key": "pineapple",
+          "food_name": "菠萝",
+          "ndb_number": "09266",
+          "source_description": "Pineapple, raw, all varieties",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chunks",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.6974142182255119
+        },
+        {
+          "food_key": "pomelo",
+          "food_name": "柚子",
+          "ndb_number": "09295",
+          "source_description": "Pummelo, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sections",
+              "grams": 190.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8030830391687712
+            }
+          ],
+          "value_g_ml": 0.8030830391687712
+        },
+        {
+          "food_key": "raspberry",
+          "food_name": "树莓",
+          "ndb_number": "09302",
+          "source_description": "Raspberries, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 123.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5198905990408361
+            }
+          ],
+          "value_g_ml": 0.5198905990408361
+        },
+        {
+          "food_key": "sugar_apple",
+          "food_name": "释迦",
+          "ndb_number": "09321",
+          "source_description": "Sugar-apples, (sweetsop), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, pulp",
+              "grams": 250.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0566882094325938
+            }
+          ],
+          "value_g_ml": 1.0566882094325938
+        },
+        {
+          "food_key": "soursop",
+          "food_name": "刺果番荔枝",
+          "ndb_number": "09315",
+          "source_description": "Soursop, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, pulp",
+              "grams": 225.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9510193884893343
+            }
+          ],
+          "value_g_ml": 0.9510193884893343
+        },
+        {
+          "food_key": "watermelon",
+          "food_name": "西瓜",
+          "ndb_number": "09326",
+          "source_description": "Watermelon, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, balls",
+              "grams": 154.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6509199370104777
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, diced",
+              "grams": 152.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.642466431335017
+            }
+          ],
+          "value_g_ml": 0.6466931841727473
+        },
+        {
+          "food_key": "coconut",
+          "food_name": "椰肉",
+          "ndb_number": "12104",
+          "source_description": "Nuts, coconut meat, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 80.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.33814022701843
+            }
+          ],
+          "value_g_ml": 0.33814022701843
+        },
+        {
+          "food_key": "fuji_apple",
+          "food_name": "富士苹果",
+          "ndb_number": "09504",
+          "source_description": "Apples, raw, fuji, with skin",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 109.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.46071605931261084
+            }
+          ],
+          "value_g_ml": 0.46071605931261084
+        },
+        {
+          "food_key": "plantain",
+          "food_name": "大蕉",
+          "ndb_number": "09277",
+          "source_description": "Plantains, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 148.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6255594199840955
+            }
+          ],
+          "value_g_ml": 0.6255594199840955
+        },
+        {
+          "food_key": "goji",
+          "food_name": "枸杞（干）",
+          "ndb_number": "09110",
+          "source_description": "Goji berries, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 5.0,
+              "measure": "tbsp",
+              "grams": 28.0,
+              "volume_ml": 73.93382390625,
+              "value_g_ml": 0.37871705426064156
+            }
+          ],
+          "value_g_ml": 0.37871705426064156
+        },
+        {
+          "food_key": "raisins",
+          "food_name": "葡萄干",
+          "ndb_number": "09298",
+          "source_description": "Raisins, seedless",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, packed",
+              "grams": 165.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6974142182255119
+            }
+          ],
+          "value_g_ml": 0.6974142182255119
+        },
+        {
+          "food_key": "prunes",
+          "food_name": "西梅（干）",
+          "ndb_number": "09291",
+          "source_description": "Plums, dried (prunes), uncooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, pitted",
+              "grams": 174.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7354549937650852
+            }
+          ],
+          "value_g_ml": 0.7354549937650852
+        },
+        {
+          "food_key": "dried_fig",
+          "food_name": "无花果（干）",
+          "ndb_number": "09094",
+          "source_description": "Figs, dried, uncooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 149.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6297861728218258
+            }
+          ],
+          "value_g_ml": 0.6297861728218258
+        }
+      ]
+    },
+    {
+      "category": "meat",
+      "category_label": "肉类与水产",
+      "name": "肉类与水产分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.691,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 4,
+      "sample_range_g_ml": [
+        0.592,
+        0.947
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 4 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "chicken_breast_roasted",
+          "food_name": "鸡胸肉（烤制）",
+          "ndb_number": "05064",
+          "source_description": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped or diced",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "duck_roasted",
+          "food_name": "鸭肉（烤制，带皮）",
+          "ndb_number": "05140",
+          "source_description": "Duck, domesticated, meat and skin, cooked, roasted",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped or diced",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "fish_roe",
+          "food_name": "鱼卵（生）",
+          "ndb_number": "15072",
+          "source_description": "Fish, roe, mixed species, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.946792635651604
+            }
+          ],
+          "value_g_ml": 0.946792635651604
+        },
+        {
+          "food_key": "mussel",
+          "food_name": "贻贝肉（生）",
+          "ndb_number": "15164",
+          "source_description": "Mollusks, mussel, blue, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 150.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6340129256595562
+            }
+          ],
+          "value_g_ml": 0.6340129256595562
+        }
+      ]
+    },
+    {
+      "category": "vegetable",
+      "category_label": "蔬菜与菌菇",
+      "name": "蔬菜与菌菇分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.448,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 71,
+      "sample_range_g_ml": [
+        0.068,
+        1.082
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 71 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "broccoli",
+          "food_name": "西兰花（水煮）",
+          "ndb_number": "11091",
+          "source_description": "Broccoli, cooked, boiled, drained, without salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup, chopped",
+              "grams": 78.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.6593734426859384
+            }
+          ],
+          "value_g_ml": 0.6593734426859384
+        },
+        {
+          "food_key": "potato",
+          "food_name": "土豆（水煮）",
+          "ndb_number": "11367",
+          "source_description": "Potatoes, boiled, cooked without skin, flesh, without salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 78.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.6593734426859384
+            }
+          ],
+          "value_g_ml": 0.6593734426859384
+        },
+        {
+          "food_key": "tomato",
+          "food_name": "番茄",
+          "ndb_number": "11529",
+          "source_description": "Tomatoes, red, ripe, raw, year round average",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, chopped or sliced",
+              "grams": 180.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7608155107914675
+            }
+          ],
+          "value_g_ml": 0.7608155107914675
+        },
+        {
+          "food_key": "amaranth",
+          "food_name": "苋菜",
+          "ndb_number": "11003",
+          "source_description": "Amaranth leaves, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 28.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.1183490794564505
+            }
+          ],
+          "value_g_ml": 0.1183490794564505
+        },
+        {
+          "food_key": "cabbage",
+          "food_name": "包菜",
+          "ndb_number": "11109",
+          "source_description": "Cabbage, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 89.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.37618100255800335
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.33602685059956483
+        },
+        {
+          "food_key": "red_cabbage",
+          "food_name": "紫甘蓝",
+          "ndb_number": "11112",
+          "source_description": "Cabbage, red, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 89.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.37618100255800335
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.33602685059956483
+        },
+        {
+          "food_key": "savoy_cabbage",
+          "food_name": "皱叶甘蓝",
+          "ndb_number": "11114",
+          "source_description": "Cabbage, savoy, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.29587269864112625
+        },
+        {
+          "food_key": "bok_choy",
+          "food_name": "小白菜",
+          "ndb_number": "11116",
+          "source_description": "Cabbage, chinese (pak-choi), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.29587269864112625
+        },
+        {
+          "food_key": "napa_cabbage",
+          "food_name": "大白菜",
+          "ndb_number": "11119",
+          "source_description": "Cabbage, chinese (pe-tsai), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 76.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.3212332156675085
+            }
+          ],
+          "value_g_ml": 0.3212332156675085
+        },
+        {
+          "food_key": "celery",
+          "food_name": "芹菜",
+          "ndb_number": "11143",
+          "source_description": "Celery, raw",
+          "measures": [
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 7.5,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.507210340527645
+            }
+          ],
+          "value_g_ml": 0.507210340527645
+        },
+        {
+          "food_key": "chard",
+          "food_name": "瑞士甜菜叶",
+          "ndb_number": "11147",
+          "source_description": "Chard, swiss, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 36.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.15216310215829348
+            }
+          ],
+          "value_g_ml": 0.15216310215829348
+        },
+        {
+          "food_key": "endive",
+          "food_name": "苦菊",
+          "ndb_number": "11213",
+          "source_description": "Endive, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup, chopped",
+              "grams": 25.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.21133764188651874
+            }
+          ],
+          "value_g_ml": 0.21133764188651874
+        },
+        {
+          "food_key": "chicory",
+          "food_name": "菊苣叶",
+          "ndb_number": "11152",
+          "source_description": "Chicory greens, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 29.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.12257583229418087
+            }
+          ],
+          "value_g_ml": 0.12257583229418087
+        },
+        {
+          "food_key": "collard_greens",
+          "food_name": "羽衣甘蓝叶（collard）",
+          "ndb_number": "11161",
+          "source_description": "Collards, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 36.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.15216310215829348
+            }
+          ],
+          "value_g_ml": 0.15216310215829348
+        },
+        {
+          "food_key": "cilantro",
+          "food_name": "香菜",
+          "ndb_number": "11165",
+          "source_description": "Coriander (cilantro) leaves, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.25,
+              "measure": "cup",
+              "grams": 4.0,
+              "volume_ml": 59.147059125,
+              "value_g_ml": 0.067628045403686
+            }
+          ],
+          "value_g_ml": 0.067628045403686
+        },
+        {
+          "food_key": "leek",
+          "food_name": "韭葱",
+          "ndb_number": "11246",
+          "source_description": "Leeks, (bulb and lower leaf-portion), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 89.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.37618100255800335
+            }
+          ],
+          "value_g_ml": 0.37618100255800335
+        },
+        {
+          "food_key": "iceberg",
+          "food_name": "结球生菜",
+          "ndb_number": "11252",
+          "source_description": "Lettuce, iceberg (includes crisphead types), raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, chopped (1/2\" pieces, loosely packed)",
+              "grams": 57.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.24092491175063135
+            }
+          ],
+          "value_g_ml": 0.24092491175063135
+        },
+        {
+          "food_key": "mustard_greens",
+          "food_name": "芥菜",
+          "ndb_number": "11270",
+          "source_description": "Mustard greens, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 56.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.236698158912901
+            }
+          ],
+          "value_g_ml": 0.236698158912901
+        },
+        {
+          "food_key": "scallion",
+          "food_name": "大葱与小葱",
+          "ndb_number": "11291",
+          "source_description": "Onions, spring or scallions (includes tops and bulb), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 100.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4226752837730375
+            }
+          ],
+          "value_g_ml": 0.4226752837730375
+        },
+        {
+          "food_key": "spinach",
+          "food_name": "菠菜（生）",
+          "ndb_number": "11457",
+          "source_description": "Spinach, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 30.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.12680258513191126
+            }
+          ],
+          "value_g_ml": 0.12680258513191126
+        },
+        {
+          "food_key": "purslane",
+          "food_name": "马齿苋",
+          "ndb_number": "11427",
+          "source_description": "Purslane, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 43.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.18175037202240613
+            }
+          ],
+          "value_g_ml": 0.18175037202240613
+        },
+        {
+          "food_key": "sweet_potato_leaves",
+          "food_name": "红薯叶",
+          "ndb_number": "11505",
+          "source_description": "Sweet potato leaves, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 35.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.14793634932056313
+            }
+          ],
+          "value_g_ml": 0.14793634932056313
+        },
+        {
+          "food_key": "watercress",
+          "food_name": "西洋菜",
+          "ndb_number": "11591",
+          "source_description": "Watercress, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 34.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.14370959648283274
+            }
+          ],
+          "value_g_ml": 0.14370959648283274
+        },
+        {
+          "food_key": "arugula",
+          "food_name": "芝麻菜",
+          "ndb_number": "11959",
+          "source_description": "Arugula, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 10.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.0845350567546075
+            }
+          ],
+          "value_g_ml": 0.0845350567546075
+        },
+        {
+          "food_key": "water_spinach",
+          "food_name": "空心菜",
+          "ndb_number": "11503",
+          "source_description": "Swamp cabbage, (skunk cabbage), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 56.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.236698158912901
+            }
+          ],
+          "value_g_ml": 0.236698158912901
+        },
+        {
+          "food_key": "asparagus",
+          "food_name": "芦笋",
+          "ndb_number": "11011",
+          "source_description": "Asparagus, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 134.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5663848802558702
+            }
+          ],
+          "value_g_ml": 0.5663848802558702
+        },
+        {
+          "food_key": "broccoli_raw",
+          "food_name": "西兰花（生）",
+          "ndb_number": "11090",
+          "source_description": "Broccoli, raw",
+          "measures": [
+            {
+              "sequence": "5",
+              "amount": 0.5,
+              "measure": "cup, chopped or diced",
+              "grams": 44.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.37195424972027297
+            }
+          ],
+          "value_g_ml": 0.37195424972027297
+        },
+        {
+          "food_key": "brussels_sprouts",
+          "food_name": "抱子甘蓝",
+          "ndb_number": "11098",
+          "source_description": "Brussels sprouts, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 88.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.37195424972027297
+            }
+          ],
+          "value_g_ml": 0.37195424972027297
+        },
+        {
+          "food_key": "corn",
+          "food_name": "甜玉米（生）",
+          "ndb_number": "11167",
+          "source_description": "Corn, sweet, yellow, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 145.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6128791614709044
+            }
+          ],
+          "value_g_ml": 0.6128791614709044
+        },
+        {
+          "food_key": "okra",
+          "food_name": "秋葵",
+          "ndb_number": "11278",
+          "source_description": "Okra, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 100.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4226752837730375
+            }
+          ],
+          "value_g_ml": 0.4226752837730375
+        },
+        {
+          "food_key": "onion",
+          "food_name": "洋葱",
+          "ndb_number": "11282",
+          "source_description": "Onions, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 160.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.67628045403686
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 115.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4860765763389931
+            }
+          ],
+          "value_g_ml": 0.5811785151879265
+        },
+        {
+          "food_key": "snow_pea",
+          "food_name": "荷兰豆",
+          "ndb_number": "11300",
+          "source_description": "Peas, edible-podded, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 98.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4142217780975767
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 63.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.2662854287770136
+            }
+          ],
+          "value_g_ml": 0.34025360343729516
+        },
+        {
+          "food_key": "peas",
+          "food_name": "豌豆",
+          "ndb_number": "11304",
+          "source_description": "Peas, green, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 145.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6128791614709044
+            }
+          ],
+          "value_g_ml": 0.6128791614709044
+        },
+        {
+          "food_key": "bell_pepper",
+          "food_name": "青甜椒",
+          "ndb_number": "11333",
+          "source_description": "Peppers, sweet, green, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 149.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6297861728218258
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 92.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.38886126107119445
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 9.3,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.6289408222542798
+            }
+          ],
+          "value_g_ml": 0.6289408222542798
+        },
+        {
+          "food_key": "red_pepper",
+          "food_name": "红甜椒",
+          "ndb_number": "11821",
+          "source_description": "Peppers, sweet, red, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 149.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6297861728218258
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 92.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.38886126107119445
+            }
+          ],
+          "value_g_ml": 0.5093237169465101
+        },
+        {
+          "food_key": "chili",
+          "food_name": "青辣椒",
+          "ndb_number": "11670",
+          "source_description": "Peppers, hot chili, green, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 0.5,
+              "measure": "cup, chopped or diced",
+              "grams": 75.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.6340129256595562
+            }
+          ],
+          "value_g_ml": 0.6340129256595562
+        },
+        {
+          "food_key": "red_chili",
+          "food_name": "红辣椒",
+          "ndb_number": "11819",
+          "source_description": "Peppers, hot chili, red, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 0.5,
+              "measure": "cup, chopped or diced",
+              "grams": 75.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.6340129256595562
+            }
+          ],
+          "value_g_ml": 0.6340129256595562
+        },
+        {
+          "food_key": "zucchini",
+          "food_name": "西葫芦",
+          "ndb_number": "11477",
+          "source_description": "Squash, summer, zucchini, includes skin, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 124.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5241173518785665
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 113.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4776230706635323
+            }
+          ],
+          "value_g_ml": 0.5008702112710494
+        },
+        {
+          "food_key": "butternut_squash",
+          "food_name": "奶油南瓜",
+          "ndb_number": "11485",
+          "source_description": "Squash, winter, butternut, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "spaghetti_squash",
+          "food_name": "金丝瓜",
+          "ndb_number": "11492",
+          "source_description": "Squash, winter, spaghetti, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 101.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.42690203661076787
+            }
+          ],
+          "value_g_ml": 0.42690203661076787
+        },
+        {
+          "food_key": "wax_gourd",
+          "food_name": "冬瓜",
+          "ndb_number": "11593",
+          "source_description": "Waxgourd, (chinese preserving melon), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 132.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5579313745804094
+            }
+          ],
+          "value_g_ml": 0.5579313745804094
+        },
+        {
+          "food_key": "hyacinth_bean",
+          "food_name": "扁豆籽（鲜）",
+          "ndb_number": "11224",
+          "source_description": "Hyacinth-beans, immature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 80.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.33814022701843
+            }
+          ],
+          "value_g_ml": 0.33814022701843
+        },
+        {
+          "food_key": "mung_bean_sprouts",
+          "food_name": "绿豆芽",
+          "ndb_number": "11043",
+          "source_description": "Mung beans, mature seeds, sprouted, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 104.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.43958229512395897
+            }
+          ],
+          "value_g_ml": 0.43958229512395897
+        },
+        {
+          "food_key": "soybean_sprouts",
+          "food_name": "黄豆芽",
+          "ndb_number": "11452",
+          "source_description": "Soybeans, mature seeds, sprouted, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 35.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.29587269864112625
+        },
+        {
+          "food_key": "beet",
+          "food_name": "甜菜根",
+          "ndb_number": "11080",
+          "source_description": "Beets, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 136.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.574838385931331
+            }
+          ],
+          "value_g_ml": 0.574838385931331
+        },
+        {
+          "food_key": "fava_beans",
+          "food_name": "鲜蚕豆",
+          "ndb_number": "11088",
+          "source_description": "Broadbeans, immature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 109.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.46071605931261084
+            }
+          ],
+          "value_g_ml": 0.46071605931261084
+        },
+        {
+          "food_key": "cassava",
+          "food_name": "木薯",
+          "ndb_number": "11134",
+          "source_description": "Cassava, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 206.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8707110845724572
+            }
+          ],
+          "value_g_ml": 0.8707110845724572
+        },
+        {
+          "food_key": "celeriac",
+          "food_name": "根芹",
+          "ndb_number": "11141",
+          "source_description": "Celeriac, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 156.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6593734426859384
+            }
+          ],
+          "value_g_ml": 0.6593734426859384
+        },
+        {
+          "food_key": "kohlrabi",
+          "food_name": "苤蓝",
+          "ndb_number": "11241",
+          "source_description": "Kohlrabi, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 135.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5706116330936006
+            }
+          ],
+          "value_g_ml": 0.5706116330936006
+        },
+        {
+          "food_key": "potato_raw",
+          "food_name": "土豆（生）",
+          "ndb_number": "11352",
+          "source_description": "Potatoes, flesh and skin, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup, diced",
+              "grams": 75.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.6340129256595562
+            }
+          ],
+          "value_g_ml": 0.6340129256595562
+        },
+        {
+          "food_key": "sweet_potato",
+          "food_name": "红薯",
+          "ndb_number": "11507",
+          "source_description": "Sweet potato, raw, unprepared",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 133.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5621581274181399
+            }
+          ],
+          "value_g_ml": 0.5621581274181399
+        },
+        {
+          "food_key": "taro",
+          "food_name": "芋头",
+          "ndb_number": "11518",
+          "source_description": "Taro, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 104.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.43958229512395897
+            }
+          ],
+          "value_g_ml": 0.43958229512395897
+        },
+        {
+          "food_key": "jicama",
+          "food_name": "豆薯",
+          "ndb_number": "11603",
+          "source_description": "Yambean (jicama), raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 130.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5494778689049488
+            }
+          ],
+          "value_g_ml": 0.5494778689049488
+        },
+        {
+          "food_key": "turnip",
+          "food_name": "芜菁",
+          "ndb_number": "11564",
+          "source_description": "Turnips, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 130.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5494778689049488
+            },
+            {
+              "sequence": "6",
+              "amount": 0.5,
+              "measure": "cup, cubes",
+              "grams": 65.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 0.5494778689049488
+            }
+          ],
+          "value_g_ml": 0.5494778689049488
+        },
+        {
+          "food_key": "rutabaga",
+          "food_name": "芜菁甘蓝",
+          "ndb_number": "11435",
+          "source_description": "Rutabagas, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "edamame",
+          "food_name": "毛豆",
+          "ndb_number": "11450",
+          "source_description": "Soybeans, green, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 256.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.082048726458976
+            }
+          ],
+          "value_g_ml": 1.082048726458976
+        },
+        {
+          "food_key": "garlic",
+          "food_name": "大蒜",
+          "ndb_number": "11215",
+          "source_description": "Garlic, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 136.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.574838385931331
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 2.8,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.5680755813909623
+            }
+          ],
+          "value_g_ml": 0.5714569836611466
+        },
+        {
+          "food_key": "ginger",
+          "food_name": "生姜",
+          "ndb_number": "11216",
+          "source_description": "Ginger root, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 2.0,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.40576827242211594
+            }
+          ],
+          "value_g_ml": 0.40576827242211594
+        },
+        {
+          "food_key": "fennel",
+          "food_name": "球茎茴香",
+          "ndb_number": "11957",
+          "source_description": "Fennel, bulb, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 87.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.3677274968825426
+            }
+          ],
+          "value_g_ml": 0.3677274968825426
+        },
+        {
+          "food_key": "horseradish_root",
+          "food_name": "山葵",
+          "ndb_number": "11990",
+          "source_description": "Wasabi, root, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 130.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5494778689049488
+            }
+          ],
+          "value_g_ml": 0.5494778689049488
+        },
+        {
+          "food_key": "lemongrass",
+          "food_name": "香茅",
+          "ndb_number": "11972",
+          "source_description": "Lemon grass (citronella), raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 67.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.2831924401279351
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 4.8,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.32461461793769275
+            }
+          ],
+          "value_g_ml": 0.3039035290328139
+        },
+        {
+          "food_key": "red_bean",
+          "food_name": "红小豆（干）",
+          "ndb_number": "16001",
+          "source_description": "Beans, adzuki, mature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 197.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8326703090328839
+            }
+          ],
+          "value_g_ml": 0.8326703090328839
+        },
+        {
+          "food_key": "kidney_beans",
+          "food_name": "红腰豆（干）",
+          "ndb_number": "16032",
+          "source_description": "Beans, kidney, red, mature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 184.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7777225221423889
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 12.2,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.8250621539249691
+            }
+          ],
+          "value_g_ml": 0.8013923380336789
+        },
+        {
+          "food_key": "soybeans",
+          "food_name": "黄豆（干）",
+          "ndb_number": "16108",
+          "source_description": "Soybeans, mature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 186.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7861760278178497
+            }
+          ],
+          "value_g_ml": 0.7861760278178497
+        },
+        {
+          "food_key": "lentils",
+          "food_name": "小扁豆（干）",
+          "ndb_number": "16069",
+          "source_description": "Lentils, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 192.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.811536544844232
+            }
+          ],
+          "value_g_ml": 0.811536544844232
+        },
+        {
+          "food_key": "button_mushroom",
+          "food_name": "口蘑",
+          "ndb_number": "11260",
+          "source_description": "Mushrooms, white, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, pieces or slices",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 96.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.405768272422116
+            }
+          ],
+          "value_g_ml": 0.35082048553162115
+        },
+        {
+          "food_key": "morel",
+          "food_name": "羊肚菌（鲜）",
+          "ndb_number": "11240",
+          "source_description": "Mushrooms, morel, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 66.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.2789656872902047
+            }
+          ],
+          "value_g_ml": 0.2789656872902047
+        },
+        {
+          "food_key": "chanterelle",
+          "food_name": "鸡油菌",
+          "ndb_number": "11239",
+          "source_description": "Mushrooms, Chanterelle, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 54.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.22824465323744023
+            }
+          ],
+          "value_g_ml": 0.22824465323744023
+        },
+        {
+          "food_key": "wood_ear_dried",
+          "food_name": "木耳（干）",
+          "ndb_number": "11988",
+          "source_description": "Fungi, Cloud ears, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 28.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.1183490794564505
+            }
+          ],
+          "value_g_ml": 0.1183490794564505
+        },
+        {
+          "food_key": "eggplant",
+          "food_name": "茄子",
+          "ndb_number": "11209",
+          "source_description": "Eggplant, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 82.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.3465937326938907
+            }
+          ],
+          "value_g_ml": 0.3465937326938907
+        },
+        {
+          "food_key": "mung_beans",
+          "food_name": "绿豆（干）",
+          "ndb_number": "16080",
+          "source_description": "Mung beans, mature seeds, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 207.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8749378374101876
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.8791645902479179
+            }
+          ],
+          "value_g_ml": 0.8770512138290527
+        }
+      ]
+    },
+    {
+      "category": "staple",
+      "category_label": "主食与杂粮",
+      "name": "主食与杂粮分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.655,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 27,
+      "sample_range_g_ml": [
+        0.161,
+        0.987
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 27 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "bread",
+          "food_name": "白面包",
+          "ndb_number": "18069",
+          "source_description": "Bread, white, commercially prepared (includes soft bread crumbs)",
+          "measures": [
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, crumbs",
+              "grams": 45.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.19020387769786687
+            },
+            {
+              "sequence": "4",
+              "amount": 1.0,
+              "measure": "cup, cubes",
+              "grams": 35.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.14793634932056313
+            }
+          ],
+          "value_g_ml": 0.169070113509215
+        },
+        {
+          "food_key": "rice",
+          "food_name": "米饭",
+          "ndb_number": "20045",
+          "source_description": "Rice, white, long-grain, regular, enriched, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 158.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6678269483613992
+            }
+          ],
+          "value_g_ml": 0.6678269483613992
+        },
+        {
+          "food_key": "rice_raw",
+          "food_name": "大米（生）",
+          "ndb_number": "20444",
+          "source_description": "Rice, white, long-grain, regular, raw, unenriched",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 185.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7819492749801193
+            }
+          ],
+          "value_g_ml": 0.7819492749801193
+        },
+        {
+          "food_key": "brown_rice_raw",
+          "food_name": "糙米（生）",
+          "ndb_number": "20036",
+          "source_description": "Rice, brown, long-grain, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 185.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7819492749801193
+            }
+          ],
+          "value_g_ml": 0.7819492749801193
+        },
+        {
+          "food_key": "brown_rice_cooked",
+          "food_name": "糙米饭",
+          "ndb_number": "20037",
+          "source_description": "Rice, brown, long-grain, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 202.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8538040732215357
+            }
+          ],
+          "value_g_ml": 0.8538040732215357
+        },
+        {
+          "food_key": "glutinous_rice_raw",
+          "food_name": "糯米（生）",
+          "ndb_number": "20054",
+          "source_description": "Rice, white, glutinous, unenriched, uncooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 185.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7819492749801193
+            }
+          ],
+          "value_g_ml": 0.7819492749801193
+        },
+        {
+          "food_key": "glutinous_rice_cooked",
+          "food_name": "糯米饭",
+          "ndb_number": "20055",
+          "source_description": "Rice, white, glutinous, unenriched, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 174.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7354549937650852
+            }
+          ],
+          "value_g_ml": 0.7354549937650852
+        },
+        {
+          "food_key": "millet_raw",
+          "food_name": "小米（生）",
+          "ndb_number": "20031",
+          "source_description": "Millet, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 200.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.845350567546075
+            }
+          ],
+          "value_g_ml": 0.845350567546075
+        },
+        {
+          "food_key": "millet_cooked",
+          "food_name": "小米饭",
+          "ndb_number": "20032",
+          "source_description": "Millet, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 174.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7354549937650852
+            }
+          ],
+          "value_g_ml": 0.7354549937650852
+        },
+        {
+          "food_key": "barley_raw",
+          "food_name": "珍珠大麦（生）",
+          "ndb_number": "20005",
+          "source_description": "Barley, pearled, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 200.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.845350567546075
+            }
+          ],
+          "value_g_ml": 0.845350567546075
+        },
+        {
+          "food_key": "barley_cooked",
+          "food_name": "珍珠大麦（水煮）",
+          "ndb_number": "20006",
+          "source_description": "Barley, pearled, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 157.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6636001955236689
+            }
+          ],
+          "value_g_ml": 0.6636001955236689
+        },
+        {
+          "food_key": "buckwheat",
+          "food_name": "荞麦（生）",
+          "ndb_number": "20008",
+          "source_description": "Buckwheat",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 170.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7185479824141637
+            }
+          ],
+          "value_g_ml": 0.7185479824141637
+        },
+        {
+          "food_key": "oats",
+          "food_name": "燕麦（生）",
+          "ndb_number": "20038",
+          "source_description": "Oats",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 156.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6593734426859384
+            }
+          ],
+          "value_g_ml": 0.6593734426859384
+        },
+        {
+          "food_key": "rolled_oats",
+          "food_name": "原味燕麦片（干）",
+          "ndb_number": "08120",
+          "source_description": "Cereals, oats, regular and quick, not fortified, dry",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 81.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.3423669798561604
+            },
+            {
+              "sequence": "2",
+              "amount": 0.333,
+              "measure": "cup",
+              "grams": 27.0,
+              "volume_ml": 78.7838827545,
+              "value_g_ml": 0.3427096895457061
+            }
+          ],
+          "value_g_ml": 0.3425383347009332
+        },
+        {
+          "food_key": "oatmeal",
+          "food_name": "燕麦粥（清水无盐）",
+          "ndb_number": "08121",
+          "source_description": "Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 234.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9890601640289077
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.6,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9873694628938156
+            },
+            {
+              "sequence": "3",
+              "amount": 0.75,
+              "measure": "cup",
+              "grams": 175.0,
+              "volume_ml": 177.441177375,
+              "value_g_ml": 0.9862423288037541
+            }
+          ],
+          "value_g_ml": 0.9873694628938156
+        },
+        {
+          "food_key": "quinoa_raw",
+          "food_name": "藜麦（生）",
+          "ndb_number": "20035",
+          "source_description": "Quinoa, uncooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 170.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7185479824141637
+            }
+          ],
+          "value_g_ml": 0.7185479824141637
+        },
+        {
+          "food_key": "quinoa_cooked",
+          "food_name": "藜麦饭",
+          "ndb_number": "20137",
+          "source_description": "Quinoa, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 185.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7819492749801193
+            }
+          ],
+          "value_g_ml": 0.7819492749801193
+        },
+        {
+          "food_key": "sorghum",
+          "food_name": "高粱米（生）",
+          "ndb_number": "20067",
+          "source_description": "Sorghum grain",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 192.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.811536544844232
+            }
+          ],
+          "value_g_ml": 0.811536544844232
+        },
+        {
+          "food_key": "wheat_flour",
+          "food_name": "小麦粉（通用）",
+          "ndb_number": "20481",
+          "source_description": "Wheat flour, white, all-purpose, unenriched",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 125.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5283441047162969
+            }
+          ],
+          "value_g_ml": 0.5283441047162969
+        },
+        {
+          "food_key": "whole_wheat_flour",
+          "food_name": "全麦粉",
+          "ndb_number": "20080",
+          "source_description": "Wheat flour, whole-grain",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 120.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.507210340527645
+            }
+          ],
+          "value_g_ml": 0.507210340527645
+        },
+        {
+          "food_key": "corn_flour",
+          "food_name": "全谷玉米粉",
+          "ndb_number": "20016",
+          "source_description": "Corn flour, whole-grain, yellow",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 117.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.49453008201445386
+            }
+          ],
+          "value_g_ml": 0.49453008201445386
+        },
+        {
+          "food_key": "corn_starch",
+          "food_name": "玉米淀粉",
+          "ndb_number": "20027",
+          "source_description": "Cornstarch",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 128.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.541024363229488
+            }
+          ],
+          "value_g_ml": 0.541024363229488
+        },
+        {
+          "food_key": "rice_flour",
+          "food_name": "大米粉（干）",
+          "ndb_number": "20061",
+          "source_description": "Rice flour, white, unenriched",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 158.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6678269483613992
+            }
+          ],
+          "value_g_ml": 0.6678269483613992
+        },
+        {
+          "food_key": "rice_noodles_cooked",
+          "food_name": "米粉（水煮无调味）",
+          "ndb_number": "20134",
+          "source_description": "Rice noodles, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 176.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7439084994405459
+            }
+          ],
+          "value_g_ml": 0.7439084994405459
+        },
+        {
+          "food_key": "egg_noodles_dry",
+          "food_name": "鸡蛋面（干）",
+          "ndb_number": "20409",
+          "source_description": "Noodles, egg, dry, unenriched",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 38.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.16061660783375425
+            }
+          ],
+          "value_g_ml": 0.16061660783375425
+        },
+        {
+          "food_key": "egg_noodles_cooked",
+          "food_name": "鸡蛋面（水煮无盐）",
+          "ndb_number": "20410",
+          "source_description": "Noodles, egg, unenriched, cooked, without added salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 160.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.67628045403686
+            }
+          ],
+          "value_g_ml": 0.67628045403686
+        },
+        {
+          "food_key": "soba_cooked",
+          "food_name": "荞麦面（水煮）",
+          "ndb_number": "20115",
+          "source_description": "Noodles, japanese, soba, cooked",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 114.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4818498235012627
+            }
+          ],
+          "value_g_ml": 0.4818498235012627
+        }
+      ]
+    },
+    {
+      "category": "dairy",
+      "category_label": "蛋奶制品",
+      "name": "蛋奶制品分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.852,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 18,
+      "sample_range_g_ml": [
+        0.473,
+        1.293
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 18 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "egg",
+          "food_name": "鸡蛋（水煮）",
+          "ndb_number": "01129",
+          "source_description": "Egg, whole, cooked, hard-boiled",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 136.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.574838385931331
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 8.5,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.574838385931331
+            }
+          ],
+          "value_g_ml": 0.574838385931331
+        },
+        {
+          "food_key": "white_egg",
+          "food_name": "鸡蛋清（生）",
+          "ndb_number": "01124",
+          "source_description": "Egg, white, raw, fresh",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 243.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0271009395684811
+            }
+          ],
+          "value_g_ml": 1.0271009395684811
+        },
+        {
+          "food_key": "yolk_egg",
+          "food_name": "鸡蛋黄（生）",
+          "ndb_number": "01125",
+          "source_description": "Egg, yolk, raw, fresh",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 243.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0271009395684811
+            }
+          ],
+          "value_g_ml": 1.0271009395684811
+        },
+        {
+          "food_key": "milk",
+          "food_name": "全脂牛奶",
+          "ndb_number": "01211",
+          "source_description": "Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 244.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0313276924062114
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 1.0228741867307507
+        },
+        {
+          "food_key": "milk_lowfat",
+          "food_name": "低脂牛奶（1%脂肪）",
+          "ndb_number": "01175",
+          "source_description": "Milk, fluid, 1% fat, without added vitamin A and vitamin D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 244.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0313276924062114
+            }
+          ],
+          "value_g_ml": 1.0313276924062114
+        },
+        {
+          "food_key": "milk_skim",
+          "food_name": "脱脂牛奶",
+          "ndb_number": "01151",
+          "source_description": "Milk, nonfat, fluid, without added vitamin A and vitamin D (fat free or skim)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 245.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0355544452439418
+            }
+          ],
+          "value_g_ml": 1.0355544452439418
+        },
+        {
+          "food_key": "goat_milk",
+          "food_name": "羊奶（山羊奶）",
+          "ndb_number": "01106",
+          "source_description": "Milk, goat, fluid, with added vitamin D",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 244.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0313276924062114
+            }
+          ],
+          "value_g_ml": 1.0313276924062114
+        },
+        {
+          "food_key": "milk_powder",
+          "food_name": "全脂奶粉",
+          "ndb_number": "01212",
+          "source_description": "Milk, dry, whole, without added vitamin D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 128.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.541024363229488
+            },
+            {
+              "sequence": "2",
+              "amount": 0.25,
+              "measure": "cup",
+              "grams": 32.0,
+              "volume_ml": 59.147059125,
+              "value_g_ml": 0.541024363229488
+            }
+          ],
+          "value_g_ml": 0.541024363229488
+        },
+        {
+          "food_key": "skim_milk_powder",
+          "food_name": "脱脂奶粉",
+          "ndb_number": "01091",
+          "source_description": "Milk, dry, nonfat, regular, without added vitamin A and vitamin D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.25,
+              "measure": "cup",
+              "grams": 30.0,
+              "volume_ml": 59.147059125,
+              "value_g_ml": 0.507210340527645
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 120.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.507210340527645
+            },
+            {
+              "sequence": "3",
+              "amount": 5.0,
+              "measure": "tbsp",
+              "grams": 23.0,
+              "volume_ml": 73.93382390625,
+              "value_g_ml": 0.31108900885695556
+            }
+          ],
+          "value_g_ml": 0.507210340527645
+        },
+        {
+          "food_key": "condensed_milk",
+          "food_name": "甜炼乳",
+          "ndb_number": "01095",
+          "source_description": "Milk, canned, condensed, sweetened",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 306.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.2933863683454947
+            }
+          ],
+          "value_g_ml": 1.2933863683454947
+        },
+        {
+          "food_key": "evaporated_milk",
+          "food_name": "淡奶（蒸发乳）",
+          "ndb_number": "01214",
+          "source_description": "Milk, canned, evaporated, without added vitamin A and vitamin D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 252.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0651417151080544
+            },
+            {
+              "sequence": "4",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 126.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 1.0651417151080544
+            }
+          ],
+          "value_g_ml": 1.0651417151080544
+        },
+        {
+          "food_key": "cheddar",
+          "food_name": "切达奶酪",
+          "ndb_number": "01009",
+          "source_description": "Cheese, cheddar",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, diced",
+              "grams": 132.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5579313745804094
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, melted",
+              "grams": 244.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0313276924062114
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 113.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4776230706635323
+            }
+          ],
+          "value_g_ml": 0.5579313745804094
+        },
+        {
+          "food_key": "mozzarella",
+          "food_name": "马苏里拉奶酪（全脂）",
+          "ndb_number": "01026",
+          "source_description": "Cheese, mozzarella, whole milk",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 112.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.473396317825802
+            }
+          ],
+          "value_g_ml": 0.473396317825802
+        },
+        {
+          "food_key": "cream_cheese",
+          "food_name": "奶油奶酪",
+          "ndb_number": "01017",
+          "source_description": "Cheese, cream",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.5,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.980606658353447
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 232.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.980606658353447
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tbsp, whipped",
+              "grams": 10.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.67628045403686
+            }
+          ],
+          "value_g_ml": 0.980606658353447
+        },
+        {
+          "food_key": "swiss_cheese",
+          "food_name": "瑞士奶酪",
+          "ndb_number": "01040",
+          "source_description": "Cheese, swiss",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, diced",
+              "grams": 132.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5579313745804094
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, melted",
+              "grams": 244.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0313276924062114
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, shredded",
+              "grams": 108.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.45648930647488045
+            }
+          ],
+          "value_g_ml": 0.5579313745804094
+        },
+        {
+          "food_key": "cottage_cheese",
+          "food_name": "茅屋奶酪（含奶油）",
+          "ndb_number": "01012",
+          "source_description": "Cheese, cottage, creamed, large or small curd",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, large curd (not packed)",
+              "grams": 210.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8876180959233787
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, small curd (not packed)",
+              "grams": 225.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9510193884893343
+            }
+          ],
+          "value_g_ml": 0.9193187422063565
+        },
+        {
+          "food_key": "whipping_cream",
+          "food_name": "淡奶油（重奶油）",
+          "ndb_number": "01053",
+          "source_description": "Cream, fluid, heavy whipping",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, whipped",
+              "grams": 120.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.507210340527645
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 0.7608155107914676
+        },
+        {
+          "food_key": "scrambled_egg",
+          "food_name": "炒鸡蛋",
+          "ndb_number": "01132",
+          "source_description": "Egg, whole, cooked, scrambled",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.7,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9265042220304981
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 220.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9298856243006824
+            }
+          ],
+          "value_g_ml": 0.9281949231655903
+        }
+      ]
+    },
+    {
+      "category": "soy",
+      "category_label": "豆制品",
+      "name": "豆制品分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 1.0,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 5,
+      "sample_range_g_ml": [
+        0.702,
+        1.156
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 5 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "tofu",
+          "food_name": "豆腐",
+          "ndb_number": "16426",
+          "source_description": "Tofu, raw, firm, prepared with calcium sulfate",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 126.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 1.0651417151080544
+            }
+          ],
+          "value_g_ml": 1.0651417151080544
+        },
+        {
+          "food_key": "soft_tofu",
+          "food_name": "嫩豆腐（硫酸钙凝固）",
+          "ndb_number": "16427",
+          "source_description": "Tofu, raw, regular, prepared with calcium sulfate",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 0.5,
+              "measure": "cup",
+              "grams": 124.0,
+              "volume_ml": 118.29411825,
+              "value_g_ml": 1.048234703757133
+            }
+          ],
+          "value_g_ml": 1.048234703757133
+        },
+        {
+          "food_key": "tempeh",
+          "food_name": "天贝",
+          "ndb_number": "16114",
+          "source_description": "Tempeh",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 166.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7016409710632422
+            }
+          ],
+          "value_g_ml": 0.7016409710632422
+        },
+        {
+          "food_key": "miso",
+          "food_name": "味噌",
+          "ndb_number": "16112",
+          "source_description": "Miso",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 17.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.149676771862662
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 275.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.162357030375853
+            }
+          ],
+          "value_g_ml": 1.1560169011192576
+        },
+        {
+          "food_key": "hummus",
+          "food_name": "鹰嘴豆泥",
+          "ndb_number": "16158",
+          "source_description": "Hummus, commercial",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 246.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0397811980816722
+            }
+          ],
+          "value_g_ml": 1.0271009395684811
+        }
+      ]
+    },
+    {
+      "category": "nut",
+      "category_label": "坚果与种子",
+      "name": "坚果与种子分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.531,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 18,
+      "sample_range_g_ml": [
+        0.135,
+        0.761
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 18 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "peanut_raw",
+          "food_name": "花生仁（生）",
+          "ndb_number": "16087",
+          "source_description": "Peanuts, all types, raw",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 146.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6171059143086347
+            }
+          ],
+          "value_g_ml": 0.6171059143086347
+        },
+        {
+          "food_key": "peanut_roasted",
+          "food_name": "花生仁（干烤无盐）",
+          "ndb_number": "16390",
+          "source_description": "Peanuts, all types, dry-roasted, without salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 146.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6171059143086347
+            }
+          ],
+          "value_g_ml": 0.6171059143086347
+        },
+        {
+          "food_key": "peanut_boiled",
+          "food_name": "花生仁（水煮有盐）",
+          "ndb_number": "16088",
+          "source_description": "Peanuts, all types, cooked, boiled, with salt",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, shelled",
+              "grams": 180.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.7608155107914675
+            }
+          ],
+          "value_g_ml": 0.7608155107914675
+        },
+        {
+          "food_key": "almond",
+          "food_name": "巴旦木仁",
+          "ndb_number": "12061",
+          "source_description": "Nuts, almonds",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 143.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6044256557954436
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, sliced",
+              "grams": 92.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.38886126107119445
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, slivered",
+              "grams": 108.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.45648930647488045
+            },
+            {
+              "sequence": "4",
+              "amount": 1.0,
+              "measure": "cup, ground",
+              "grams": 95.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4015415195843856
+            }
+          ],
+          "value_g_ml": 0.42901541302963303
+        },
+        {
+          "food_key": "walnut",
+          "food_name": "核桃仁",
+          "ndb_number": "12155",
+          "source_description": "Nuts, walnuts, english",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 117.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.49453008201445386
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, ground",
+              "grams": 80.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.33814022701843
+            }
+          ],
+          "value_g_ml": 0.41633515451644193
+        },
+        {
+          "food_key": "pecan",
+          "food_name": "碧根果仁",
+          "ndb_number": "12142",
+          "source_description": "Nuts, pecans",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 109.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.46071605931261084
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, halves",
+              "grams": 99.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4184485309353071
+            }
+          ],
+          "value_g_ml": 0.43958229512395897
+        },
+        {
+          "food_key": "cashew_roasted",
+          "food_name": "腰果仁（干烤无盐）",
+          "ndb_number": "12085",
+          "source_description": "Nuts, cashew nuts, dry roasted, without salt added",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, halves and whole",
+              "grams": 137.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5790651387690613
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 8.6,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.5816011904716996
+            }
+          ],
+          "value_g_ml": 0.5803331646203804
+        },
+        {
+          "food_key": "pistachio",
+          "food_name": "开心果仁（生）",
+          "ndb_number": "12151",
+          "source_description": "Nuts, pistachio nuts, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 123.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5198905990408361
+            }
+          ],
+          "value_g_ml": 0.5198905990408361
+        },
+        {
+          "food_key": "pistachio_roasted",
+          "food_name": "开心果仁（干烤无盐）",
+          "ndb_number": "12152",
+          "source_description": "Nuts, pistachio nuts, dry roasted, without salt added",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 123.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5198905990408361
+            }
+          ],
+          "value_g_ml": 0.5198905990408361
+        },
+        {
+          "food_key": "hazelnut",
+          "food_name": "榛子仁",
+          "ndb_number": "12120",
+          "source_description": "Nuts, hazelnuts or filberts",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, chopped",
+              "grams": 115.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.4860765763389931
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, ground",
+              "grams": 75.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.3170064628297781
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 135.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5706116330936006
+            }
+          ],
+          "value_g_ml": 0.4860765763389931
+        },
+        {
+          "food_key": "macadamia",
+          "food_name": "夏威夷果仁（生）",
+          "ndb_number": "12131",
+          "source_description": "Nuts, macadamia nuts, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup, whole or halves",
+              "grams": 134.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5663848802558702
+            }
+          ],
+          "value_g_ml": 0.5663848802558702
+        },
+        {
+          "food_key": "pine_nut",
+          "food_name": "松子仁（干）",
+          "ndb_number": "12147",
+          "source_description": "Nuts, pine nuts, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 135.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5706116330936006
+            }
+          ],
+          "value_g_ml": 0.5706116330936006
+        },
+        {
+          "food_key": "sunflower_seed",
+          "food_name": "葵花籽仁（干）",
+          "ndb_number": "12036",
+          "source_description": "Seeds, sunflower seed kernels, dried",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 140.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5917453972822525
+            }
+          ],
+          "value_g_ml": 0.5917453972822525
+        },
+        {
+          "food_key": "pumpkin_seed",
+          "food_name": "南瓜籽仁（干）",
+          "ndb_number": "12014",
+          "source_description": "Seeds, pumpkin and squash seed kernels, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 129.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.5452511160672183
+            }
+          ],
+          "value_g_ml": 0.5452511160672183
+        },
+        {
+          "food_key": "watermelon_seed",
+          "food_name": "西瓜籽仁（干）",
+          "ndb_number": "12174",
+          "source_description": "Seeds, watermelon seed kernels, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 108.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.45648930647488045
+            }
+          ],
+          "value_g_ml": 0.45648930647488045
+        },
+        {
+          "food_key": "sesame",
+          "food_name": "芝麻（整粒干）",
+          "ndb_number": "12023",
+          "source_description": "Seeds, sesame seeds, whole, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 144.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.6086524086331739
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 9.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.6086524086331739
+            }
+          ],
+          "value_g_ml": 0.6086524086331739
+        },
+        {
+          "food_key": "flaxseed",
+          "food_name": "亚麻籽",
+          "ndb_number": "12220",
+          "source_description": "Seeds, flaxseed",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp, whole",
+              "grams": 10.3,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.6965688676579658
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup, whole",
+              "grams": 168.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.710094476738703
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tbsp, ground",
+              "grams": 7.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.473396317825802
+            },
+            {
+              "sequence": "4",
+              "amount": 1.0,
+              "measure": "tsp, whole",
+              "grams": 3.4,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.6898060631175971
+            },
+            {
+              "sequence": "5",
+              "amount": 1.0,
+              "measure": "tsp, ground",
+              "grams": 2.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.5072103405276449
+            }
+          ],
+          "value_g_ml": 0.6898060631175971
+        },
+        {
+          "food_key": "lotus_seed_dried",
+          "food_name": "莲子（干）",
+          "ndb_number": "12013",
+          "source_description": "Seeds, lotus seeds, dried",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 32.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.135256090807372
+            }
+          ],
+          "value_g_ml": 0.135256090807372
+        }
+      ]
+    },
+    {
+      "category": "drink",
+      "category_label": "饮品",
+      "name": "饮品分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 1.043,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 12,
+      "sample_range_g_ml": [
+        1.002,
+        1.107
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 12 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "mineral_water",
+          "food_name": "瓶装饮用水",
+          "ndb_number": "14555",
+          "source_description": "Water, bottled, generic",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 237.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0017404225420987
+            }
+          ],
+          "value_g_ml": 1.0017404225420987
+        },
+        {
+          "food_key": "green_tea",
+          "food_name": "绿茶（无糖冲泡）",
+          "ndb_number": "14278",
+          "source_description": "Beverages, tea, green, brewed, regular",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 245.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0355544452439418
+            }
+          ],
+          "value_g_ml": 1.0355544452439418
+        },
+        {
+          "food_key": "soy_milk_unsweetened",
+          "food_name": "强化无糖豆奶",
+          "ndb_number": "16222",
+          "source_description": "Soymilk (all flavors), unsweetened, with added calcium, vitamins A and D",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 243.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0271009395684811
+            }
+          ],
+          "value_g_ml": 1.0271009395684811
+        },
+        {
+          "food_key": "almond_milk",
+          "food_name": "无糖扁桃仁饮料",
+          "ndb_number": "14091",
+          "source_description": "Beverages, almond milk, unsweetened, shelf stable",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 262.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.1074092434853582
+            }
+          ],
+          "value_g_ml": 1.1074092434853582
+        },
+        {
+          "food_key": "coconut_water",
+          "food_name": "椰子水（鲜）",
+          "ndb_number": "12119",
+          "source_description": "Nuts, coconut water (liquid from coconuts)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 240.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.01442068105529
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 1.01442068105529
+        },
+        {
+          "food_key": "coconut_milk",
+          "food_name": "椰奶（椰肉加水压榨）",
+          "ndb_number": "12117",
+          "source_description": "Nuts, coconut milk, raw (liquid expressed from grated meat and water)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 240.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.01442068105529
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 1.01442068105529
+        },
+        {
+          "food_key": "orange_juice",
+          "food_name": "橙汁（鲜榨）",
+          "ndb_number": "09206",
+          "source_description": "Orange juice, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 248.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.048234703757133
+            }
+          ],
+          "value_g_ml": 1.048234703757133
+        },
+        {
+          "food_key": "apple_juice",
+          "food_name": "苹果汁（无添加糖）",
+          "ndb_number": "09016",
+          "source_description": "Apple juice, canned or bottled, unsweetened, without added ascorbic acid",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 248.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.048234703757133
+            }
+          ],
+          "value_g_ml": 1.048234703757133
+        },
+        {
+          "food_key": "grape_juice",
+          "food_name": "葡萄汁（无添加糖）",
+          "ndb_number": "09135",
+          "source_description": "Grape juice, canned or bottled, unsweetened, without added ascorbic acid",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 253.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0693684679457849
+            }
+          ],
+          "value_g_ml": 1.0693684679457849
+        },
+        {
+          "food_key": "pineapple_juice",
+          "food_name": "菠萝汁（无添加糖）",
+          "ndb_number": "09273",
+          "source_description": "Pineapple juice, canned or bottled, unsweetened, without added ascorbic acid",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 250.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0566882094325938
+            }
+          ],
+          "value_g_ml": 1.0566882094325938
+        },
+        {
+          "food_key": "grapefruit_juice",
+          "food_name": "葡萄柚汁（粉红鲜榨）",
+          "ndb_number": "09404",
+          "source_description": "Grapefruit juice, pink, raw",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 247.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0440079509194025
+            }
+          ],
+          "value_g_ml": 1.0440079509194025
+        },
+        {
+          "food_key": "pomegranate_juice",
+          "food_name": "石榴汁（瓶装）",
+          "ndb_number": "09442",
+          "source_description": "Pomegranate juice, bottled",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 249.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0524614565948633
+            }
+          ],
+          "value_g_ml": 1.0524614565948633
+        }
+      ]
+    },
+    {
+      "category": "snack",
+      "category_label": "零食与糕点",
+      "name": "零食与糕点分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.425,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 3,
+      "sample_range_g_ml": [
+        0.034,
+        0.947
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 3 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "soda_cracker",
+          "food_name": "苏打饼干",
+          "ndb_number": "18228",
+          "source_description": "Crackers, saltines (includes oyster, soda, soup)",
+          "measures": [
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup, crushed",
+              "grams": 70.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.29587269864112625
+            }
+          ],
+          "value_g_ml": 0.29587269864112625
+        },
+        {
+          "food_key": "popcorn",
+          "food_name": "爆米花（空气膨化无盐）",
+          "ndb_number": "19806",
+          "source_description": "Snacks, popcorn, air-popped (Unsalted)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 8.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.033814022701843
+            }
+          ],
+          "value_g_ml": 0.033814022701843
+        },
+        {
+          "food_key": "white_chocolate",
+          "food_name": "白巧克力",
+          "ndb_number": "19087",
+          "source_description": "Candies, white chocolate",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.946792635651604
+            }
+          ],
+          "value_g_ml": 0.946792635651604
+        }
+      ]
+    },
+    {
+      "category": "dish",
+      "category_label": "熟食与家常菜",
+      "name": "熟食与家常菜分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.886,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 17,
+      "sample_range_g_ml": [
+        0.65,
+        1.12
+      ],
+      "method": "17 条汤、炖菜、混合主食参考密度的等权算术平均；并非各道中式菜的实测值",
+      "source": "FAO/INFOODS v2 菜肴样本计算",
+      "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf",
+      "note": "分类默认估值，基于 17 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "source_description": "Chicken noodle soup",
+          "value_g_ml": 1.0,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Egg drop soup",
+          "value_g_ml": 1.017,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Mushroom soup",
+          "value_g_ml": 1.017,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Soup, vegetable",
+          "value_g_ml": 0.99,
+          "biblio_id": "KEN",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Beef and noodles (no sauce)",
+          "value_g_ml": 0.65,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Beef stew, canned",
+          "value_g_ml": 1.05,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Broccoli casserole",
+          "value_g_ml": 0.95,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Chicken and dumplings (mixture)",
+          "value_g_ml": 1.04,
+          "biblio_id": "S&W",
+          "pdf_page": 21,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=21"
+        },
+        {
+          "source_description": "Lasagna",
+          "value_g_ml": 1.04,
+          "biblio_id": "S&W",
+          "pdf_page": 22,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=22"
+        },
+        {
+          "source_description": "Rice + beans",
+          "value_g_ml": 0.75,
+          "biblio_id": "KEN",
+          "pdf_page": 22,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=22"
+        },
+        {
+          "source_description": "Rice + meat",
+          "value_g_ml": 0.73,
+          "biblio_id": "KEN",
+          "pdf_page": 22,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=22"
+        },
+        {
+          "source_description": "Rice + meat + vegetable",
+          "value_g_ml": 0.83,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        },
+        {
+          "source_description": "Rice + vegetable",
+          "value_g_ml": 0.65,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        },
+        {
+          "source_description": "Stew, meat",
+          "value_g_ml": 1.12,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        },
+        {
+          "source_description": "Stew, vegetable",
+          "value_g_ml": 0.68,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        },
+        {
+          "source_description": "Stew, vegetable + meat",
+          "value_g_ml": 0.86,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        },
+        {
+          "source_description": "Stew: eggs + veg",
+          "value_g_ml": 0.68,
+          "biblio_id": "KEN",
+          "pdf_page": 23,
+          "source_url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf#page=23"
+        }
+      ]
+    },
+    {
+      "category": "condiment",
+      "category_label": "调味品与食用油",
+      "name": "调味品与食用油分类默认估值",
+      "status": "category_default",
+      "value_g_ml": 0.917,
+      "unit": "g/mL",
+      "kind": "category_bulk_estimate",
+      "sample_count": 28,
+      "sample_range_g_ml": [
+        0.362,
+        1.427
+      ],
+      "method": "同一 USDA 食品的各量杯密度取中位数，按来源食品编号去重后等权算术平均",
+      "source": "USDA SR28 量杯份量计算",
+      "source_url": "https://fdc.nal.usda.gov/data-documentation.html",
+      "note": "分类默认估值，基于 28 个食品样本；量杯／堆积体积含空隙，整颗、切块及生熟状态会有差异，可手动修改。",
+      "samples": [
+        {
+          "food_key": "salt",
+          "food_name": "食盐",
+          "ndb_number": "02047",
+          "source_description": "Salt, table",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 6.0,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 1.2173048172663479
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 18.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.2173048172663479
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 292.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.2342118286172694
+            }
+          ],
+          "value_g_ml": 1.2173048172663479
+        },
+        {
+          "food_key": "white_sugar",
+          "food_name": "白砂糖",
+          "ndb_number": "19335",
+          "source_description": "Sugars, granulated",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.2,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.8521133720864436
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 200.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.845350567546075
+            }
+          ],
+          "value_g_ml": 0.8487319698162592
+        },
+        {
+          "food_key": "powdered_sugar",
+          "food_name": "糖粉",
+          "ndb_number": "19336",
+          "source_description": "Sugars, powdered",
+          "measures": [
+            {
+              "sequence": "4",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 2.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.5072103405276449
+            }
+          ],
+          "value_g_ml": 0.5072103405276449
+        },
+        {
+          "food_key": "honey",
+          "food_name": "蜂蜜",
+          "ndb_number": "19296",
+          "source_description": "Honey",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 339.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.432869211990597
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 21.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.420188953477406
+            }
+          ],
+          "value_g_ml": 1.4265290827340014
+        },
+        {
+          "food_key": "butter",
+          "food_name": "黄油（无盐）",
+          "ndb_number": "01145",
+          "source_description": "Butter, without salt",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.2,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9603182447323411
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 227.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9594728941647951
+            }
+          ],
+          "value_g_ml": 0.959895569448568
+        },
+        {
+          "food_key": "salted_butter",
+          "food_name": "黄油（有盐）",
+          "ndb_number": "01001",
+          "source_description": "Butter, salted",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.2,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9603182447323411
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 227.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9594728941647951
+            }
+          ],
+          "value_g_ml": 0.959895569448568
+        },
+        {
+          "food_key": "olive_oil",
+          "food_name": "橄榄油",
+          "ndb_number": "04053",
+          "source_description": "Oil, olive, salad or cooking",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 216.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9129786129497609
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9129786129497609
+        },
+        {
+          "food_key": "peanut_oil",
+          "food_name": "花生油",
+          "ndb_number": "04042",
+          "source_description": "Oil, peanut, salad or cooking",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.5,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9129786129497609
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 216.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9129786129497609
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9129786129497609
+        },
+        {
+          "food_key": "soybean_oil",
+          "food_name": "大豆油",
+          "ndb_number": "04044",
+          "source_description": "Oil, soybean, salad or cooking",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.6,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9197414174901295
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 218.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9214321186252217
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9197414174901295
+        },
+        {
+          "food_key": "corn_oil",
+          "food_name": "玉米油",
+          "ndb_number": "04518",
+          "source_description": "Oil, corn, industrial and retail, all purpose salad or cooking",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.6,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9197414174901295
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 218.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9214321186252217
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9197414174901295
+        },
+        {
+          "food_key": "sesame_oil",
+          "food_name": "芝麻油",
+          "ndb_number": "04058",
+          "source_description": "Oil, sesame, salad or cooking",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 218.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9214321186252217
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9172053657874912
+        },
+        {
+          "food_key": "canola_oil",
+          "food_name": "低芥酸菜籽油",
+          "ndb_number": "04582",
+          "source_description": "Oil, canola",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.946792635651604
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 218.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9214321186252217
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 4.5,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.9129786129497609
+            }
+          ],
+          "value_g_ml": 0.9214321186252217
+        },
+        {
+          "food_key": "lard",
+          "food_name": "猪油",
+          "ndb_number": "04002",
+          "source_description": "Lard",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 12.8,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.8656389811671809
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 205.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.8664843317347268
+            }
+          ],
+          "value_g_ml": 0.8660616564509538
+        },
+        {
+          "food_key": "soy_sauce",
+          "food_name": "酱油（小麦大豆酿造）",
+          "ndb_number": "16123",
+          "source_description": "Soy sauce made from soy and wheat (shoyu)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 16.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.082048726458976
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 5.3,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 1.0752859219186073
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 255.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0778219736212455
+            }
+          ],
+          "value_g_ml": 1.0778219736212455
+        },
+        {
+          "food_key": "vinegar_white",
+          "food_name": "白醋",
+          "ndb_number": "02053",
+          "source_description": "Vinegar, distilled",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.9,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.0076578765149213
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 238.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0059671753798292
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 5.0,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 1.0144206810552898
+            }
+          ],
+          "value_g_ml": 1.0076578765149213
+        },
+        {
+          "food_key": "vinegar_apple",
+          "food_name": "苹果醋（调味用）",
+          "ndb_number": "02048",
+          "source_description": "Vinegar, cider",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 14.9,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.0076578765149213
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 239.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0101939282175596
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 5.0,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 1.0144206810552898
+            }
+          ],
+          "value_g_ml": 1.0101939282175596
+        },
+        {
+          "food_key": "balsamic_vinegar",
+          "food_name": "意大利香醋",
+          "ndb_number": "02069",
+          "source_description": "Vinegar, balsamic",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 16.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.082048726458976
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 255.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0778219736212455
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 5.3,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 1.0752859219186073
+            }
+          ],
+          "value_g_ml": 1.0778219736212455
+        },
+        {
+          "food_key": "oyster_sauce",
+          "food_name": "蚝油",
+          "ndb_number": "06176",
+          "source_description": "Sauce, oyster, ready-to-serve",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 18.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.2173048172663479
+            }
+          ],
+          "value_g_ml": 1.2173048172663479
+        },
+        {
+          "food_key": "fish_sauce",
+          "food_name": "鱼露",
+          "ndb_number": "06179",
+          "source_description": "Sauce, fish, ready-to-serve",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 18.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.2173048172663479
+            }
+          ],
+          "value_g_ml": 1.2173048172663479
+        },
+        {
+          "food_key": "ketchup",
+          "food_name": "番茄沙司",
+          "ndb_number": "11935",
+          "source_description": "Catsup",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 17.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.149676771862662
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 240.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 1.082048726458976
+        },
+        {
+          "food_key": "mayonnaise",
+          "food_name": "蛋黄酱",
+          "ndb_number": "04025",
+          "source_description": "Salad dressing, mayonnaise, regular",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 13.8,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.9332670265708668
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 220.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.9298856243006824
+            }
+          ],
+          "value_g_ml": 0.9315763254357746
+        },
+        {
+          "food_key": "yellow_mustard",
+          "food_name": "黄芥末酱",
+          "ndb_number": "02046",
+          "source_description": "Mustard, prepared, yellow",
+          "measures": [
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 249.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0524614565948633
+            }
+          ],
+          "value_g_ml": 1.0524614565948633
+        },
+        {
+          "food_key": "peanut_butter",
+          "food_name": "花生酱（顺滑含盐）",
+          "ndb_number": "16098",
+          "source_description": "Peanut butter, smooth style, with salt",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 2.0,
+              "measure": "tbsp",
+              "grams": 32.0,
+              "volume_ml": 29.5735295625,
+              "value_g_ml": 1.082048726458976
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 258.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 1.0905022321344366
+            }
+          ],
+          "value_g_ml": 1.0862754792967064
+        },
+        {
+          "food_key": "sesame_paste",
+          "food_name": "芝麻酱（烤芝麻仁）",
+          "ndb_number": "12166",
+          "source_description": "Seeds, sesame butter, tahini, from roasted and toasted kernels (most common type)",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 15.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 1.01442068105529
+            }
+          ],
+          "value_g_ml": 1.01442068105529
+        },
+        {
+          "food_key": "cocoa_powder",
+          "food_name": "无糖可可粉",
+          "ndb_number": "19165",
+          "source_description": "Cocoa, dry powder, unsweetened",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "cup",
+              "grams": 86.0,
+              "volume_ml": 236.5882365,
+              "value_g_ml": 0.36350074404481225
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 5.4,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.36519144517990443
+            }
+          ],
+          "value_g_ml": 0.36434609461235834
+        },
+        {
+          "food_key": "black_pepper",
+          "food_name": "黑胡椒粉",
+          "ndb_number": "02030",
+          "source_description": "Spices, pepper, black",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tsp, ground",
+              "grams": 2.3,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.4666335132854333
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp, ground",
+              "grams": 6.9,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.4666335132854334
+            },
+            {
+              "sequence": "3",
+              "amount": 1.0,
+              "measure": "tsp, whole",
+              "grams": 2.9,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.5883639950120682
+            }
+          ],
+          "value_g_ml": 0.4666335132854334
+        },
+        {
+          "food_key": "chili_powder",
+          "food_name": "辣椒粉（红椒粉）",
+          "ndb_number": "02031",
+          "source_description": "Spices, pepper, red or cayenne",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tsp",
+              "grams": 1.8,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.3651914451799044
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp",
+              "grams": 5.3,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.3584286406395358
+            }
+          ],
+          "value_g_ml": 0.3618100429097201
+        },
+        {
+          "food_key": "cumin_seed",
+          "food_name": "孜然籽",
+          "ndb_number": "02014",
+          "source_description": "Spices, cumin seed",
+          "measures": [
+            {
+              "sequence": "1",
+              "amount": 1.0,
+              "measure": "tsp, whole",
+              "grams": 2.1,
+              "volume_ml": 4.92892159375,
+              "value_g_ml": 0.4260566860432218
+            },
+            {
+              "sequence": "2",
+              "amount": 1.0,
+              "measure": "tbsp, whole",
+              "grams": 6.0,
+              "volume_ml": 14.78676478125,
+              "value_g_ml": 0.405768272422116
+            }
+          ],
+          "value_g_ml": 0.4159124792326689
+        }
+      ]
+    }
+  ]
+}

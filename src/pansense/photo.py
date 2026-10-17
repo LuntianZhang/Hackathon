@@ -1,4 +1,4 @@
-"""Single-photo SAM2/CLIP worker. A photo never pretends to be a 3DGS model."""
+"""Photo recognition worker, optionally bound to verified multi-view geometry."""
 import argparse
 import os
 import time
@@ -22,7 +22,12 @@ def reliable_proposals(proposals, classifications, width, height):
         chosen.append((proposal,result))
     return chosen
 
-def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Path, assistance: dict | None = None):
+def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Path, assistance: dict | None = None, scene: Path | None = None, reference_frame: str | None = None):
+    if assistance and assistance.get('mode') == 'llm':
+        from food3d.segmentation.hints import validate_assistance
+        validate_assistance(assistance)
+        from food3d.segmentation.llm_segment import recognize_photo
+        return recognize_photo(input_path, output, catalog_path, checkpoint, scene, reference_frame)
     import torch
     from sam2.build_sam import build_sam2
     from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
@@ -31,6 +36,8 @@ def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Pa
     from food3d.segmentation.hints import validate_assistance, candidate_names, display_names, allowed_food
     started = time.monotonic()
     foods = read_json(catalog_path)['foods']
+    from food3d.food_catalog import FoodIndex
+    food_index=FoodIndex(foods)
     assistance = validate_assistance(assistance, foods)
     if not torch.cuda.is_available():
         raise RuntimeError('识别服务暂不可用，请使用手工添加食物完成记录')
@@ -40,7 +47,6 @@ def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Pa
     cache = ProjectPaths().cache_root/'models'
     os.environ['HF_HOME'] = str(cache/'huggingface')
     os.environ['TORCH_HOME'] = str(cache/'torch')
-    by_key = {food['key']: food for food in foods}
     names = display_names(assistance, foods)
     with Image.open(input_path) as source:
         image = ImageOps.exif_transpose(source).convert('RGB')
@@ -64,7 +70,7 @@ def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Pa
         # An explicit user name is preserved; do not silently replace it with CLIP.
         chosen = [(p, {'label': p['seed']['name'], 'similarity': None, 'margin': None}) for p in proposals]
     else:
-        recognizer = ClipRecognizer(candidate_names(assistance, list(by_key)), cache)
+        recognizer = ClipRecognizer(candidate_names(assistance, food_index.labels()), cache)
         for start in range(0, len(proposals), 16):
             classifications.extend(recognizer.classify(image, [p['segmentation'] for p in proposals[start:start+16]]))
         # Reject near-ties before NMS; scores are not probabilities.
@@ -82,9 +88,10 @@ def recognize(input_path: Path, output: Path, catalog_path: Path, checkpoint: Pa
         Image.fromarray(proposal['segmentation'].astype(np.uint8)*255).save(mask_path)
         label = classification['label']
         name = label if manual else names.get(label, label)
-        key = label if label in by_key else next((f['key'] for f in foods if f['name'] == name), None)
+        key = food_index.match(name) or food_index.match(label)
         entries.append({'instance_id': identifier, 'name': name,
                         'catalog_key': key, 'mask_path': str(mask_path.resolve()),
+                        'nutrient_status':food_index.foods[key].get('nutrient_status','verified') if key else 'unavailable',
                         'recognition_score': classification['similarity'], 'recognition_margin': classification['margin'],
                         'bbox': proposal['bbox'], 'needs_review': not manual,
                         'name_source': 'manual_prompt' if manual else 'automatic',
@@ -128,6 +135,8 @@ if __name__ == '__main__':
     parser.add_argument('--catalog', type=Path, required=True)
     parser.add_argument('--checkpoint', type=Path, default=Path('.tools/weights/sam2.1_hiera_small.pt'))
     parser.add_argument('--assistance', type=Path, help='辅助方式、食物候选和归一化点击/框选 JSON')
+    parser.add_argument('--scene', type=Path, help='大模型联合识别的已验证场景')
+    parser.add_argument('--reference-frame')
     args = resolve_arguments(parser.parse_args())
     recognize(args.input, args.output, args.catalog, args.checkpoint,
-              read_json(args.assistance) if args.assistance else None)
+              read_json(args.assistance) if args.assistance else None, args.scene, args.reference_frame)

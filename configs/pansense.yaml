@@ -6,7 +6,5 @@ fusion_width: 480
 fusion_max_views: 108
 minimum_instance_iou: 0.5
 minimum_click_accuracy: 0.5
-paper_reference:
+board_reference:
   enabled: true
-  length_cm: 10
-  width_cm: 2

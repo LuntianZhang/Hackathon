@@ -39,6 +39,10 @@ def create_app(bundle: Path):
         value = load_calibration(bundle, volume_report)
         if value is None:
             return "尚未标定：体积显示为模型单位³。"
+        if value.get('source')=='pansense_aruco_board_multiview':
+            return f"已使用{value['board_name']}估算体积尺度，{len(value['inlier_views'])} 个视角通过校验。"
+        if value.get('source')=='white_paper_rectangle_multiview':
+            return '已使用历史纸片标定尺度。'
         return (f"已使用 Instance {value['reference_instance_id']} 的最大跨度 "
                 f"{value['measured_span_cm']:g} cm 标定整个场景。")
     def set_scale(selected, measured_span_cm):

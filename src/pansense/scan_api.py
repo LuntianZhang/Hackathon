@@ -31,6 +31,7 @@ class ScanBuild(BaseModel):
     assistance:dict
     paper_present:bool=False
     prepare:bool=False
+    board_background:bool=False
 
 
 class ScanConnection(BaseModel):
@@ -109,7 +110,7 @@ def register_scan_routes(app,scans,public_meal=None,*,gateway=False):
             from food3d.segmentation.hints import validate_assistance
             options=validate_assistance(body.assistance,list(scans.store.catalog.foods.values()),allow_none=True)
             if options['mode']=='manual': raise ValueError('请先准备扫描参考帧，再在参考图中点击或框选食物')
-            return public_meal(scans.make_meal(identifier,options,body.paper_present,body.prepare))
+            return public_meal(scans.make_meal(identifier,options,body.paper_present,body.prepare,body.board_background))
     app.include_router(router)
 
 

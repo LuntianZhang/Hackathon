@@ -9,7 +9,28 @@ from pansense.api import create_app
 
 @pytest.fixture
 def client(tmp_path):
-    with TestClient(create_app(Path.cwd(), tmp_path, jobs_enabled=False)) as client:
+    # Business-route tests must not depend on ignored local reconstruction data.
+    import shutil
+    from food3d.io import write_json
+    from food3d.schemas import CameraFrame, save_scene
+    import numpy as np
+    project=tmp_path/'project'
+    (project/'app/catalog').mkdir(parents=True)
+    shutil.copyfile('app/catalog/foods.json',project/'app/catalog/foods.json')
+    shutil.copytree('app/web',project/'app/web')
+    (project/'configs').mkdir()
+    shutil.copyfile('configs/pansense.yaml',project/'configs/pansense.yaml')
+    bundle=project/'data/outputs/fruit2_bundle'
+    (bundle/'semantics').mkdir(parents=True)
+    Image.new('RGB',(60,40),'white').save(bundle/'source.jpg')
+    frame=CameraFrame('a','source.jpg',60,40,[[50,0,30],[0,50,20],[0,0,1]],np.eye(4).tolist())
+    save_scene(bundle/'scene.json',[frame],source='test_demo_fixture',world_units='test_units')
+    write_json(bundle/'semantics/instances.json',{'reference_frame':'a','instances':[
+        {'instance_id':0,'name':'背景'},{'instance_id':1,'name':'苹果'},
+        {'instance_id':2,'name':'香蕉'},{'instance_id':3,'name':'面包'}]})
+    write_json(bundle/'semantics/fusion.json',{'segmentation':str(bundle)})
+    (bundle/'masks').mkdir();Image.fromarray(np.zeros((40,60),np.uint16)).save(bundle/'masks/a.png')
+    with TestClient(create_app(project, tmp_path/'store', jobs_enabled=False)) as client:
         yield client
 
 def test_real_record_crud_and_day_summary(client):

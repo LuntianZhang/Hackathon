@@ -1,81 +1,15 @@
-# 白色纸片标定与体积估计
+# 定位板标定与体积估计
 
-视频中放置实测 **10 × 2 cm** 的白色长方形纸片，保持平整、静止。尽量让纸片和物体出现在同一场景的多个角度，纸片不要被遮挡或出画。纸片无需与所有物体处于同一高度；它标定整个重建坐标的尺度。
+当前应用自动使用 PanSense 定位板估算物理尺度，不再需要 10 × 2 cm 白色纸片或勾选纸片选项。支持 20 × 20 cm 定位板与 A3 定位板；必须按 100% 原尺寸打印，保持平整静止。
 
-应用视频流程自动执行标定。三维页点击物体显示约多少 mL、最大跨度 cm，以及标定状态；“查看纸片识别”展示检测轮廓。未找到足够完整视角或几何校验不通过时，不输出 mL。物品名称可人工指定，不在营养目录的物品不会生成虚构营养。
+物体放在定位板中央，环绕拍摄并让多个标记保持可见。系统使用已注册相机和已知标记的角点布局，从多个视角三角化，再稳健拟合定位板的真实尺寸与模型坐标尺度。至少要求 3 个标记、12 个有效角点、6 个视角，并独立检查重投影与边长一致性。未通过校验时不输出 mL。
 
-## 实现
+定位板标记边长为 3 cm。20 cm 板使用 ID 20–27，A3 板使用独立 ID。角点按 ID 和顺序对应，不依靠白色矩形的外观猜测。两类板分开拟合，不能混合布局。
 
-1. 在去畸变的相机图像上检测低饱和度白色四边形，排除圆形、裁切边缘及过小区域。
-2. 使用真实内参和 10 × 2 cm 长方形运行 OpenCV PnP，得到纸片中心相对于相机的厘米位移。
-3. 结合 COLMAP / Splatfacto 导出的相机旋转与位置，用确定性的 RANSAC 拟合同一个静止纸片中心：`P_cm = s * C_model + R_c2w * t_cm`。至少 6 个有效视角，并要求足够的相机平移基线。
-4. 对齐无文字身份的长方形角点，进行多视角三角化；独立核对长/短边尺度、中心拟合及重投影误差。默认尺度差阈值 18%，960 px 长边下重投影 RMS 上限 4 px。
-5. 对语义实例的可靠高斯中心做离群过滤和三维凸包，使用 `V_cm3 = V_model * s^3`。1 cm³ 对应 1 mL。**不会相加高斯核的椭球体积。**
+体积继续采用可靠高斯中心的三维凸包，换算公式为 `V_mL = V_model × cm_per_model_unit³`。应用在物体清单、对象详情、体积面板和完整三维查看页显示估计体积，并标明“定位板估算”。包装体积指外形包围体积，包含内部空气，不代表包内食物的体积或重量。
 
-纸片标定绑定模型哈希和相机几何哈希；语义更新时沿用尺度，重新计算物体体积。手工物体跨度标定仍兼容。重新训练或相机几何变化时不能沿用旧尺度。
+`python -m food3d board-scale --bundle <bundle>` 生成 `measurements/calibration.json`、`board_reference.json` 和 `board_detections.jpg`。标定绑定模型、相机和定位板布局哈希；只修改语义时可以复用尺度，几何、相机或板布局变化后须重新标定。历史纸片与手工跨度标定的读取兼容仍保留，应用新任务使用定位板。
 
-复用 [OpenCV 相机标定与 PnP API](https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html)，本机实际验证 OpenCV 4.10（重建环境）及 5.0（识别环境）。无需新增权重或训练识别模型。已有双环境包含 OpenCV 与 SciPy；新机器使用项目的 `sfm` 和 `measurement` 依赖。
+2026-10-17：91 张实拍图识别出 7 个有效标记，标定尺度约 26.26284 cm/模型单位，重投影 RMS 约 3.13 px，通过 4 px 门限。大模型语义版本的饼干包装外形约 124.1 mL，鼠标外形约 189.6 mL。已为 5 份具有三维语义的已有餐盘补算定位板尺度；原几何与语义不变。具体批量结果保存在 `data/outputs/board_scale_20261017/backfill.json`。
 
-## 配置与接口
-
-`configs/pansense.yaml`：
-
-```yaml
-paper_reference:
-  enabled: true
-  length_cm: 10
-  width_cm: 2
-```
-
-CLI：
-
-```powershell
-$env:PYTHONUTF8='0'
-$env:PYTHONIOENCODING='utf-8'
-& $gsPython -m food3d paper-scale --bundle data/outputs/objects3_paper_bundle_01 --length-cm 10 --width-cm 2
-& $gsPython -m food3d volume --bundle data/outputs/objects3_paper_bundle_01
-```
-
-PWA 的 `/api/meals/{id}` 返回 `volume_summary` 和每个 `items[].volume`；`GET /api/meals/{id}/scale-reference` 返回纸片诊断图。后台计算凸包，HTTP 请求只读取已发布结果。
-
-输出在 bundle 的 `measurements/`：
-
-- `paper_reference.json`：检测四角、通过/拒绝状态、原因及几何校验。
-- `paper_detections.jpg`：纸片轮廓诊断。
-- `calibration.json`：仅校验通过后保存厘米尺度；与模型/相机绑定。
-- `volumes.json`：各语义实例的模型单位体积；CLI/API 按有效标定换算 mL。
-
-## 物品3.mp4 实际验证
-
-输入 `data/raw/videos/物品3.mp4`，27.22 秒。62/62 个筛选视角注册，SfM 平均重投影误差约 1.05 px。Splatfacto 7000 步，SAM 2 使用首帧的人工点选名称（耳机盒、笔、手表）传播，纸片不作为测量物体。
-
-26 个纸片视角通过校验，尺度 **21.402762 cm / 模型单位**，独立短边检查约 **2.106 cm**，重投影 RMS **3.21 px**。
-
-| 实例 | 凸包体积粗估 | 最大跨度粗估 |
-|---|---:|---:|
-| 耳机盒 | 68.3 mL | 6.62 cm |
-| 笔 | 21.1 mL | 15.23 cm |
-| 手表 | 49.9 mL | 6.54 cm |
-
-这些数值**没有实测体积真值验证**。短边约 5.3% 的一致性差异不能直接当作体积误差；尺度误差会按三次方影响体积。凸包会包含凹陷和弯曲空隙，反光、遮挡、物体底部不可见及语义缺失也会影响估算。视频含真实物品，但人工名称不代表自动物品分类已验证。跨视角 SAM 2 一致性 IoU 0.662，物体点击一致性 0.667，背景不返回物体名称 1.0。
-
-目录：`data/scenes/objects3_paper_01`、`data/outputs/objects3_paper_training_01`、`objects3_paper_seg_01`、`objects3_paper_bundle_01`、`objects3_paper_evaluation_01`。大文件被 Git 忽略。
-
-完整复现（同机环境，输出目录应未存在；新一次运行请更换目录名）：
-
-```powershell
-& $recognitionPythonExe -m food3d extract --video 'data/raw/videos/物品3.mp4' --scene data/scenes/objects3_paper_01 --config configs/objects3_paper.yaml
-& $recognitionPythonExe -m food3d colmap --scene data/scenes/objects3_paper_01 --config configs/objects3_paper.yaml
-& $recognitionPythonExe -m food3d segment --scene data/scenes/objects3_paper_01 --output data/outputs/objects3_paper_seg_01 --reference-frame 000000 --assistance configs/objects3_instances.json
-& $gsPython -m food3d.reconstruction.train_worker --scene data/scenes/objects3_paper_01 --output data/outputs/objects3_paper_training_01 --iterations 7000 --config configs/objects3_paper.yaml
-$paperCheckpoint=Get-ChildItem data/outputs/objects3_paper_training_01 -Filter step-000006999.ckpt -Recurse | Select-Object -First 1
-$paperTransform=Join-Path $paperCheckpoint.Directory.Parent.FullName dataparser_transforms.json
-& $gsPython -m food3d export --checkpoint $paperCheckpoint.FullName --scene data/scenes/objects3_paper_01 --output data/outputs/objects3_paper_bundle_01 --transform $paperTransform
-& $gsPython -m food3d paper-scale --bundle data/outputs/objects3_paper_bundle_01
-& $gsPython -m food3d fuse --bundle data/outputs/objects3_paper_bundle_01 --segmentation data/outputs/objects3_paper_seg_01 --max-views 50 --width 480
-& $gsPython -m food3d volume --bundle data/outputs/objects3_paper_bundle_01
-& $gsPython -m food3d evaluate --bundle data/outputs/objects3_paper_bundle_01 --output data/outputs/objects3_paper_evaluation_01 --width 480
-& $recognitionPythonExe tools/import_bundle_to_app.py --bundle data/outputs/objects3_paper_bundle_01 --video 'data/raw/videos/物品3.mp4' --title '物品3 · 纸片体积验证'
-```
-
-`configs/objects3_instances.json` 的点坐标只适用于这个视频首帧，其他视频必须重新标注。CLI 仍提供人工参考帧标注；PWA 视频入口目前提供自动或文字辅助识别，没有视频逐帧点框编辑器。导入工具只创建未保存草稿，不计入日记。
+这项校验确认的是尺度一致性，没有实测物体体积真值。定位板打印缩放、凹陷空隙、遮挡、表面缺失和离群点仍会影响估算。

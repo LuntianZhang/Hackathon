@@ -1,0 +1,5 @@
+{
+  "provider": "codex",
+  "timeout_seconds": 300,
+  "max_views": 6
+}

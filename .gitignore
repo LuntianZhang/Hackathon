@@ -22,6 +22,7 @@ htmlcov/
 
 # Local settings and logs (keep configuration templates)
 .env
+/configs/vision_llm.local.json
 .env.*
 !.env.example
 !.env.sample
@@ -33,6 +34,8 @@ htmlcov/
 /data/**/*
 !/data/**/
 !/data/**/.gitkeep
+/data/tmp/
+/data/agent_requests/
 
 # Model weights
 /weights/

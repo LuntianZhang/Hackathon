@@ -36,6 +36,10 @@ def build_parser() -> argparse.ArgumentParser:
     inspect = commands.add_parser("inspect", help="生成缩略图和点云投影诊断")
     inspect.add_argument("--scene", required=True, type=Path)
     inspect.add_argument("--max-points", type=int, default=1200)
+    background=commands.add_parser('board-background',help='在相机匹配前跟踪定位板和完整物体，排除背景')
+    background.add_argument('--scene',required=True,type=Path)
+    background.add_argument('--checkpoint',type=Path,default=Path('.tools/weights/sam2.1_hiera_small.pt'))
+    background.add_argument('--minimum-frames',type=int,default=2)
     train = commands.add_parser("train", help="在独立环境调用官方 Splatfacto")
     train.add_argument("--scene", required=True, type=Path)
     train.add_argument("--output", required=True, type=Path)
@@ -48,13 +52,13 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--output", required=True, type=Path)
     export.add_argument("--transform", required=True, type=Path)
     export.add_argument("--sh-degree", type=int, default=3)
-    segment = commands.add_parser("segment", help="SAM 2 自动分割、实例传播和 CLIP 多视角名称")
+    segment = commands.add_parser("segment", help="SAM 2 分割传播，支持清单、文字、人工与大模型多视图识别")
     segment.add_argument("--scene", required=True, type=Path)
     segment.add_argument("--output", required=True, type=Path)
     segment.add_argument("--checkpoint", type=Path, default=Path(".tools/weights/sam2.1_hiera_small.pt"))
     segment.add_argument("--reference-frame")
     segment.add_argument("--prompts", type=Path)
-    segment.add_argument("--assistance", type=Path, help='食物清单、文字定位或归一化点击框选 JSON')
+    segment.add_argument("--assistance", type=Path, help='清单、文字定位、点击框选或 mode=llm 大模型识别 JSON')
     segment.add_argument('--seed-masks', type=Path, help='传播选定结果的实际掩码，保留其名称和 ID')
     fuse = commands.add_parser("fuse", help="按可见高斯贡献融合多视角实例")
     fuse.add_argument("--bundle", required=True, type=Path)
@@ -74,6 +78,8 @@ def build_parser() -> argparse.ArgumentParser:
     volume.add_argument("--bundle", required=True, type=Path)
     volume.add_argument("--reference-instance", type=int)
     volume.add_argument("--reference-span-cm", type=float)
+    board=commands.add_parser('board-scale',help='用 PanSense 定位板自动标定真实体积尺度')
+    board.add_argument('--bundle',required=True,type=Path)
     paper=commands.add_parser('paper-scale',help='用多视角 10×2 cm 白色纸片自动标定模型尺度')
     paper.add_argument('--bundle',required=True,type=Path)
     paper.add_argument('--length-cm',type=float,default=10)
@@ -105,6 +111,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "photos":
             from .data.photos import import_photos
             result = import_photos(args.input, args.scene, load_config(args.config).get("photos", {}), args.source_kind)
+        elif args.command == 'board-background':
+            from .data.board_background import prepare_background
+            result=prepare_background(args.scene,args.checkpoint,args.minimum_frames)
         elif args.command == "train":
             from .reconstruction.splatfacto import train
             result = train(args.scene, args.output, args.python, args.iterations, args.config)
@@ -126,6 +135,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "evaluate":
             from .evaluation import evaluate
             result = evaluate(args.bundle, args.output, args.width)
+        elif args.command == 'board-scale':
+            from .board_scale import calibrate_board
+            result=calibrate_board(args.bundle)
         elif args.command == 'paper-scale':
             from .paper_scale import calibrate_paper
             result=calibrate_paper(args.bundle,args.length_cm,args.width_cm)

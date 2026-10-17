@@ -1,0 +1,8 @@
+{
+  "provider": "api",
+  "base_url": "https://YOUR-PROVIDER/v1",
+  "model": "YOUR-VISION-MODEL",
+  "api_key_env": "PANSENSE_VISION_API_KEY",
+  "timeout_seconds": 180,
+  "max_views": 6
+}
