@@ -147,6 +147,7 @@ class Jobs:
             stdout = stack.enter_context(output.open('w', encoding='utf-8')) if output else stream
             stream.write('\nCOMMAND '+json.dumps(argv, ensure_ascii=False)+'\n')
             stream.flush()
+            output_start = log.stat().st_size
             with self._lock:
                 self.check_cancelled(meal_id)
                 process = subprocess.Popen(argv, cwd=self.project, stdout=stdout, stderr=stream, env=environment)
@@ -177,6 +178,19 @@ class Jobs:
                     time.sleep(.3)
                 self.check_cancelled(meal_id)
                 if process.returncode:
+                    with log.open('rb') as reader:
+                        reader.seek(max(output_start, log.stat().st_size-8192))
+                        tail = reader.read().decode('utf-8', errors='replace')
+                    if any(marker in tail for marker in ('[WinError 5]', 'PermissionError:', '[Errno 13] Permission denied')):
+                        raise RuntimeError('本机分析目录访问被拒绝，请检查应用数据目录权限后重新分析')
+                    # Forward only known safe messages, never arbitrary worker output.
+                    for message in (
+                        '本机视觉识别服务无法访问运行目录，请从普通 PowerShell 启动应用后重试',
+                        '本机 Agent 调用失败，请检查 Codex CLI 登录状态与模型访问权限',
+                        '本机 Agent 识别超时，请稍后重试',
+                        '本机 Agent 未返回有效 JSON',
+                    ):
+                        if message in tail: raise RuntimeError(message)
                     raise RuntimeError('分析未完成，请先使用食物清单；详细诊断保存在本机日志')
             finally:
                 if process.poll() is None:

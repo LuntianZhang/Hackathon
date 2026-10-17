@@ -6,6 +6,7 @@ its output is data, never paths or executable instructions.
 from __future__ import annotations
 
 import base64
+from contextlib import contextmanager
 from dataclasses import dataclass
 from io import BytesIO
 import json
@@ -16,6 +17,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from uuid import uuid4
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
@@ -246,11 +248,33 @@ def agent_schema():
             'properties': {'objects': {'type': 'array', 'items': obj}}}
 
 
+@contextmanager
+def agent_request_directory(root):
+    """Keep requests private to the configured data directory and remove on exit.
+
+    Python 3.13's Windows mkdir(0700), used by TemporaryDirectory, can
+    exclude the restricted token running the worker. Inherit the meal's
+    existing ACL on Windows instead of replacing it with that special ACL.
+    """
+    root = Path(root).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    if os.name != 'nt':
+        with tempfile.TemporaryDirectory(prefix='vision_', dir=root) as temporary:
+            yield Path(temporary)
+        return
+    folder = root/f'vision_{uuid4().hex}'
+    folder.mkdir()  # Default mode inherits the parent ACL on Windows.
+    try:
+        yield folder
+    finally:
+        if folder.is_symlink() or folder.resolve().parent != root:
+            raise ValueError('识别临时目录不属于当前请求目录')
+        shutil.rmtree(folder)
+
+
 def identify_with_agent(views, settings, *, request_root=None):
     root = Path(request_root) if request_root is not None else ProjectPaths().data_root/'agent_requests'
-    root.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='vision_', dir=root) as temporary:
-        folder = Path(temporary)
+    with agent_request_directory(root) as folder:
         schema, answer = folder/'schema.json', folder/'answer.json'
         schema.write_text(json.dumps(agent_schema()), encoding='utf-8')
         argv = [settings.executable, 'exec', '--ephemeral', '--sandbox', 'read-only',
@@ -272,6 +296,11 @@ def identify_with_agent(views, settings, *, request_root=None):
             raise RuntimeError('本机 Agent 识别超时，请稍后重试') from None
         if completed.returncode or not answer.is_file():
             # Never expose inherited configuration, tokens, or model logs to the browser.
+            diagnostics = getattr(completed, 'stderr', '') or ''
+            if ('attempt to write a readonly database' in diagnostics or
+                    ('failed to initialize in-process app-server client' in diagnostics and
+                     ('拒绝访问' in diagnostics or 'Access is denied' in diagnostics))):
+                raise RuntimeError('本机视觉识别服务无法访问运行目录，请从普通 PowerShell 启动应用后重试')
             raise RuntimeError('本机 Agent 调用失败，请检查 Codex CLI 登录状态与模型访问权限')
         try:
             objects = validate_objects(json.loads(answer.read_text(encoding='utf-8')), [fid for fid, _ in views])

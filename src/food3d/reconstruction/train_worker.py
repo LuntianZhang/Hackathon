@@ -13,7 +13,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--scene", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--iterations", type=int, default=7000)
+    parser.add_argument("--iterations", type=int, default=3000)
     parser.add_argument("--config", type=Path)
     args = resolve_arguments(parser.parse_args())
     if args.iterations < 1 or not (args.scene / "transforms.json").is_file():

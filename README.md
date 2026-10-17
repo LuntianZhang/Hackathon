@@ -2,6 +2,8 @@
 
 工程根目录为 **`E:\study\2_黑客松\app`**。数据、Python 环境、模型缓存和工具的位置由 [configs/paths.json](configs/paths.json) 配置。目录职责与启动方法见 [运行与路径配置](docs/运行与路径配置.md)。
 
+当前功能、手机扫描、定位板测量、密度估重与代码目录说明见 [项目功能与文件架构介绍](docs/项目功能与文件架构介绍.md)（2026-10-17 更新）。
+
 已新增 **盘感 PanSense P0 手机网页应用（PWA）**，涵盖拍照/相册导入、识别纠错、营养估算、真实三维餐盘、饮食日记与本机数据管理。运行 `& tools/start_app.ps1` 后打开 http://127.0.0.1:8000/ 。完整使用及手机安装说明见 [app/README.md](app/README.md)，验收记录见 [app/P0_ACCEPTANCE.md](app/P0_ACCEPTANCE.md)。原有 Gradio 演示继续保留。
 
 已运行均匀 5、10、30 张视角的重建数量实验：见 [实验结果与复现](docs/view_count_comparison.md)。报告分别记录仅 N 张图像的独立 COLMAP 成功率，以及复用完整标定位姿的有限视角画质对比，避免把辅助结果混为仅 N 张照片的独立重建。

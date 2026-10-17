@@ -4,7 +4,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const state = {page:'home',profile:null,catalog:[],categoryDensities:[],meals:[],drafts:[],summary:null,meal:null,selected:null,
   mode:'photo',date:null,file:null,fileUrl:null,fileKind:'photo',uploading:false,modal:null,
   view:null,viewBusy:false,viewDirty:false,imageReady:false,desired:{yaw:0,pitch:0,zoom:1},
-  drag:null,suppressUntil:0,poll:null,stream:null,offline:false,installPrompt:null,assistMode:'grounded',foodText:'',
+  drag:null,suppressUntil:0,poll:null,stream:null,offline:false,installPrompt:null,assistMode:'llm',foodText:'',
   manualRegions:[],seedName:'',seedTool:'box',seedPicture:null,seedPictureUrl:null,seedDrag:null,
   recognitionParent:null,recognitionChoices:[],viewEpoch:0,captureFlow:'photo',
   historyMealId:null,videoPrepared:null,videoPreparing:false,preparePoll:null,captureEpoch:0,seedSourceUrl:null,
@@ -249,7 +249,7 @@ function captureMealActive(){return state.page==='scan'&&state.captureFlow==='ed
 function viewActive(){return state.meal?.three_d_available&&(state.page==='plate'||state.page==='result'&&state.mode==='3d'||captureMealActive()&&state.editPreview==='3d');}
 function captureAssistance(){
  const video=state.captureFlow==='video',edit=state.captureFlow==='edit';
- const options=[['list','食物清单分割','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位分割','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选分割','在参考照片中逐个指定食物名称与区域。'],['llm','大模型识别','只识别白色定位板内的物体；有多视角素材时联合识别并追踪。'],['none','不使用语义分割',video?'只重建三维外观，不识别食物区域；食物清单可手工补充。':edit?'保留原餐盘，直接调整食物名称与清单，不重新分割。':'保留原始照片，手工填写食物清单，不运行分割模型。']];
+ const options=[['list','食物清单分割','先自动分割，再用清单辅助判断名称。'],['grounded','名称定位分割','先按输入名称寻找区域，再进行分割。'],['manual','点击 / 框选分割','在参考照片中逐个指定食物名称与区域。'],['llm','大模型识别（推荐）','只识别白色定位板内的物体；有多视角素材时联合识别并追踪。'],['none','不使用语义分割',video?'只重建三维外观，不识别食物区域；食物清单可手工补充。':edit?'保留原餐盘，直接调整食物名称与清单，不重新分割。':'保留原始照片，手工填写食物清单，不运行分割模型。']];
  return `${video?boardBackgroundControl():''}<section class="surface assist-input"><label>食物语义识别 <small>四种识别方式，或不使用语义分割</small></label><div class="capture-assist-modes" role="group" aria-label="食物分割方式">${options.map(([id,label])=>`<button data-capture-assist="${id}" aria-pressed="${state.assistMode===id}" class="${state.assistMode===id?'active':''}" ${state.uploading?'disabled':''}>${label}</button>`).join('')}</div><p class="estimate-note">${options.find(([id])=>id===state.assistMode)?.[2]||'请选择食物分割方式。'}</p>
  ${['list','grounded'].includes(state.assistMode)?`<label for="foodHints">${state.assistMode==='list'?'可能有哪些食物？':'希望定位哪些食物？'}</label><textarea id="foodHints" rows="2" placeholder="苹果、香蕉、面包">${esc(state.foodText)}</textarea><p class="estimate-note">自定义名称可写成“中文名称|English name”。</p>`:''}
  ${video&&state.assistMode==='manual'&&!state.videoPrepared?.video_reference_ready?state.file?`<p class="estimate-note">先关联视频相机，取得与三维融合一致的参考帧，再点击或框选食物。此步骤需要一些时间。</p><button class="button ghost" data-action="prepare-video" ${state.uploading||state.videoPreparing?'disabled':''}>${state.videoPreparing?'正在准备参考帧…':state.videoPrepared?'重新准备参考帧':'准备标注参考帧'}</button>`:'<p class="estimate-note">请先选择环绕视频，再准备标注参考帧。</p>':''}
@@ -615,7 +615,7 @@ async function chooseFile(file,kind) {
  const sameFlow=state.captureFlow===(kind==='video'?'video':'photo');
  resetCapture();
  state.captureFlow=kind==='video'?'video':'photo';
- state.assistMode=sameFlow?assistance:'grounded';state.foodText=sameFlow?foodText:'';
+ state.assistMode=sameFlow?assistance:'llm';state.foodText=sameFlow?foodText:'';
  state.file=file;state.fileKind=kind;state.fileUrl=URL.createObjectURL(file);state.page='scan';render();
 }
 function resetCapture(){
@@ -635,7 +635,7 @@ async function refineMeal(id){
  state.captureFlow='edit';state.historyMealId=parent.id;
  state.meal=parent;state.editPreview=parent.three_d_available?'3d':'reference';
  state.recognitionParent={id:parent.id,revision:parent.revision,threeD:parent.semantic_targets_3d,title:parent.title};
- state.assistMode=['manual','list','grounded','llm','none'].includes(parent.assistance?.mode)?parent.assistance.mode:'grounded';
+ state.assistMode=['manual','list','grounded','llm','none'].includes(parent.assistance?.mode)?parent.assistance.mode:'llm';
  state.foodText=parent.assistance?.foods?.length?parent.assistance.foods.map(f=>`${f.name}|${f.text}`).join('、'):parent.items.map(i=>i.name).join('、');
  state.manualRegions=parent.assistance?.mode==='manual'?parent.assistance.instances.map(r=>({...r})):[];
  history.pushState(null,'','#scan');render();
@@ -816,7 +816,7 @@ document.addEventListener('click',async event=>{
   if(button.dataset.captureFlow){
    if(state.uploading)return;
    resetCapture();state.captureFlow=button.dataset.captureFlow;state.fileKind=state.captureFlow==='video'?'video':'photo';
-   state.assistMode='grounded';state.historyMealId=null;
+   state.assistMode='llm';state.historyMealId=null;
    if(state.captureFlow==='edit')await refreshRecords();if(state.captureFlow==='mobile')await phoneScan.enter();render();return;
   }
   if(button.dataset.editPreview){state.editPreview=button.dataset.editPreview;state.editViewError=null;render(true);return;}

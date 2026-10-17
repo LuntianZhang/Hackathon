@@ -44,7 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--scene", required=True, type=Path)
     train.add_argument("--output", required=True, type=Path)
     train.add_argument("--python", type=Path, default=Path(".venv-gs/Scripts/python.exe"))
-    train.add_argument("--iterations", type=int, default=7000)
+    train.add_argument("--iterations", type=int, default=3000)
     train.add_argument("--config", type=Path, help="Splatfacto quality parameter overrides")
     export = commands.add_parser("export", help="导出固定高斯参数和训练坐标相机")
     export.add_argument("--checkpoint", required=True, type=Path)

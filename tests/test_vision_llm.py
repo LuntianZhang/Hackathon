@@ -123,6 +123,47 @@ def test_nonfood_and_packages_never_get_edible_catalog_nutrition(tmp_path):
         assert item['catalog_key'] is None and item['nutrition'] is None
 
 
+def test_agent_request_directories_are_writable_isolated_and_cleaned_on_error(tmp_path):
+    from food3d.segmentation.vision_llm import agent_request_directory
+    root = tmp_path/'requests'
+    root.mkdir()
+    sibling = root/'keep.txt'
+    sibling.write_text('preserve', encoding='utf-8')
+    with pytest.raises(RuntimeError, match='worker failed'):
+        with agent_request_directory(root) as first:
+            (first/'schema.json').write_text('{}', encoding='utf-8')
+            with agent_request_directory(root) as second:
+                assert first != second and first.parent == second.parent == root
+                (second/'answer.json').write_text('{}', encoding='utf-8')
+            assert not second.exists() and first.is_dir()
+            raise RuntimeError('worker failed')
+    assert not first.exists() and sibling.read_text(encoding='utf-8') == 'preserve'
+    assert list(root.iterdir()) == [sibling]
+
+
+@pytest.mark.parametrize('fault', ['timeout', 'failed', 'invalid_json', 'readonly_state'])
+def test_failed_agent_always_removes_images_and_request_files(tmp_path, monkeypatch, fault):
+    from types import SimpleNamespace
+    import food3d.segmentation.vision_llm as vision
+    root = tmp_path/'requests'
+    def run(argv, **kwargs):
+        folder = Path(argv[argv.index('--cd')+1])
+        assert (folder/'schema.json').is_file() and (folder/'00.jpg').is_file()
+        if fault == 'timeout': raise vision.subprocess.TimeoutExpired(argv, 1)
+        if fault == 'invalid_json':
+            Path(argv[argv.index('-o')+1]).write_text('invalid', encoding='utf-8')
+        return SimpleNamespace(returncode=1 if fault in {'failed', 'readonly_state'} else 0,
+            stderr='attempt to write a readonly database: secret-path' if fault == 'readonly_state' else '')
+    monkeypatch.setattr(vision.subprocess, 'run', run)
+    settings = VisionSettings('', 'current-agent', provider='codex', executable='codex.exe')
+    with pytest.raises((ValueError, RuntimeError)) as caught:
+        vision.identify_views([('a', Image.new('RGB', (50,40)))], settings, request_root=root)
+    if fault == 'readonly_state':
+        assert '本机视觉识别服务无法访问运行目录' in str(caught.value)
+        assert 'secret-path' not in str(caught.value)
+    assert not list(root.iterdir())
+
+
 def test_bound_llm_job_passes_all_views_and_queues_same_result_for_3d(tmp_path,monkeypatch):
     import threading
     import pansense.assistance_3d

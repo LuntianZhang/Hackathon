@@ -1,6 +1,6 @@
 # Local P0 video pipeline. FFmpeg/COLMAP settings live in scene_config.
 scene_config: configs/fruit2_video.yaml
-iterations: 7000
+iterations: 3000
 stop_split_at: 6000
 fusion_width: 480
 fusion_max_views: 108

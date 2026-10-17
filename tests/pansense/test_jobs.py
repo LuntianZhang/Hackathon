@@ -1,9 +1,36 @@
 from pathlib import Path
+import sys
 import threading
+
+import pytest
 
 from pansense.jobs import Jobs
 from pansense.nutrition import Catalog
 from pansense.store import Store
+
+
+@pytest.mark.parametrize('current,previous,expected', [
+    ('错误：[WinError 5] 拒绝访问：private/path', '', '本机分析目录访问被拒绝'),
+    ('PermissionError: secret-path', '', '本机分析目录访问被拒绝'),
+    ('[Errno 13] Permission denied: secret-path', '', '本机分析目录访问被拒绝'),
+    ('错误：本机视觉识别服务无法访问运行目录，请从普通 PowerShell 启动应用后重试', '', '本机视觉识别服务无法访问运行目录'),
+    ('错误：本机 Agent 调用失败，请检查 Codex CLI 登录状态与模型访问权限', '', '本机 Agent 调用失败'),
+    ('unrelated failure', '[WinError 5] old failure\n', '分析未完成'),
+])
+def test_worker_permission_error_is_actionable_without_exposing_logs(tmp_path, current, previous, expected):
+    store = Store(tmp_path, Catalog(Path('app/catalog/foods.json')))
+    jobs = Jobs(store, Path.cwd(), threading.Lock(), enabled=False)
+    meal = store.create('video')
+    log = tmp_path/'worker.log'
+    log.write_text(previous, encoding='utf-8')
+    try:
+        with pytest.raises(RuntimeError, match=expected) as caught:
+            jobs.command(meal['id'], [sys.executable, '-c',
+                'import sys; print(sys.argv[1]); sys.exit(1)', current], log)
+        assert 'private/path' not in str(caught.value) and 'secret-path' not in str(caught.value)
+        assert current in log.read_text(encoding='utf-8')
+    finally:
+        jobs.close()
 
 
 def test_photo_without_segmentation_keeps_image_and_never_runs_models(tmp_path, monkeypatch):
