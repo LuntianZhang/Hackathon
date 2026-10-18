@@ -235,93 +235,65 @@ data/pansense/
 
 ## 7. 部署与复现：计算平台、环境和路径
 
-### 7.1 GPU 运行需要准备什么
+本节按实际使用顺序说明两种入口：**电脑上传环绕视频**，以及**手机逐张拍照、电脑提交扫描**。两条路线都会在电脑上完成识别和三维重建。下文的启动脚本会生成本机配置；用户不需要手工改 YAML、逐项运行算法命令，也不需要指定某一种显卡型号。
 
-三维训练、SAM 2 分割和高斯渲染需要可被对应 PyTorch 环境识别的 NVIDIA GPU。先安装与所用 CUDA 版 PyTorch 兼容的显卡驱动，再用 `nvidia-smi` 确认设备、驱动和空闲显存。`nvidia-smi` 看到显卡只是第一关：两套 Python 环境都需要分别通过 `torch.cuda.is_available()`，高斯渲染还需通过下文的 `gpu_smoke.py`。[训练入口](../src/food3d/reconstruction/train_worker.py)、[GPU 检查](../tools/gpu_smoke.py)。
+### 7.1 首次运行前准备
 
-项目分开安装两套环境，因为识别与重建使用不同的 PyTorch/CUDA 组合。下面列的是仓库保存的**一组已用依赖版本**，供复现时核对；读者应以实际安装环境的兼容性检查为准，不需要使用某一种显卡型号：[环境记录](../environments/README.md)、[版本约束](../environments)。
+电脑需先按[环境安装说明](../environments/README.md)准备 `.venv`、`.venv-gs`、SAM 2 权重和可用的 NVIDIA GPU，并安装、登录 Codex CLI。视频入口还需 FFmpeg；Windows 可使用工程内的 FFmpeg，Linux/WSL 需让 `ffmpeg` 和 `ffprobe` 位于 PATH。识别环境负责 COLMAP、SAM 2 等步骤，重建环境负责应用、Splatfacto 与三维渲染。安装脚本与依赖版本留在环境说明中；现有 Windows 安装记录不能代替对全新电脑的安装验收。
 
-| 环境 | 负责的工作 | 仓库记录的版本组合 |
-|---|---|---|
-| `.venv` | COLMAP/pycolmap、SAM 2、CLIP 和文字定位 | Python 3.13.3；PyTorch 2.11.0 + cu128；pycolmap 4.2.1 |
-| `.venv-gs` | 应用服务、Splatfacto、gsplat 融合与渲染 | Python 3.10.20；PyTorch 2.4.0 + cu124；Nerfstudio 1.1.5；gsplat 1.4.0 + pt24cu124 |
+启动应用后，可从电脑“手机扫描”页下载 **20 × 20 cm 或 A3 定位板**，按 **100% 原尺寸**打印，把食物放在板中央。拍摄时尽量让至少 3 个定位标记清楚可见，保持食物相对定位板不移动。电脑拍转盘视频时，板与食物一起转；手机扫描时，板和食物放稳，由手机绕行拍摄。[定位板图与尺度](../src/pansense/scan_api.py)、[拍摄要求](../app/ASSISTANCE.md)。
 
-Windows 环境记录中的 gsplat 使用预编译 wheel，当时不要求单独安装 CUDA Toolkit 或编译工具。仓库的 [`setup_windows.ps1`](../tools/setup_windows.ps1) 会建立环境、安装依赖并获取 SAM 2 源码与权重，但它**尚未在一台全新机器上完整验收**，并且要求工程内先有 `.tools/uv/uv.exe`、可用网络和足够磁盘空间。SAM 2 安装脚本获取的是上游 `main`，不能把历史安装记录当成永久锁定的依赖快照。
+这里说的“CPU / GPU 路线”只切换 **COLMAP 的特征提取与匹配**。SAM 2、三维训练、语义融合和三维查看仍需要 GPU。启动脚本默认用已跑通的 CPU COLMAP 配置；要试 GPU COLMAP，只需在同一条启动命令末尾加 `--colmap gpu`。[设备开关](../src/food3d/data/colmap.py)、[简化启动脚本](../tools/start_local.py)。
 
-不同显卡和驱动可以对应不同的可用 wheel 组合。部署时先确认两套环境各自能识别 CUDA，再执行渲染烟雾测试和一份真实任务；不要用某台开发机的型号、显存或耗时作为最低要求。仓库目前没有经过验收的 Linux 一键安装脚本。[资源目录配置](../configs/paths.json)。
+### 7.2 启动应用
 
-### 7.2 安装后逐层检查
-
-Windows 在工程根目录的 PowerShell 执行；`project_paths.ps1` 会读取 `configs/paths.json` 并设置两个 Python 路径：
+在项目根目录打开终端，按电脑系统运行**其中一条**命令：
 
 ```powershell
-. ./tools/project_paths.ps1
-nvidia-smi
-& $recognitionPythonExe -c 'import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())'
-& $gsPython -c 'import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())'
-& $recognitionPythonExe -m food3d doctor
-& $gsPython -m food3d doctor
-& $gsPython tools/gpu_smoke.py
+# Windows PowerShell
+& .\.venv-gs\Scripts\python.exe tools\start_local.py
 ```
-
-Linux 如按 `configs/paths.json` 的默认目录建立环境，可用对应路径检查：
 
 ```bash
-nvidia-smi
-.venv/bin/python -c 'import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())'
-.venv-gs/bin/python -c 'import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())'
-PYTHONPATH=src .venv-gs/bin/python tools/gpu_smoke.py
+# Linux / WSL
+.venv-gs/bin/python tools/start_local.py
 ```
 
-`doctor` 只列出环境和外部工具，不会替你运行三维任务；`gpu_smoke.py` 真正调用 gsplat 渲染两个高斯，检查前后遮挡以及像素透明度与融合贡献是否一致，并将结果写入 `data/outputs/gpu_smoke.json`（若文件已存在会覆盖）。两套 PyTorch 检查都返回 `True`、smoke 显示 `status: passed` 后，再用独立输入目录运行一次真实任务；GPU 可见或烟雾测试通过都不等于真实场景已经重建成功。[环境诊断](../src/food3d/doctor.py)、[烟雾测试](../tools/gpu_smoke.py)。
+启动后，电脑打开 `http://127.0.0.1:8000/`。**要使用手机拍照扫描**，在上述命令末尾加 `--mobile` 再启动；手机与电脑需在同一可互访的 Wi-Fi，手机按电脑页面提示完成 HTTPS 证书信任和二维码配对。若服务已在运行，先在原终端按 `Ctrl+C` 停止，再用新参数启动。WSL 中的服务可能只对电脑本机可见；此时应先解决手机到 WSL 的局域网连接，或在手机可直连的系统中运行服务。[手机 HTTPS 网关](../src/pansense/mobile_https.py)。
 
-### 7.3 启动应用与手机采集
+脚本会自动使用本机 FFmpeg、生成与本次验证相同的 2000 步应用配置，并在 `data/runtime_profiles/` 下保存 CPU 或 GPU 的场景配置。餐食、照片和模型默认写到 `data/pansense/`；要单独保存一次试跑，可在启动命令末尾加 `--data-dir data/my_reproduction`。这些目录不要求用户事先创建。[脚本实现](../tools/start_local.py)、[数据路径](../src/food3d/paths.py)。
 
-Windows 在工程根目录运行：
+### 7.3 电脑视频：从上传到三维餐盘
 
-```powershell
-& tools/start_app.ps1
-```
+1. 拍一段 **3 秒至 3 分钟、240 MB 以内**的环绕视频。已跑通的素材是固定相机拍摄转动定位板；使用这种拍法时，食物必须随板一起转，板外背景由下述开关排除。也可以让板保持静止，由相机围绕它拍摄。尽量覆盖侧面与略高的视角，避免快速晃动、严重反光和遮挡。
+2. 电脑打开应用，进入“记录这一餐”→“三维记录”，点击“拍摄 / 导入环绕视频”并选文件。
+3. 在“食物语义识别”中选“**大模型识别**”，保持“**自动跟随定位板排除背景**”开启，点击“**生成三维餐盘**”。这一步会把少量关键帧交给已登录的 Codex 识别，其余跟踪与重建在电脑上完成。
+4. 等结果页出现“**三维餐盘已完成**”，切换到三维视图，拖动模型并逐个点击食物，核对名称、位置和定位板尺度。确认后再保存餐食；若希望保存后仍能打开原照片和三维模型，先在个人偏好中开启“保存餐食照片和三维资产”。[视频上传界面](../app/web/app.js)、[任务流程](../src/pansense/jobs.py)。
 
-Linux 先复制两份配置，再按本机工具路径修改副本：
+当前工作区已用同一段视频分别跑通 CPU 和 GPU COLMAP，均为 39/39 帧注册、产品状态 `ready`、三维可用，定位板尺度校验通过。两次分别调用 Codex 并重新训练，因此评估数值的微小差别不能单独归因于 COLMAP 设备选择。原始运行记录位于本机 `data/validation_cpu_llm_local_20261018/` 与 `data/validation_gpu_llm_local_20261018/`；它们是本地验证产物，不随 Git 代码分发。
 
-```bash
-cp configs/pansense.yaml configs/pansense_local.yaml
-cp configs/fruit2_video.yaml configs/fruit2_video_local.yaml
-```
+### 7.4 手机照片：从拍摄到三维餐盘
 
-把 `pansense_local.yaml` 的 `scene_config` 指向 `configs/fruit2_video_local.yaml`；把场景配置中 `frames.ffmpeg`、`frames.ffprobe` 改为本机命令（例如 PATH 上的 `ffmpeg` 和 `ffprobe`）。按 pycolmap 的实际安装能力选择 `colmap.use_gpu` 和 `matching_use_gpu`；相机特征处理是否用 GPU 不决定后续 Splatfacto 能否使用 GPU。然后启动：
+1. 用 `--mobile` 启动电脑服务，打开电脑应用中的“记录这一餐”→“手机扫描”。若页面尚未显示连接，点击“**开启手机连接**”，再点击“**新建手机扫描**”。安卓首次连接按页面提示安装并信任电脑提供的相机证书；其他手机也必须让拍摄页的 HTTPS 证书受到浏览器信任。然后扫描这次会话的**拍摄二维码**。
+2. 手机打开拍摄页，允许使用后置摄像头，选择“**定位板自动识别**”，点击“**开启摄像头并扫描**”。保持同一镜头和方向，缓慢绕着静止的定位板拍一圈，再从较高角度补拍。页面会自动逐张保存；查看方向图并补拍缺失方向，至少留下 **20 张清晰且不重复**的照片。
+3. 手机上点击“**结束并检查**”。回到电脑，确认扫描已结束、照片清晰，在“食物分割方式”中选“**大模型识别**”，保持“**自动跟随定位板排除背景**”开启，点击“**使用扫描照片生成三维餐盘**”。
+4. 等结果页显示三维完成，再按上节方法拖动、点击、核对并保存。手机拍摄页负责照片采集；三维计算与餐食日记仍在电脑上。**单张照片记录**只用于二维食物识别，不会凭一张照片生成完整三维餐盘。[手机采集页](../app/web/capture.js)、[电脑扫描页](../app/web/scan-desktop.js)、[扫描提交条件](../src/pansense/scans.py)。
 
-```bash
-PANSENSE_CONFIG=configs/pansense_local.yaml .venv-gs/bin/python -m pansense --port 8000
-```
+手机照片的**后端路径**已经用 39 张画面逐张调用手机采集接口验证：全部上传成功，39/39 张在 COLMAP 注册，三维结果为 `ready`，定位板尺度校验通过。这批画面来自固定相机拍转盘视频，在线方向图为 0/24 格，COLMAP 后复核为 7/24 格；它证明照片接口到三维发布可以工作，**没有验证真实手机、HTTPS 配对和绕拍方向引导**。真机复现仍要在实际手机和网络上按上述步骤检查。详细原始记录保存在本机 `data/validation_scan_photos_local_20261018/run_report.md`，不随 Git 代码分发。
 
-这里的 `*_local.yaml` 是读者自行创建的配置副本，不是仓库已提交文件。实际应用和场景参数分别参考[应用配置](../configs/pansense.yaml)与[场景配置](../configs/fruit2_video.yaml)；不要直接沿用另一平台的工具路径。
+### 7.5 结果在哪里，遇到问题先看什么
 
-启动后访问 `http://127.0.0.1:8000/`。手机采集需要另行开启局域网 HTTPS 网关并按页面说明完成配对和证书信任；Windows 可使用 `tools/start_mobile.ps1`。主餐食服务仍只绑定本机地址。[服务入口](../src/pansense/__main__.py)、[手机网关](../src/pansense/mobile_https.py)。
+正常完成时，餐食结果页应显示三维视图，食物可以点击，定位板状态为“已标定”。每次任务的详细产物位于默认数据目录的 `uploads/<餐食 ID>/analysis_<运行 ID>/`，主要看 `analysis.log`、`scene/validation.json`、`evaluation/report.json` 和 `bundle/measurements/board_reference.json`；普通使用不需要打开这些文件。[任务产物](../src/pansense/jobs.py)。
 
-这里讲的是**单机 GPU 部署**。仓库没有现成的公网 GPU 服务、容器编排、多用户账户或云端数据同步方案；把服务放到远端机器还需要另行设计访问控制、存储和证书，不能仅将本地监听地址改成公网地址就视为已部署。
+| 页面表现 | 先检查 |
+|---|---|
+| 电脑打不开页面 | 启动终端是否仍在运行、8000 端口是否被占用 |
+| 手机打不开拍摄二维码 | 手机与电脑是否同网、证书是否信任、电脑局域网地址是否可达；WSL 需额外核对入站连接 |
+| 提示照片不足或相机注册少 | 是否有至少 20 张清晰且不重复的照片、定位板标记与足够多的不同视角 |
+| 有二维清单但没有三维模型 | 查看结果页的失败阶段；核对背景预览是否保留完整食物、定位板和物体是否一起运动 |
+| 提示显存不足 | 关闭同时运行的训练或三维演示，再从应用内重试；更细的资源参数见[应用配置](../configs/pansense.yaml) |
 
-手机配对时，电脑为扫描会话生成随机令牌，二维码把会话 ID 与令牌交给手机；服务只保存令牌哈希，手机上传照片时用令牌验证。网关为手机采集页建立本地 HTTPS 证书，浏览器需要先信任相应证书。网关只开放扫描采集接口，不直接把完整餐食服务发布到局域网。[配对会话](../src/pansense/scans.py)、[采集接口](../src/pansense/scan_api.py)。
-
-### 7.4 显存不足与结果复现
-
-应用把耗时识别、训练和渲染任务串行使用同一设备，但其他进程仍可能占用显存。若发生显存不足，先关闭其他训练或演示进程；融合阶段可调低应用配置中的 `fusion_width`，输入图像过大时可在场景配置中调低 `frames.max_long_edge`，然后用**新分析目录**重试。这些调整会改变语义投票分辨率或训练输入，可能影响细小物体与画质。减少训练迭代数主要改变耗时和收敛程度，不能当作必然降低峰值显存的方法。[应用配置](../configs/pansense.yaml)、[场景配置](../configs/fruit2_video.yaml)、[任务资源锁](../src/pansense/jobs.py)。
-
-当前已提交的 [应用配置](../configs/pansense.yaml)训练 3000 步；其他配置和旧实验可能使用不同步数，不能与默认流程混为一谈。复现某次结果，应保留输入文件、代码提交、`PANSENSE_CONFIG`、任务生成的 `config.yaml`、两套环境的包版本和独立输出目录。
-
-本次工作区检查时，`.venv-gs` 没有安装 `pytest`，因此新增的 Python 页面流程测试尚未在这里运行。要复现测试，应先按环境记录补齐测试依赖，再使用同一代码版本运行。
-
-从一份新任务检查结果时，按顺序看：
-
-1. `scene/frame_manifest.json`：视频是否采到末尾，哪些帧因质量被丢弃。
-2. `scene/colmap_selection.json`、`scene/validation.json`：相机注册了多少张，几何检查是否通过。
-3. `segmentation/`：两颗相似物体是否跨视角保持两个 ID。
-4. `training/` 和 `bundle/`：训练是否完成，原照片与对应角度的渲染是否接近。
-5. `bundle/semantics/fusion.json`、`evaluation/report.json`：投票视角、未知区域及点击一致性。
-6. `bundle/measurements/`：定位板校验、体积单位、密度与营养来源。
-
-具体逐模块命令由 [Food3D CLI](../src/food3d/cli.py) 定义，项目还提供 [视频包装脚本](../tools/run_video.ps1) 和 [三维演示脚本](../tools/start_demo.ps1)。新结果应写到新的目录，不要覆盖已有模型或拿旧掩码套新相机。
+部署在其他电脑时，可用[环境说明](../environments/README.md)和[路径配置](../configs/paths.json)核对安装位置；不同显卡的驱动与依赖兼容性需在该机实际验证。当前提供的是单机运行与本地手机采集入口，不包含公网云服务或多用户部署。
 
 ## 8. 实验结果应该怎样读
 
