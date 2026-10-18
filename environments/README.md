@@ -1,10 +1,10 @@
 # 已验证的 Windows 环境
 
-工程根目录为 `E:\study\2_黑客松\app`。两套 Python 环境、模型缓存与工具的位置由 `configs/paths.json` 配置。直接运行 Python 命令前，在工程根目录执行 `. ./tools/project_paths.ps1`，或使用启动脚本。详细设置见 [运行与路径配置](../docs/运行与路径配置.md)。
+本页保存当时 Windows 机器的环境记录；`E:\study\2_黑客松\app` 是历史工程位置。两套 Python 环境、模型缓存与工具的位置由 `configs/paths.json` 配置。直接运行 Python 命令前，在工程根目录执行 `. ./tools/project_paths.ps1`，或使用启动脚本。GPU 部署与复现步骤见 [PanSense 技术文档](../docs/PanSense_技术文档.md#7-部署与复现计算平台环境和路径)。
 
 Python 运行时位于 `.tools/python`，依赖包位于 `.venv` 和 `.venv-gs`，两套环境均关闭系统包和用户包目录。uv 位于 `.tools/uv/uv.exe`，FFmpeg 与 FFprobe 位于 `.tools/ffmpeg/bin`；项目运行所需的资源目录均在工程内。
 
-RTX 4060 Laptop，8GB 显存。采用两套环境避免 PyTorch/NumPy 冲突。
+历史验证设备为 RTX 4060 Laptop、8 GB 显存；这只是当时的测试来源，不是最低硬件要求。项目采用两套环境避免 PyTorch/NumPy 冲突，其他设备应按[部署章节](../docs/PanSense_技术文档.md#7-部署与复现计算平台环境和路径)逐层检查。
 
 | 用途 | Python | 核心依赖 |
 |---|---|---|

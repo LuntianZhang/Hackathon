@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
+  <title id="title">多视角二维掩码融合为稳定三维实例</title>
+  <desc id="desc">三个相机观察同一个三维高斯；二维掩码和可见贡献形成实例投票，经深度与边界检查后输出实例 ID 或未知。</desc>
+  <defs>
+    <style>
+      .h{font:700 25px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .t{font:700 18px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .s{font:15px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .m{font:14px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .line{stroke:#60849b;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#60849b"/></marker>
+  </defs>
+  <rect width="1120" height="520" fill="#f5f8fa"/>
+  <text x="45" y="52" class="h">多视角证据怎样变成三维实例 ID</text>
+  <text x="45" y="82" class="s">每一张二维掩码只提供一个观察；融合还要检查可见性、深度与边界</text>
+
+  <text x="70" y="132" class="t">已知相机与二维掩码</text>
+  <rect x="65" y="160" width="225" height="180" rx="14" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <rect x="82" y="177" width="190" height="118" rx="7" fill="#eaf0ef"/>
+  <ellipse cx="168" cy="237" rx="53" ry="42" fill="#efad7f"/>
+  <circle cx="172" cy="234" r="10" fill="#6d9bba" stroke="#fff" stroke-width="3"/>
+  <text x="92" y="322" class="s">视角 A：实例 1 内部</text>
+
+  <rect x="329" y="160" width="225" height="180" rx="14" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <rect x="346" y="177" width="190" height="118" rx="7" fill="#eaf0ef"/>
+  <ellipse cx="441" cy="238" rx="58" ry="37" fill="#efad7f"/>
+  <circle cx="434" cy="234" r="10" fill="#6d9bba" stroke="#fff" stroke-width="3"/>
+  <text x="355" y="322" class="s">视角 B：实例 1 内部</text>
+
+  <rect x="593" y="160" width="225" height="180" rx="14" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <rect x="610" y="177" width="190" height="118" rx="7" fill="#eaf0ef"/>
+  <ellipse cx="670" cy="238" rx="56" ry="39" fill="#efad7f"/>
+  <ellipse cx="747" cy="233" rx="38" ry="49" fill="#b9a3d7"/>
+  <circle cx="706" cy="234" r="10" fill="#6d9bba" stroke="#fff" stroke-width="3"/>
+  <text x="619" y="322" class="s">视角 C：遮挡／边界</text>
+
+  <path d="M290 247H325M554 247H589M818 247H862" class="line"/>
+  <rect x="867" y="145" width="212" height="213" rx="16" fill="#e2eaf9" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="891" y="184" class="t">投票与门控</text>
+  <text x="891" y="222" class="s">可见贡献 T × α</text>
+  <text x="891" y="250" class="s">深度一致性</text>
+  <text x="891" y="278" class="s">掩码边界权重</text>
+  <text x="891" y="306" class="s">支持视角数量</text>
+  <text x="891" y="334" class="m">证据不足 → 未知</text>
+
+  <path d="M975 362V399H548" class="line"/>
+  <rect x="315" y="410" width="500" height="72" rx="14" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <circle cx="350" cy="445" r="14" fill="#6d9bba"/>
+  <text x="378" y="451" class="t">固定高斯集合 → 实例 ID、置信度、支持视角</text>
+  <text x="68" y="474" class="m">图中蓝点表示同一个三维高斯在不同视角的投影；实际融合会遍历大量高斯与图像。</text>
+</svg>

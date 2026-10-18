@@ -43,7 +43,9 @@ class Jobs:
         self.paths = ProjectPaths(self.project)
         self.recognition_python = self.paths.recognition_python
         self.gs_python = self.paths.reconstruction_python
-        self.settings = read_yaml(self.project/'configs/pansense.yaml')
+        config_name = os.environ.get('PANSENSE_CONFIG', 'configs/pansense.yaml')
+        config_path = Path(config_name)
+        self.settings = read_yaml(config_path if config_path.is_absolute() else self.project/config_path)
         if not 100 <= int(self.settings['iterations']) <= 30000:
             raise ValueError('训练步数必须在 100 至 30000 之间')
         if not 128 <= int(self.settings['fusion_width']) <= 960:

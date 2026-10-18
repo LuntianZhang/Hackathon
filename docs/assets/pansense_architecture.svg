@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="title desc">
+  <title id="title">PanSense 总体架构与数据流</title>
+  <desc id="desc">照片、视频和手机扫描进入网页及 FastAPI 服务，任务编排调用 Food3D 的相机重建、三维训练、语义融合和测量；结果回到餐食日记与三维查看。</desc>
+  <defs>
+    <style>
+      .h{font:700 25px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .t{font:700 18px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .s{font:15px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .m{font:14px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .box{fill:#fff;stroke:#9bb5c3;stroke-width:2}
+      .line{stroke:#56829a;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#56829a"/></marker>
+  </defs>
+  <rect width="1120" height="640" fill="#f5f8fa"/>
+  <text x="48" y="52" class="h">PanSense：从采集到可核对的餐食记录</text>
+  <text x="48" y="82" class="s">应用服务负责状态与数据；Food3D 生成几何、语义和测量产物</text>
+
+  <rect x="45" y="125" width="250" height="148" rx="16" class="box"/>
+  <rect x="45" y="125" width="250" height="47" rx="16" fill="#dceff3"/>
+  <text x="70" y="155" class="t">采集与核对界面</text>
+  <text x="70" y="198" class="s">照片／视频／手机扫描</text>
+  <text x="70" y="226" class="s">名称、区域和结果核对</text>
+  <text x="70" y="254" class="m">app/web/</text>
+
+  <rect x="390" y="125" width="320" height="148" rx="16" class="box"/>
+  <rect x="390" y="125" width="320" height="47" rx="16" fill="#e2eaf9"/>
+  <text x="415" y="155" class="t">PanSense 应用服务</text>
+  <text x="415" y="198" class="s">FastAPI · 任务状态与接口</text>
+  <text x="415" y="226" class="s">餐食／扫描／营养／渲染协调</text>
+  <text x="415" y="254" class="m">src/pansense/</text>
+
+  <rect x="805" y="125" width="270" height="148" rx="16" class="box"/>
+  <rect x="805" y="125" width="270" height="47" rx="16" fill="#e7f2e8"/>
+  <text x="830" y="155" class="t">持久数据</text>
+  <text x="830" y="198" class="s">SQLite：餐食与任务元数据</text>
+  <text x="830" y="226" class="s">文件：素材、模型与诊断</text>
+  <text x="830" y="254" class="m">data/ 与配置路径</text>
+
+  <path d="M296 200H386" class="line"/>
+  <path d="M712 200H801" class="line"/>
+  <path d="M550 276V323" class="line"/>
+
+  <rect x="45" y="340" width="1030" height="166" rx="18" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="70" y="375" class="t">Food3D 处理流水线</text>
+  <text x="70" y="399" class="m">src/food3d/</text>
+  <rect x="70" y="422" width="140" height="60" rx="10" fill="#dceff3"/>
+  <text x="94" y="458" class="s">抽帧筛选</text>
+  <rect x="236" y="422" width="140" height="60" rx="10" fill="#e2eaf9"/>
+  <text x="271" y="458" class="s">相机定位</text>
+  <rect x="402" y="422" width="140" height="60" rx="10" fill="#eee8fb"/>
+  <text x="431" y="458" class="s">分割掩码</text>
+  <rect x="568" y="422" width="140" height="60" rx="10" fill="#e9e7fa"/>
+  <text x="603" y="458" class="s">三维训练</text>
+  <rect x="734" y="422" width="140" height="60" rx="10" fill="#fceadf"/>
+  <text x="769" y="458" class="s">语义融合</text>
+  <rect x="900" y="422" width="140" height="60" rx="10" fill="#e7f2e8"/>
+  <text x="917" y="458" class="s">标定与测量</text>
+  <path d="M211 452H232M377 452H398M543 452H564M709 452H730M875 452H896" class="line"/>
+
+  <path d="M940 277V333" class="line"/>
+  <path d="M550 510V561H170V277" class="line"/>
+  <text x="588" y="568" class="m">处理产物返回界面：三维查看、点击、保存日记</text>
+  <text x="48" y="610" class="m">示意图依据项目模块关系绘制；照片路线可绕过三维处理。</text>
+</svg>

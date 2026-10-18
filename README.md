@@ -1,16 +1,18 @@
 # Food3D POC
 
-工程根目录为 **`E:\study\2_黑客松\app`**。数据、Python 环境、模型缓存和工具的位置由 [configs/paths.json](configs/paths.json) 配置。目录职责与启动方法见 [运行与路径配置](docs/运行与路径配置.md)。
+数据、Python 环境、模型缓存和工具的位置由 [configs/paths.json](configs/paths.json) 配置。当前流程、目录和启动方法见 [PanSense 技术文档](docs/PanSense_技术文档.md)。旧文档中的 `E:\study\2_黑客松\app` 是当时的工程位置。
 
-当前功能、手机扫描、定位板测量、密度估重与代码目录说明见 [项目功能与文件架构介绍](docs/项目功能与文件架构介绍.md)（2026-10-17 更新）。
+当前功能、手机扫描、定位板测量、密度估重与代码目录说明见 [PanSense 技术文档](docs/PanSense_技术文档.md)。
 
-已新增 **盘感 PanSense P0 手机网页应用（PWA）**，涵盖拍照/相册导入、识别纠错、营养估算、真实三维餐盘、饮食日记与本机数据管理。运行 `& tools/start_app.ps1` 后打开 http://127.0.0.1:8000/ 。完整使用及手机安装说明见 [app/README.md](app/README.md)，验收记录见 [app/P0_ACCEPTANCE.md](app/P0_ACCEPTANCE.md)。原有 Gradio 演示继续保留。
+初学者可先读 [从零理解 PanSense 的三维重建](docs/从零理解PanSense三维重建.md)，了解 COLMAP、Splatfacto、SAM2、语义融合和本机测试的边界。
 
-已运行均匀 5、10、30 张视角的重建数量实验：见 [实验结果与复现](docs/view_count_comparison.md)。报告分别记录仅 N 张图像的独立 COLMAP 成功率，以及复用完整标定位姿的有限视角画质对比，避免把辅助结果混为仅 N 张照片的独立重建。
+已新增 **盘感 PanSense P0 手机网页应用（PWA）**，涵盖拍照/相册导入、识别纠错、营养估算、真实三维餐盘、饮食日记与本机数据管理。运行 `& tools/start_app.ps1` 后打开 http://127.0.0.1:8000/ 。操作说明见 [app/README.md](app/README.md)，当前实现和验证状态见 [技术文档](docs/PanSense_技术文档.md)。原有 Gradio 演示继续保留。
 
-多视角图片/视频 → COLMAP → Nerfstudio Splatfacto → SAM 2.1 + CLIP → 高斯实例投票 → Gradio 三维点击。
+旧提交做过均匀 5、10、30 张视角的重建数量实验。新版仓库已移除原报告与素材；实验含义和读取旧报告的方法见[技术文档的实验章节](docs/PanSense_技术文档.md#8-实验结果应该怎样读)。
 
-全部模块已实现，在本机 RTX 4060 Laptop 8GB 上执行训练。已运行水果1的 120 张渲染图片和水果2的 41 秒视频，均通过 COLMAP 估计相机，没有使用已知相机或 Blender 工程。当前演示使用水果2视频结果，验证记录见 `docs/fruit2_validation.md`；水果1的结果仍保留，见 `docs/validation.md` 和 `docs/quality_validation.md`。指标衡量对 SAM 2 的一致性，尚未使用人工逐像素真值或实测体积验证。
+多视角图片/视频 → COLMAP → 实例分割 → Nerfstudio Splatfacto → 高斯实例投票 → 三维点击。部分模式会在 COLMAP 前运行定位板背景处理，详见技术文档。
+
+旧提交曾运行水果1的 120 张渲染图片和水果2的 41 秒视频实验；这些历史数字不是当前代码提交的重新验收，原报告可从 Git 历史读取。指标主要衡量对 SAM 2 掩码的一致性，尚不能说明人工标注的分类准确率或实物体积误差，详见[实验说明](docs/PanSense_技术文档.md#8-实验结果应该怎样读)。
 
 ## 启动已有演示
 
@@ -34,7 +36,7 @@ configs/                       场景参数（原始/全连接/匹配修复）
 src/food3d/
   data/                        视频、照片、COLMAP、坐标、匹配过滤
   reconstruction/              官方 Splatfacto 训练与 NPZ/PLY 导出
-  segmentation/                SAM 2 自动初始化、双向传播、多视角 CLIP
+  segmentation/                SAM 2 初始化、条件单向/双向传播、掩码复用与识别
   fusion/                      gsplat 可见贡献、深度门控、边缘加权投票
   viewer/                      CUDA 高斯渲染、三维语义点击、Gradio
     orbit.py / drag.js          相机相对旋转与鼠标拖动/滚轮交互
@@ -139,7 +141,7 @@ FFmpeg 8.1.1 和 FFprobe 位于项目的 `.tools/ffmpeg/bin`，`configs/fruit2_v
 
 ## 表面与遮挡改进
 
-水果1改进版使用 fruit1_quality_cleaned：前景 PSNR 从 22.81 提升到 24.74 dB，实例 IoU 从 0.853 提升到 0.874，点击保持 69/72。训练与清理后保留 195615 个高斯。详细数据、失败案例及开发视角的限制见 docs/quality_validation.md。
+旧提交的水果1改进版报告记录：前景 PSNR 从 22.81 提升到 24.74 dB，实例 IoU 从 0.853 提升到 0.874，点击保持 69/72，清理后保留 195615 个高斯。这些数字尚未在当前版本重测；原报告可用 `git show b1f33c0:docs/quality_validation.md` 查看。
 
 `configs/fruit1_quality.yaml` 降低低透明度高斯删除阈值、增加增殖，并在 12000 步后固定集合继续优化至 15000 步。实际模型参数会保存到 Nerfstudio config.yml 和输入快照。重新运行需使用新输出名：
 
@@ -155,7 +157,7 @@ FFmpeg 8.1.1 和 FFprobe 位于项目的 `.tools/ffmpeg/bin`，`configs/fruit2_v
 
 ## 三维实例体积粗估
 
-点击食物时显示该 Instance ID 对应的凸包包围体积，切换视角后数值不变。背景和未知点击不返回体积。当前使用可靠高斯中心：语义置信度至少 0.7、至少 3 个支持视角、不透明度至少 0.1；按第六近邻距离剔除孤立点，再调用 SciPy ConvexHull。高斯核重叠且只是外观表示，因此不累加高斯椭球体积。详见 [体积功能说明](docs/volume.md)。
+点击食物时显示该 Instance ID 对应的凸包包围体积，切换视角后数值不变。背景和未知点击不返回体积。当前使用可靠高斯中心：语义置信度至少 0.7、至少 3 个支持视角、不透明度至少 0.1；按第六近邻距离剔除孤立点，再调用 SciPy ConvexHull。高斯核重叠且只是外观表示，因此不累加高斯椭球体积。详见 [技术文档的体积章节](docs/PanSense_技术文档.md#42-凸包体积是什么)。
 
 未经标定显示模型单位³，COLMAP/训练的尺度不是厘米。界面展开“尺寸标定”，选中参考食物，输入实测最大两点直线跨度（厘米），即可按统一比例显示 mL（cm³）。清除标定会恢复模型单位，原三维模型保持不变。渲染图片没有真实尺寸时请勿把假设尺寸当作实测结果。
 

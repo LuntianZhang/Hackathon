@@ -7,7 +7,7 @@ from ..io import run_logged, write_json
 
 
 def train(scene: Path, output: Path, python: Path, iterations: int = 3000, config: Path | None = None) -> dict:
-    scene, output, python = scene.resolve(), output.resolve(), python.resolve()
+    scene, output, python = scene.resolve(), output.resolve(), python.absolute()
     if not python.is_file():
         raise FileNotFoundError(f"GPU 环境 Python 不存在：{python}")
     if not (scene / "transforms.json").is_file() or iterations < 1:

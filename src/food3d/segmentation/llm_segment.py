@@ -64,7 +64,7 @@ def label_scores(scores, identifiers):
     return labels, confidence.astype(np.float16)
 
 
-def track_anchors(frames, anchors, output, checkpoint, identifiers):
+def track_anchors(frames, anchors, output, checkpoint, identifiers, reverse_pass=True):
     import torch
     from sam2.build_sam import build_sam2_video_predictor
     predictor = build_sam2_video_predictor('configs/sam2.1/sam2.1_hiera_s.yaml',
@@ -81,7 +81,7 @@ def track_anchors(frames, anchors, output, checkpoint, identifiers):
             for i, frame in enumerate(frames):
                 for identifier, mask in anchors.get(frame.frame_id, {}).items():
                     predictor.add_new_mask(state, frame_idx=i, obj_id=identifier, mask=mask)
-            for reverse in (False, True):
+            for reverse in (False, True) if reverse_pass else (False,):
                 start = len(frames)-1 if reverse else 0
                 for index, obj_ids, logits in predictor.propagate_in_video(state, start_frame_idx=start, reverse=reverse):
                     raw = logits[:, 0].float().cpu().numpy()
@@ -89,17 +89,19 @@ def track_anchors(frames, anchors, output, checkpoint, identifiers):
                     scores = np.stack([raw[order[identifier]] if identifier in order else
                                        np.full(raw.shape[1:], -30, np.float32) for identifier in identifiers])
                     path = temporary/f'{index:06d}.npy'
-                    if not reverse:
+                    if not reverse and reverse_pass:
                         np.save(path, scores.astype(np.float16))
                         continue
-                    if not path.is_file():
-                        raise RuntimeError('多视图传播缺少正向结果')
-                    forward = np.load(path, allow_pickle=False).astype(np.float32)
+                    if reverse_pass:
+                        if not path.is_file():
+                            raise RuntimeError('多视图传播缺少正向结果')
+                        forward = np.load(path, allow_pickle=False).astype(np.float32)
                     for channel, identifier in enumerate(identifiers):
-                        past = min((index-i for i in by_id[identifier] if i <= index), default=float('inf'))
-                        future = min((i-index for i in by_id[identifier] if i >= index), default=float('inf'))
-                        if past <= future:
-                            scores[channel] = forward[channel]
+                        if reverse_pass:
+                            past = min((index-i for i in by_id[identifier] if i <= index), default=float('inf'))
+                            future = min((i-index for i in by_id[identifier] if i >= index), default=float('inf'))
+                            if past <= future:
+                                scores[channel] = forward[channel]
                         anchor = anchors.get(frames[index].frame_id, {}).get(identifier)
                         if anchor is not None:
                             scores[channel] = np.where(anchor, 10, -10)
@@ -108,7 +110,8 @@ def track_anchors(frames, anchors, output, checkpoint, identifiers):
                     Image.fromarray(labels).save(output/'masks'/f'{fid}.png')
                     np.save(output/'confidence'/f'{fid}.npy', confidence)
                     counts[fid] = {str(identifier): int((labels == identifier).sum()) for identifier in identifiers}
-                    path.unlink()
+                    if reverse_pass:
+                        path.unlink()
                     print(f'LLM multi-anchor SAM 2 frame {index+1}/{len(frames)}', flush=True)
             if len(counts) != len(frames):
                 raise RuntimeError('多视图传播未覆盖全部相机')
@@ -121,6 +124,10 @@ def track_anchors(frames, anchors, output, checkpoint, identifiers):
 
 
 def segment_llm(scene: Path, output: Path, checkpoint: Path, reference_frame=None):
+    from .reuse_background import reuse_background_segmentation
+    reused = reuse_background_segmentation(scene, output, reference_frame)
+    if reused is not None:
+        return reused
     import torch
     settings = VisionSettings.load()
     if not torch.cuda.is_available():
