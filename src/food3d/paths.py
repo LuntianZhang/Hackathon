@@ -22,11 +22,11 @@ class ProjectPaths:
 
     @property
     def recognition_python(self) -> Path:
-        return self.recognition_env / 'Scripts/python.exe'
+        return self.recognition_env / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 
     @property
     def reconstruction_python(self) -> Path:
-        return self.reconstruction_env / 'Scripts/python.exe'
+        return self.reconstruction_env / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 
     def resolve(self, value: Path | str) -> Path:
         """Resolve resource-prefixed CLI paths to their configured locations."""
@@ -54,5 +54,10 @@ def resolve_arguments(namespace):
     paths = ProjectPaths()
     for name, value in vars(namespace).items():
         if isinstance(value, Path):
-            setattr(namespace, name, paths.resolve(value))
+            if name == 'python':
+                # POSIX virtualenv executables are often symlinks to a base Python.
+                # Keep the virtualenv path so its site-packages remain active.
+                setattr(namespace, name, paths.resolve(value.parent) / value.name)
+            else:
+                setattr(namespace, name, paths.resolve(value))
     return namespace

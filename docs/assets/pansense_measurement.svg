@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="490" viewBox="0 0 1120 490" role="img" aria-labelledby="title desc">
+  <title id="title">定位板尺度、凸包体积、重量和营养之间的关系</title>
+  <desc id="desc">相对尺度模型由已知尺寸定位板换算为厘米；可靠实例高斯中心形成凸包体积；体积乘密度得到估计重量，再按食品参考换算营养。</desc>
+  <defs>
+    <style>
+      .h{font:700 25px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .t{font:700 18px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#193345}
+      .s{font:15px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .m{font:14px 'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#40596a}
+      .line{stroke:#60849b;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#60849b"/></marker>
+  </defs>
+  <rect width="1120" height="490" fill="#f5f8fa"/>
+  <text x="45" y="52" class="h">从模型单位到本份营养估算</text>
+  <text x="45" y="82" class="s">每一步都有自己的证据条件，后一步不能弥补前一步的缺失</text>
+
+  <rect x="45" y="139" width="219" height="212" rx="15" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="68" y="175" class="t">① 已知尺寸定位板</text>
+  <rect x="88" y="199" width="127" height="95" fill="#f5f5f0" stroke="#7e9999" stroke-width="2"/>
+  <rect x="98" y="209" width="18" height="18" fill="#374e55"/><rect x="185" y="209" width="18" height="18" fill="#374e55"/>
+  <rect x="98" y="266" width="18" height="18" fill="#374e55"/><rect x="185" y="266" width="18" height="18" fill="#374e55"/>
+  <text x="69" y="327" class="m">多视角角点 → 尺度 s</text>
+
+  <rect x="320" y="139" width="219" height="212" rx="15" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="343" y="175" class="t">② 实例高斯中心</text>
+  <path d="M385 270L411 208L469 226L492 271L445 307L385 270Z" fill="#f9d5bd" stroke="#ca8c67" stroke-width="2"/>
+  <circle cx="385" cy="270" r="5" fill="#a45b38"/><circle cx="411" cy="208" r="5" fill="#a45b38"/><circle cx="469" cy="226" r="5" fill="#a45b38"/><circle cx="492" cy="271" r="5" fill="#a45b38"/><circle cx="445" cy="307" r="5" fill="#a45b38"/>
+  <text x="344" y="327" class="m">过滤后求凸包 V_model</text>
+
+  <rect x="595" y="139" width="219" height="212" rx="15" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="618" y="175" class="t">③ 物理体积</text>
+  <text x="618" y="230" class="s">V_mL = V_model × s³</text>
+  <text x="618" y="268" class="s">标定失败：</text>
+  <text x="618" y="296" class="s">不输出 mL</text>
+  <text x="618" y="327" class="m">凸包仍是粗略近似</text>
+
+  <rect x="870" y="139" width="205" height="212" rx="15" fill="#fff" stroke="#9bb5c3" stroke-width="2"/>
+  <text x="892" y="175" class="t">④ 重量与营养</text>
+  <text x="892" y="222" class="s">m_g = V_mL × 密度</text>
+  <text x="892" y="260" class="s">本份营养 =</text>
+  <text x="892" y="287" class="s">每 100 g 参考值</text>
+  <text x="892" y="315" class="s">× m_g / 100</text>
+
+  <path d="M265 245H315M540 245H590M815 245H865" class="line"/>
+  <rect x="45" y="390" width="1030" height="58" rx="12" fill="#e7f2e8"/>
+  <text x="67" y="426" class="s">必须保留：尺度校验结果、实例可信度、密度来源、营养数据来源与缺失状态。</text>
+</svg>

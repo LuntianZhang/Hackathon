@@ -98,7 +98,8 @@ def reconstruct_cameras(scene: Path, options: dict) -> dict:
     matcher = str(options.get("matcher", "sequential"))
     if matcher not in {"sequential", "exhaustive"}:
         raise ValueError("matcher 仅支持 sequential 或 exhaustive")
-    gpu = "1" if options.get("use_gpu", False) else "0"
+    feature_gpu_value = "1" if options.get("use_gpu", False) else "0"
+    matching_gpu_value = "1" if options.get("matching_use_gpu", options.get("use_gpu", False)) else "0"
     feature_gpu = _gpu_option(_help(executable, "feature_extractor"), ["FeatureExtraction.use_gpu", "SiftExtraction.use_gpu"])
     match_command = matcher + "_matcher"
     match_gpu = _gpu_option(_help(executable, match_command), ["FeatureMatching.use_gpu", "SiftMatching.use_gpu"])
@@ -109,8 +110,8 @@ def reconstruct_cameras(scene: Path, options: dict) -> dict:
     database = work / "database.db"
     mask_root=feature_mask_path(scene,manifest)
     mask_args=['--ImageReader.mask_path',str(mask_root)] if mask_root else []
-    run_logged([executable, "feature_extractor", "--database_path", str(database), "--image_path", str(scene / "frames"), "--ImageReader.camera_model", str(options.get("camera_model", "OPENCV")), "--ImageReader.single_camera", "1" if options.get("single_camera", True) else "0", feature_gpu, gpu,*mask_args], log)
-    run_logged([executable, match_command, "--database_path", str(database), match_gpu, gpu], log)
+    run_logged([executable, "feature_extractor", "--database_path", str(database), "--image_path", str(scene / "frames"), "--ImageReader.camera_model", str(options.get("camera_model", "OPENCV")), "--ImageReader.single_camera", "1" if options.get("single_camera", True) else "0", feature_gpu, feature_gpu_value,*mask_args], log)
+    run_logged([executable, match_command, "--database_path", str(database), match_gpu, matching_gpu_value], log)
     run_logged([executable, "mapper", "--database_path", str(database), "--image_path", str(scene / "frames"), "--output_path", str(sparse)], log)
     models = []
     for candidate in sorted(sparse.iterdir()):
@@ -213,8 +214,9 @@ def _reconstruct_pycolmap(scene: Path, options: dict, manifest: dict) -> dict:
         p.extract_features(database_path=database, image_path=scene / "frames", camera_mode=p.CameraMode.SINGLE if options.get("single_camera", True) else p.CameraMode.PER_IMAGE, reader_options=reader, extraction_options=extraction, device=device)
     matching = p.FeatureMatchingOptions()
     matching.num_threads = threads
-    matching.use_gpu = extraction.use_gpu
+    matching.use_gpu = bool(options.get("matching_use_gpu", extraction.use_gpu))
     matching.guided_matching = bool(options.get("guided_matching", False))
+    matching_device = p.Device.cuda if matching.use_gpu else p.Device.cpu
     matcher = options.get("matcher", "sequential")
     progress("feature_matching")
     if options.get("reuse_verified_matches", False):
@@ -224,9 +226,9 @@ def _reconstruct_pycolmap(scene: Path, options: dict, manifest: dict) -> dict:
     elif matcher == "sequential":
         pairing = p.SequentialPairingOptions()
         pairing.overlap = int(options.get("sequential_overlap", 10))
-        p.match_sequential(database, matching_options=matching, pairing_options=pairing, device=device)
+        p.match_sequential(database, matching_options=matching, pairing_options=pairing, device=matching_device)
     elif matcher == "exhaustive":
-        p.match_exhaustive(database, matching_options=matching, device=device)
+        p.match_exhaustive(database, matching_options=matching, device=matching_device)
     else:
         raise ValueError("matcher 仅支持 sequential 或 exhaustive")
     pipeline = p.IncrementalPipelineOptions()

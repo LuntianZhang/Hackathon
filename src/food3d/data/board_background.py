@@ -63,7 +63,16 @@ def prepare_background(scene: Path, checkpoint: Path, minimum=2):
     for index,frame in enumerate(frames):
         shutil.copyfile(scene/frame.image_path,output/'frames'/f'{index:06d}.jpg')
     identifiers=[obj['instance_id'] for obj in evidence['objects']]
-    track_anchors(frames,anchors,output,checkpoint,identifiers)
+    # Anchors at both ends plus intermediate observations let the forward pass
+    # cover this turntable sequence without a second full-video GPU traversal.
+    forward_only = all(identifier in anchors.get(frames[0].frame_id,{}) and
+        identifier in anchors.get(frames[-1].frame_id,{}) and
+        sum(identifier in objects for objects in anchors.values()) >= 3
+        for identifier in identifiers)
+    if forward_only:
+        track_anchors(frames,anchors,output,checkpoint,identifiers,reverse_pass=False)
+    else:
+        track_anchors(frames,anchors,output,checkpoint,identifiers)
     previews=[];records={}
     for index,frame in enumerate(frames):
         with Image.open(output/'masks'/f'{frame.frame_id}.png') as image:labels=np.asarray(image)
@@ -79,6 +88,7 @@ def prepare_background(scene: Path, checkpoint: Path, minimum=2):
     contact_sheet(previews,output/'debug/preview.jpg')
     write_json(output/'vision_evidence.json',evidence)
     result={'enabled':True,'method':'board_markers_and_tracked_full_objects',
+        'tracking_passes':'forward_only' if forward_only else 'bidirectional',
         'status':'input_masks_ready','processed_frames':len(frames),'excluded_frames':len(excluded),
         'excluded_frame_ids':[f['frame_id'] for f in excluded],
         'feature_mask_path':'board_background/feature_masks','frames':records,
@@ -112,19 +122,31 @@ def feature_mask_path(scene, manifest):
     return root
 
 
-def undistort_mask(mask, original_camera, target_k, size):
-    """Map a raw mask through the actual COLMAP distortion model and K."""
+def undistort_arrays(arrays, original_camera, target_k, size):
+    """Remap related raw images with one COLMAP camera projection per strip."""
     import cv2
-    width,height=size;k=np.asarray(target_k);result=np.zeros((height,width),np.uint8)
+    width,height=size;k=np.asarray(target_k)
+    if not arrays or any(array.ndim != 2 or array.shape != arrays[0][0].shape for array,_ in arrays):
+        raise ValueError('去畸变输入必须是同尺寸的二维图像')
+    results=[np.zeros((height,width),array.dtype) for array,_ in arrays]
     for start in range(0,height,128):
         y,x=np.mgrid[start:min(start+128,height),:width]
         rays=np.column_stack(((x.ravel()-k[0,2])/k[0,0],
             (y.ravel()-k[1,2])/k[1,1],np.ones(x.size)))
         # COLMAP pixel centres have a half-pixel offset from our integer grid.
         pixels=original_camera.img_from_cam(rays)-.5;shape=x.shape
-        result[start:start+shape[0]]=cv2.remap(mask,pixels[:,0].reshape(shape).astype(np.float32),
-            pixels[:,1].reshape(shape).astype(np.float32),cv2.INTER_NEAREST,borderMode=cv2.BORDER_CONSTANT,borderValue=0)
-    return result
+        map_x=pixels[:,0].reshape(shape).astype(np.float32)
+        map_y=pixels[:,1].reshape(shape).astype(np.float32)
+        for result,(array,interpolation) in zip(results,arrays):
+            result[start:start+shape[0]]=cv2.remap(array,map_x,map_y,interpolation,
+                borderMode=cv2.BORDER_CONSTANT,borderValue=0)
+    return results
+
+
+def undistort_mask(mask, original_camera, target_k, size):
+    """Map a raw mask through the actual COLMAP distortion model and K."""
+    import cv2
+    return undistort_arrays([(mask,cv2.INTER_NEAREST)],original_camera,target_k,size)[0]
 
 
 def apply_background(scene, manifest, frames, original_model):

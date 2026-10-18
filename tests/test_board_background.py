@@ -73,6 +73,29 @@ def test_background_preparation_needs_no_poses_and_never_falls_back_to_full_fram
     with pytest.raises(ValueError,match='缺失'):feature_mask_path(scene,manifest)
 
 
+def test_background_uses_one_pass_only_with_repeated_end_anchors(tmp_path,monkeypatch):
+    import food3d.data.board_background as background
+    import food3d.segmentation.llm_segment as llm
+    import food3d.segmentation.vision_llm as vision
+    scene=raw_scene(tmp_path)
+    monkeypatch.setattr(background,'board_polygon',lambda image:
+        {'polygon_pixels':[[10,10],[90,10],[90,90],[10,90]],'marker_ids':[20,21,22]})
+    monkeypatch.setattr(vision.VisionSettings,'load',lambda:SimpleNamespace(max_views=3))
+    monkeypatch.setattr(vision,'identify_views',lambda *a,**k:{'model':'test','keyframes':['000000','000001','000002'],
+        'objects':[{'instance_id':7,'name':'苹果','label':'apple','kind':'food','observations':[]}]})
+    monkeypatch.setattr(llm,'anchor_masks',lambda *a,**k:{fid:{7:np.ones((100,100),bool)}
+        for fid in ('000000','000001','000002')})
+    calls=[]
+    def track(frames,anchors,output,checkpoint,identifiers,**kwargs):
+        calls.append(kwargs)
+        for frame in frames:
+            Image.fromarray(np.full((100,100),7,np.uint16)).save(output/'masks'/f'{frame.frame_id}.png')
+    monkeypatch.setattr(llm,'track_anchors',track)
+    result=prepare_background(scene,Path('unused.pt'),minimum=2)
+    assert result['tracking_passes']=='forward_only'
+    assert calls==[{'reverse_pass':False}]
+
+
 def test_missing_boards_fail_before_any_model_call_or_manifest_mutation(tmp_path,monkeypatch):
     import food3d.data.board_background as background
     scene=raw_scene(tmp_path);before=(scene/'frame_manifest.json').read_bytes()
@@ -104,6 +127,41 @@ def test_training_images_preserve_foreground_and_geometry_and_keep_originals(tmp
     assert np.array_equal(result[20,30],picture[20,30]) and (result[0,0]==255).all()
     assert updated[0].K==frame.K and updated[0].camera_to_world==frame.camera_to_world
     assert np.array_equal(np.asarray(Image.open(scene/frame.image_path)),picture)
+
+
+def test_completed_background_tracking_reuses_instances_after_undistortion(tmp_path,monkeypatch):
+    from food3d.segmentation.llm_segment import segment_llm
+    from food3d.schemas import save_scene
+    scene=tmp_path/'scene';raw=scene/'frames';raw.mkdir(parents=True)
+    image=np.full((60,80,3),180,np.uint8)
+    Image.fromarray(image).save(raw/'000000.jpg')
+    original=pycolmap.Camera(model='SIMPLE_RADIAL',width=80,height=60,params=[70,40,30,.12])
+    frame=CameraFrame('000000','frames/000000.jpg',80,60,
+        [[70,0,39.5],[0,70,29.5],[0,0,1]],np.eye(4).tolist())
+    save_scene(scene/'scene.json',[frame],source='colmap',world_units='arbitrary_sfm')
+    write_json(scene/'frame_manifest.json',{'frames':[{'frame_id':'000000','image_path':'frames/000000.jpg','accepted':True}],
+        'board_background':{'status':'applied_to_sfm_and_training'}})
+    model=scene/'colmap/sparse/1';model.mkdir(parents=True)
+    write_json(scene/'colmap_selection.json',{'selected_model':'colmap/sparse/1'})
+    monkeypatch.setattr(pycolmap,'Reconstruction',lambda path:SimpleNamespace(
+        images={1:SimpleNamespace(name='000000.jpg',camera_id=1)},cameras={1:original}))
+    background=scene/'board_background'
+    for folder in ('masks','confidence'): (background/folder).mkdir(parents=True)
+    labels=np.zeros((60,80),np.uint16);labels[12:40,20:52]=7
+    Image.fromarray(labels).save(background/'masks/000000.png')
+    np.save(background/'confidence/000000.npy',np.where(labels==7,.9,1).astype(np.float16))
+    write_json(background/'vision_evidence.json',{'model':'test','keyframes':['000000'],
+        'objects':[{'instance_id':7,'name':'苹果','label':'apple','kind':'food',
+                    'observations':[{'frame_id':'000000','sam_score':.95}]}]})
+    output=tmp_path/'segmentation'
+    result=segment_llm(scene,output,tmp_path/'missing_sam_weights.pt','000000')
+    assert result['initialization']=='board_background_reuse'
+    assert result['pixel_counts']['000000']['7']>0
+    assert read_json(output/'instances.json')['instances'][1]['name']=='苹果'
+    actual=np.asarray(Image.open(output/'masks/000000.png'))
+    assert np.array_equal(actual,undistort_mask(labels,original,frame.K,(80,60)))
+    assert np.load(output/'confidence/000000.npy').shape==(60,80)
+    assert (output/'debug/mask_sheet.png').is_file()
 
 
 def test_actual_colmap_feature_extraction_honors_background_masks(tmp_path):

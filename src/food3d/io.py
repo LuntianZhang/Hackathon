@@ -32,7 +32,7 @@ def load_config(path: Path | None) -> dict:
     frames = value.get('frames', {})
     for name in ('ffmpeg', 'ffprobe'):
         executable = frames.get(name)
-        if executable:
+        if executable and Path(executable).parent != Path('.'):
             frames[name] = str(ProjectPaths().resolve(executable))
     return value
 
